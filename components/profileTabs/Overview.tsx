@@ -11,6 +11,31 @@ import { TabsContent } from "@/components/ui/tabs"
 import { Student } from "@/lib/generated/prisma"
 import { Plus } from "lucide-react"
 import axios from "axios"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog"
+import { DialogDescription } from "@radix-ui/react-dialog"
+import { Checkbox } from "../ui/checkbox"
+
+const commonSkills = [
+  "JavaScript",
+  "Python",
+  "Java",
+  "React",
+  "Node.js",
+  "SQL",
+  "MongoDB",
+  "Machine Learning",
+  "Data Analysis",
+  "AWS",
+  "Docker",
+  "Git",
+  "HTML/CSS",
+  "TypeScript",
+  "Angular",
+  "Vue.js",
+  "Spring Boot",
+  "Django",
+  "Flask",
+]
 
 const Overview = ({isEditing}: {isEditing:boolean}) => {
     const [student, setStudent] = useState<Student>();
@@ -82,7 +107,7 @@ const Overview = ({isEditing}: {isEditing:boolean}) => {
                     <Input
                       id="name"
                       value={student.name}
-                      disabled={!isEditing}
+                      disabled={true}
                       onChange={(e) => setStudent({ ...student, name: e.target.value })}
                     />
                   </div>
@@ -92,7 +117,7 @@ const Overview = ({isEditing}: {isEditing:boolean}) => {
                       id="email"
                       type="email"
                       value={student.email}
-                      disabled={!isEditing}
+                      disabled={true}
                       onChange={(e) => setStudent({ ...student, email: e.target.value })}
                     />
                   </div>
@@ -101,7 +126,7 @@ const Overview = ({isEditing}: {isEditing:boolean}) => {
                     <Input
                       id="phone"
                       value={student.phone as string}
-                      disabled={!isEditing}
+                      disabled={true}
                       onChange={(e) => setStudent({ ...student, phone: e.target.value })}
                     />
                   </div>
@@ -112,7 +137,7 @@ const Overview = ({isEditing}: {isEditing:boolean}) => {
                       type="number"
                       step="0.1"
                       value={student.cgpa as number}
-                      disabled={!isEditing}
+                      disabled={true}
                       onChange={(e) => setStudent({ ...student, cgpa: Number.parseFloat(e.target.value) })}
                     />
                   </div>
@@ -128,22 +153,101 @@ const Overview = ({isEditing}: {isEditing:boolean}) => {
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
-                {student.skills.map((skill, index) => (
+                {student.skills?.map((skill, index) => (
                   <Badge key={index} variant="secondary">
                     {skill}
                   </Badge>
                 ))}
                 {isEditing && (
-                  <Button variant="outline" size="sm">
-                    <Plus className="h-4 w-4 mr-1" />
-                    Add Skill
-                  </Button>
+                  <AddSkillDiaglog skills={student.skills} setStudent={setStudent}/>
                 )}
               </div>
             </CardContent>
           </Card>
         </TabsContent>
   )
+}
+
+const AddSkillDiaglog = ({ 
+    skills, 
+    setStudent 
+}: { 
+    skills:string[], 
+    setStudent: React.Dispatch<React.SetStateAction<Student | undefined>> 
+}) => {
+    const [selectedSkills, setSelectedSkills] = useState<string[]>(skills || []);
+    const [open, setOpen] = useState(false);
+
+    const toggleSkill = (skill: string) => {
+      setSelectedSkills((prevSkills) =>
+        prevSkills.includes(skill)
+          ? prevSkills.filter((s) => s !== skill)
+          : [...prevSkills, skill]
+      )
+    }
+
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline" size="sm">
+              <Plus className="h-4 w-4 mr-1" />
+              Add Skill
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Choose yours skills</DialogTitle>
+              <DialogDescription>
+                Select the skills that best represent your expertise and experience.    
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {commonSkills.map((skill) => (
+                <div key={skill} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={skill}
+                    checked={selectedSkills.includes(skill)}
+                    onCheckedChange={() => toggleSkill(skill)}
+                  />
+                  <Label htmlFor={skill} className="text-sm">
+                    {skill}
+                  </Label>
+                </div>
+              ))}
+            </div>
+            {skills?.length > 0 && (
+              <div className="mt-4">
+                <Label>Selected Skills:</Label>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {selectedSkills.map((skill) => (
+                    <Badge key={skill} variant="outline">
+                      {skill}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+            <DialogFooter className="w-full">
+                <Button 
+                 className="w-full"
+                 onClick={async () => {
+                    // if (selectedSkills)
+                    try {
+                        const student = await axios.post('/api/profile/skills', { skills: selectedSkills }, { withCredentials: true })
+                        console.log(student)    
+                        setStudent(prev => ({...prev, skills: student.data.user.skills} as Student))
+                        setOpen(false)
+                    } catch (error) {
+                        
+                    }
+                 }}
+                >
+                    Add Skills
+                </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+    )
 }
 
 export default Overview
