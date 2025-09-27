@@ -28,6 +28,8 @@ model Student {
   password String
   branch String?
   batch Int?
+  cgpa Float?
+  phone String?
   skills String[]
   resume String?
   linkedin String?

@@ -62,6 +62,8 @@ export function Sidebar() {
 
   if (!session) return null
 
+  console.log("User Role:", session.user) // Debugging line
+
   const navItems = navigationItems[session?.user.role] || []
 
   const SidebarContent = () => (

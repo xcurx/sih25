@@ -12,15 +12,18 @@ import { useAuth } from "@/contexts/auth-context"
 import { mockJobs } from "@/lib/mock-data"
 import type { Job } from "@/lib/types"
 import { Search, Filter, MapPin, Calendar, DollarSign, Building2, Clock, Briefcase, Users, Star } from "lucide-react"
+import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
 
 export default function JobsPage() {
-  const { user } = useAuth()
+  const { data:session } = useSession()
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedDepartment, setSelectedDepartment] = useState("")
   const [selectedType, setSelectedType] = useState("")
   const [selectedLocation, setSelectedLocation] = useState("")
   const [showFilters, setShowFilters] = useState(false)
   const [selectedSkills, setSelectedSkills] = useState<string[]>([])
+  const router = useRouter();
 
   const allSkills = Array.from(new Set(mockJobs.flatMap((job) => job.skills)))
   const allDepartments = Array.from(new Set(mockJobs.flatMap((job) => job.department)))
@@ -54,15 +57,8 @@ export default function JobsPage() {
     setSelectedSkills([])
   }
 
-  if (user?.role !== "student") {
-    return (
-      <div className="p-6">
-        <div className="text-center py-12">
-          <h1 className="text-2xl font-bold text-destructive">Access Denied</h1>
-          <p className="text-muted-foreground">This page is only accessible to students.</p>
-        </div>
-      </div>
-    )
+  if (session?.user?.role !== "student") {
+    router.replace("/");
   }
 
   return (

@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useAuth } from "@/contexts/auth-context"
 import { mockJobs } from "@/lib/mock-data"
 import type { Job } from "@/lib/types"
 import {
@@ -24,22 +23,18 @@ import {
   MoreHorizontal,
 } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
 
 export default function JobPostingsPage() {
-  const { user } = useAuth()
+  const { data:session } = useSession() 
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [jobs] = useState(mockJobs)
+  const router = useRouter()
 
-  if (user?.role !== "placement_cell") {
-    return (
-      <div className="p-6">
-        <div className="text-center py-12">
-          <h1 className="text-2xl font-bold text-destructive">Access Denied</h1>
-          <p className="text-muted-foreground">This page is only accessible to placement cell.</p>
-        </div>
-      </div>
-    )
+  if (session?.user?.role !== "placement-cell") {
+    router.replace("/")
   }
 
   const filteredJobs = jobs.filter((job) => {
