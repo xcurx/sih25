@@ -1,0 +1,45 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model PlacmentCell {
+  id String @id @default(cuid())
+  email String @unique
+  name String
+  password String
+}
+
+model Student {
+  id String @id @default(cuid())
+  email String @unique
+  name String
+  password String
+  branch String?
+  batch Int?
+  skills String[]
+  resume String?
+  linkedin String?
+  github String?
+}
+
+model Employer {
+  id String @id @default(cuid())
+  email String @unique
+  name String
+  password String
+  company String
+  position String?
+  linkedin String?
+}

@@ -1,0 +1,10 @@
+-- AlterTable
+ALTER TABLE "public"."Employer" ALTER COLUMN "position" DROP NOT NULL,
+ALTER COLUMN "linkedin" DROP NOT NULL;
+
+-- AlterTable
+ALTER TABLE "public"."Student" ALTER COLUMN "branch" DROP NOT NULL,
+ALTER COLUMN "batch" DROP NOT NULL,
+ALTER COLUMN "resume" DROP NOT NULL,
+ALTER COLUMN "linkedin" DROP NOT NULL,
+ALTER COLUMN "github" DROP NOT NULL;
