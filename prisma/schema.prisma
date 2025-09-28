@@ -36,12 +36,45 @@ model Student {
   github String?
 }
 
+model Company {
+  id String @id @default(cuid())
+  name String
+  description String
+  website String?
+  industry String?
+  type String?
+  location String?
+  employees Employer[]
+  opportunities Opportunity[]
+}
+
 model Employer {
   id String @id @default(cuid())
   email String @unique
   name String
   password String
-  company String
   position String?
   linkedin String?
+  companyId String
+  companyRel Company @relation(fields: [companyId], references: [id])
+  opportunities Opportunity[]
+}
+
+model Opportunity {
+  id String @id @default(cuid())
+  title String
+  description String
+  type String
+  location String
+  salary String?
+  postedAt DateTime @default(now())
+  applicationDeadline DateTime
+  requirements String[]
+  eligibleDepartments String[]
+  skillsRequired String[]
+  additionalInfo String?
+  employerId String
+  employerRel Employer @relation(fields: [employerId], references: [id])
+  companyId String
+  companyRel Company @relation(fields: [companyId], references: [id])
 }
