@@ -124,8 +124,8 @@ export default function LoginForm() {
             <Label>Quick Login as:</Label>
             <div className="text-center">
               <div>Student: student@gmail.com / password: 1234</div>
-              <div>Student: cell@gmail.com / password: 1234</div>
-              <div>Student: emp@gmail.com / password: 1234</div>
+              <div>Placement Cell: cell@gmail.com / password: 1234</div>
+              <div>Employer: emp@gmail.com / password: 1234</div>
             </div>
           </div>
         </CardContent>
