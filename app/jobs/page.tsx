@@ -1,49 +1,65 @@
 "use client"
 
-import { useState, useMemo } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import JobCard from "@/components/jobs/JobCard"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
-import { useAuth } from "@/contexts/auth-context"
+import { Opportunity } from "@/lib/generated/prisma"
 import { mockJobs } from "@/lib/mock-data"
-import type { Job } from "@/lib/types"
-import { Search, Filter, MapPin, Calendar, DollarSign, Building2, Clock, Briefcase, Users, Star } from "lucide-react"
+import axios from "axios"
+import { Briefcase, Filter, Search } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
+import { useEffect, useMemo, useState } from "react"
 
 export default function JobsPage() {
-  const { data:session } = useSession()
+  const { data:session, status } = useSession()
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedDepartment, setSelectedDepartment] = useState("")
   const [selectedType, setSelectedType] = useState("")
   const [selectedLocation, setSelectedLocation] = useState("")
   const [showFilters, setShowFilters] = useState(false)
   const [selectedSkills, setSelectedSkills] = useState<string[]>([])
+  const [loading ,setLoading] = useState(true);
+
+  const [jobs, setJobs] = useState<Opportunity[]>([])
   const router = useRouter();
 
   const allSkills = Array.from(new Set(mockJobs.flatMap((job) => job.skills)))
   const allDepartments = Array.from(new Set(mockJobs.flatMap((job) => job.department)))
   const allLocations = Array.from(new Set(mockJobs.map((job) => job.location)))
 
+  const getOpportunities = async () => {
+    try {
+      const res = await axios("/api/get-opportunities", { withCredentials: true });
+      if (res.status === 200) {
+        setJobs(res.data.opportunities);
+        setLoading(false);
+      }
+    } catch (error) { 
+      console.log(error);
+    }
+  }
+
   const filteredJobs = useMemo(() => {
-    return mockJobs.filter((job) => {
+    return jobs.filter((job) => {
       const matchesSearch =
         job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        job.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        //@ts-expect-error
+        job.companyRel.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         job.description.toLowerCase().includes(searchTerm.toLowerCase())
 
-      const matchesDepartment = !selectedDepartment || job.department.includes(selectedDepartment)
+      const matchesDepartment = !selectedDepartment || job.eligibleDepartments.includes(selectedDepartment)
       const matchesType = !selectedType || job.type === selectedType
       const matchesLocation = !selectedLocation || job.location === selectedLocation
-      const matchesSkills = selectedSkills.length === 0 || selectedSkills.some((skill) => job.skills.includes(skill))
+      const matchesSkills = selectedSkills.length === 0 || selectedSkills.some((skill) => job.skillsRequired.includes(skill))
 
       return matchesSearch && matchesDepartment && matchesType && matchesLocation && matchesSkills
     })
-  }, [searchTerm, selectedDepartment, selectedType, selectedLocation, selectedSkills])
+  }, [searchTerm, selectedDepartment, selectedType, selectedLocation, selectedSkills, jobs])
 
   const handleSkillToggle = (skill: string) => {
     setSelectedSkills((prev) => (prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill]))
@@ -55,6 +71,17 @@ export default function JobsPage() {
     setSelectedType("")
     setSelectedLocation("")
     setSelectedSkills([])
+  }
+
+  console.log(filteredJobs);
+
+  useEffect(() => {
+    if (status === "loading" || status === "unauthenticated") return;
+    getOpportunities();
+  },[status, loading])
+
+  if (status === "loading" || loading) {
+    return <div className="p-6 max-w-7xl mx-auto">Loading...</div>
   }
 
   if (session?.user?.role !== "student") {
@@ -173,7 +200,7 @@ export default function JobsPage() {
       {/* Results Summary */}
       <div className="mb-6 flex items-center justify-between">
         <p className="text-muted-foreground">
-          Showing {filteredJobs.length} of {mockJobs.length} jobs
+          Showing {filteredJobs.length} of {jobs.length} jobs
         </p>
         <div className="flex items-center gap-2">
           <Label htmlFor="sort">Sort by:</Label>
@@ -194,7 +221,7 @@ export default function JobsPage() {
       {/* Job Listings */}
       <div className="grid gap-6">
         {filteredJobs.map((job) => (
-          <JobCard key={job.id} job={job} />
+          <JobCard key={job.id} job={job} setJobs={setJobs}/>
         ))}
       </div>
 
@@ -209,101 +236,4 @@ export default function JobsPage() {
   )
 }
 
-function JobCard({ job }: { job: Job }) {
-  const [isBookmarked, setIsBookmarked] = useState(false)
 
-  const daysUntilDeadline = Math.ceil((new Date(job.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
-
-  return (
-    <Card className="hover:shadow-lg transition-shadow">
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex items-start space-x-4">
-            <div className="p-3 bg-primary/10 rounded-lg">
-              <Building2 className="h-6 w-6 text-primary" />
-            </div>
-            <div className="flex-1">
-              <CardTitle className="text-xl">{job.title}</CardTitle>
-              <CardDescription className="text-lg font-medium text-foreground">{job.company}</CardDescription>
-              <div className="flex items-center space-x-4 mt-2 text-sm text-muted-foreground">
-                <div className="flex items-center space-x-1">
-                  <MapPin className="h-4 w-4" />
-                  <span>{job.location}</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <Briefcase className="h-4 w-4" />
-                  <span className="capitalize">{job.type}</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <DollarSign className="h-4 w-4" />
-                  <span>
-                    ₹{job.salary.min.toLocaleString()} - ₹{job.salary.max.toLocaleString()}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="sm" onClick={() => setIsBookmarked(!isBookmarked)}>
-              <Star className={`h-4 w-4 ${isBookmarked ? "fill-current text-yellow-500" : ""}`} />
-            </Button>
-            <Badge variant={daysUntilDeadline <= 7 ? "destructive" : "secondary"}>
-              {daysUntilDeadline > 0 ? `${daysUntilDeadline} days left` : "Expired"}
-            </Badge>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <p className="text-muted-foreground line-clamp-2">{job.description}</p>
-
-        <div className="space-y-3">
-          <div>
-            <h4 className="font-medium mb-2">Required Skills:</h4>
-            <div className="flex flex-wrap gap-2">
-              {job.skills.map((skill, index) => (
-                <Badge key={index} variant="outline">
-                  {skill}
-                </Badge>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <h4 className="font-medium mb-2">Eligible Departments:</h4>
-            <div className="flex flex-wrap gap-2">
-              {job.department.map((dept, index) => (
-                <Badge key={index} variant="secondary">
-                  {dept}
-                </Badge>
-              ))}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground">
-            <div className="flex items-center space-x-2">
-              <Calendar className="h-4 w-4" />
-              <span>Posted: {new Date(job.postedDate).toLocaleDateString()}</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Clock className="h-4 w-4" />
-              <span>Deadline: {new Date(job.deadline).toLocaleDateString()}</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between pt-4 border-t">
-          <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-            <div className="flex items-center space-x-1">
-              <Users className="h-4 w-4" />
-              <span>24 applicants</span>
-            </div>
-          </div>
-          <div className="flex space-x-2">
-            <Button variant="outline">View Details</Button>
-            <Button>Apply Now</Button>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}

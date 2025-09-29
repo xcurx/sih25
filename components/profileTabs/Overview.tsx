@@ -19,7 +19,7 @@ const commonSkills = [
   "JavaScript",
   "Python",
   "Java",
-  "React",
+  "React.js",
   "Node.js",
   "SQL",
   "MongoDB",

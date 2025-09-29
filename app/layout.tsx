@@ -6,6 +6,7 @@ import { Suspense } from "react"
 import { SessionProvider } from "next-auth/react"
 // @ts-expect-error TypeScript doesn't recognize CSS imports
 import "./globals.css"
+import { Toaster } from "@/components/ui/sonner"
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -29,6 +30,7 @@ export default function RootLayout({
       <body className={`font-sans ${dmSans.variable}`}>
         <Suspense fallback={<div>Loading...</div>}>
           <SessionProvider>{children}</SessionProvider>
+          <Toaster />
         </Suspense>
       </body>
     </html>

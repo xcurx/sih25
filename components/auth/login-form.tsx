@@ -96,7 +96,7 @@ export function LoginForm() {
                   Signing in...
                 </>
               ) : (
-                "Sign In"
+                <div>Sign</div>
               )}
             </Button>
           </form>

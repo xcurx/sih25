@@ -48,8 +48,7 @@ const navigationItems = {
   ],
   employer: [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Post Jobs", href: "/post-jobs", icon: Briefcase },
-    { name: "Applications", href: "/applications", icon: FileText },
+    { name: "Applications", href: "/company/applications", icon: FileText },
     { name: "Interviews", href: "/interviews", icon: Calendar },
   ],
 }

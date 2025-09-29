@@ -1,29 +1,30 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+"use client"
+
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Briefcase, Calendar, CheckCircle, FileText } from "lucide-react"
 
-import { mockJobs, mockStudents } from "@/lib/mock-data"
-import { useEffect, useState } from "react"
 import { Opportunity, Student } from "@/lib/types"
 import axios from "axios"
+import { useEffect, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { useRouter } from "next/navigation"
 
-
-export default function EmployerDashboard() {
+export default function EmplyersApplicationsPage() {
     const [students, setStudents] = useState<Student[]>([]);
     const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
+    const router = useRouter();
 
-    const getStudents = async () => {
-      try {
-        const res = await axios.get("/api/get-applied-students", { withCredentials: true });
-        if (res.status === 200) {
-          setStudents(res.data.applications.map((app: any) => app.studentRel));
-        }
-      } catch (error) {
-        console.error("Error fetching students:", error);
-      }
-    }
+    // const getStudents = async () => {
+    //   try {
+    //     const res = await axios.get("/api/get-applied-students", { withCredentials: true });
+    //     if (res.status === 200) {
+    //       setStudents(res.data.applications.map((app: any) => app.studentRel));
+    //     }
+    //   } catch (error) {
+    //     console.error("Error fetching students:", error);
+    //   }
+    // }
 
     const getOpportunities = async () => {
       try {
@@ -37,11 +38,11 @@ export default function EmployerDashboard() {
     }
 
     useEffect(() => {
-      getStudents();
       getOpportunities();
     }, []);
 
   return (
+    <div className="p-6 max-w-7xl mx-auto">
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
@@ -86,48 +87,7 @@ export default function EmployerDashboard() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Applications</CardTitle>
-            <CardDescription>Latest candidate applications</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {students.slice(0, 3).map((student) => (
-              <div key={student.id} className="flex items-center space-x-4 p-4 border rounded-lg">
-                <Avatar>
-                  <AvatarImage src={student.avatar || "/placeholder.svg"} alt={student.name} />
-                  <AvatarFallback>
-                    {student.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <h3 className="font-medium">{student.name}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {student.branch} • CGPA: {student.cgpa}
-                  </p>
-                  <div className="flex space-x-1 mt-1">
-                    {student.skills.slice(0, 3).map((skill, index) => (
-                      <Badge key={index} variant="outline" className="text-xs">
-                        {skill}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex space-x-2">
-                  <Button size="sm" variant="outline">
-                    View
-                  </Button>
-                  <Button size="sm">Interview</Button>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
+      <div className="">
         <Card>
           <CardHeader>
             <CardTitle>Job Performance</CardTitle>
@@ -157,11 +117,17 @@ export default function EmployerDashboard() {
                     <div className="text-xs text-muted-foreground">Hired</div>
                   </div>
                 </div>
+                <div className="text-end mt-6">
+                    <Button className="cursor-pointer" onClick={() => {router.push(`/company/applications/${job.id}`)}}>
+                        View Applications
+                    </Button>
+                </div>
               </div>
             ))}
           </CardContent>
         </Card>
       </div>
+    </div>
     </div>
   )
 }

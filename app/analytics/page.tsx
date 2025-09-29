@@ -24,6 +24,7 @@ import {
   AreaChart,
 } from "recharts"
 import { TrendingUp, Award, Download, GraduationCap, Building2, Target, AlertCircle } from "lucide-react"
+import { useSession } from "next-auth/react"
 
 const placementData = [
   { month: "Jan", applications: 45, interviews: 28, placements: 18, companies: 12 },
@@ -69,11 +70,11 @@ const skillDemand = [
 ]
 
 export default function AnalyticsPage() {
-  const { user } = useAuth()
+  const { data:session } = useSession();
   const [timeRange, setTimeRange] = useState("6months")
   const [selectedDepartment, setSelectedDepartment] = useState("all")
 
-  if (user?.role !== "placement_cell" && user?.role !== "faculty") {
+  if (session?.user?.role !== "placement-cell") {
     return (
       <div className="p-6">
         <div className="text-center py-12">

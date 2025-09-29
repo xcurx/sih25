@@ -7,9 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { useAuth } from "@/contexts/auth-context"
-import { mockUsers } from "@/lib/auth"
-import { Loader2, GraduationCap } from "lucide-react"
+import { GraduationCap } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { signIn } from "next-auth/react"
 
@@ -108,7 +106,7 @@ export default function LoginForm() {
                   Signing in...
                 </>
               ) : ( */}
-                "Sign In"
+                Sign In
               {/* )} */}
             </Button>
           </form>
@@ -124,22 +122,10 @@ export default function LoginForm() {
 
           <div className="space-y-3">
             <Label>Quick Login as:</Label>
-            <div className="grid grid-cols-2 gap-2">
-              {mockUsers.map((user) => (
-                <Button
-                  key={user.id}
-                  variant="outline"
-                  size="sm"
-                  // onClick={() => handleQuickLogin(user.email)}
-                  className="text-xs"
-                >
-                  {user.role === "student" && "🎓"}
-                  {user.role === "faculty" && "👨‍🏫"}
-                  {user.role === "placement_cell" && "👩‍💼"}
-                  {user.role === "employer" && "🏢"}
-                  <span className="ml-1 capitalize">{user.role.replace("_", " ")}</span>
-                </Button>
-              ))}
+            <div className="text-center">
+              <div>Student: student@gmail.com / password: 1234</div>
+              <div>Student: cell@gmail.com / password: 1234</div>
+              <div>Student: emp@gmail.com / password: 1234</div>
             </div>
           </div>
         </CardContent>

@@ -31,6 +31,10 @@ export const POST = async (req: NextRequest) => {
         return NextResponse.json({ message: "Missing required fields" }, { status: 400 });
     }
 
+    if (requirements && !isStringArray(requirements)) {
+        return NextResponse.json({ message: "Requirements must be an array of strings" }, { status: 400 });
+    }
+
     if (isStringArray(eligibleDepartments)) {
         if (eligibleDepartments.length === 0) {
             return NextResponse.json({ message: "Eligible departments cannot be empty" }, { status: 400 });
@@ -65,8 +69,9 @@ export const POST = async (req: NextRequest) => {
             }
         })
     
-        return NextResponse.json({ message: "Opportunity created successfully", opportunity }, { status: 201 });
+        return NextResponse.json({ message: "Opportunity created successfully", opportunity }, { status: 200 });
     } catch (error) {
+        console.log((error as Error).message)
         return NextResponse.json({ message: "Internal Server Error", error }, { status: 500 });
     }
 }

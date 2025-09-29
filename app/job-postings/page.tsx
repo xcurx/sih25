@@ -1,46 +1,42 @@
 "use client"
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import JobPostingCard from "@/components/jobs/JobPostingsCard"
 import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { mockJobs } from "@/lib/mock-data"
-import type { Job } from "@/lib/types"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import type { Opportunity } from "@/lib/types"
+import axios from "axios"
 import {
-  Search,
-  Plus,
-  Edit,
-  Eye,
-  Trash2,
-  Users,
-  Calendar,
-  DollarSign,
-  MapPin,
   Building2,
-  MoreHorizontal,
+  Plus,
+  Search,
+  Users
 } from "lucide-react"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 
 export default function JobPostingsPage() {
-  const { data:session } = useSession() 
+  const { data:session, status } = useSession() 
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
-  const [jobs] = useState(mockJobs)
+  const [jobs, setJobs] = useState<Opportunity[]>([])
   const router = useRouter()
 
-  if (session?.user?.role !== "placement-cell") {
-    router.replace("/")
+  const getOpportunities = async () => {
+    axios.get("/api/get-opportunities").then((response) => {
+      console.log(response.data)
+      setJobs(response.data.opportunities)
+    })
   }
-
+ 
   const filteredJobs = jobs.filter((job) => {
     const matchesSearch =
       job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      job.company.toLowerCase().includes(searchTerm.toLowerCase())
+      job.companyRel?.name.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = statusFilter === "all" || job.status === statusFilter
     return matchesSearch && matchesStatus
   })
@@ -48,6 +44,19 @@ export default function JobPostingsPage() {
   const activeJobs = jobs.filter((job) => job.status === "active")
   const draftJobs = jobs.filter((job) => job.status === "draft")
   const closedJobs = jobs.filter((job) => job.status === "closed")
+
+  useEffect(() => {
+    if (status === "unauthenticated" || status === "loading") return
+    getOpportunities();
+  }, [status])
+
+  if (status === "loading" || status === "unauthenticated") {
+    return <div className="p-6">Loading...</div>
+  }
+
+  if (session?.user?.role !== "placement-cell") {
+    router.replace("/")
+  }
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -72,7 +81,7 @@ export default function JobPostingsPage() {
             <Building2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{jobs.length}</div>
+            <div className="text-2xl font-bold">{jobs?.length}</div>
             <p className="text-xs text-muted-foreground">All time</p>
           </CardContent>
         </Card>
@@ -82,7 +91,7 @@ export default function JobPostingsPage() {
             <Badge variant="default" className="h-4 w-4 rounded-full p-0"></Badge>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{activeJobs.length}</div>
+            {/* <div className="text-2xl font-bold">{activeJobs.length}</div> */}
             <p className="text-xs text-muted-foreground">Currently accepting applications</p>
           </CardContent>
         </Card>
@@ -92,7 +101,7 @@ export default function JobPostingsPage() {
             <Badge variant="secondary" className="h-4 w-4 rounded-full p-0"></Badge>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{draftJobs.length}</div>
+            {/* <div className="text-2xl font-bold">{draftJobs.length}</div> */}
             <p className="text-xs text-muted-foreground">Pending publication</p>
           </CardContent>
         </Card>
@@ -173,131 +182,3 @@ export default function JobPostingsPage() {
   )
 }
 
-function JobPostingCard({ job }: { job: Job }) {
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "default"
-      case "draft":
-        return "secondary"
-      case "closed":
-        return "destructive"
-      default:
-        return "secondary"
-    }
-  }
-
-  const daysUntilDeadline = Math.ceil((new Date(job.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
-
-  return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex items-start space-x-4">
-            <div className="p-3 bg-primary/10 rounded-lg">
-              <Building2 className="h-6 w-6 text-primary" />
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center space-x-2 mb-1">
-                <CardTitle className="text-xl">{job.title}</CardTitle>
-                <Badge variant={getStatusColor(job.status)}>{job.status}</Badge>
-              </div>
-              <CardDescription className="text-lg font-medium text-foreground">{job.company}</CardDescription>
-              <div className="flex items-center space-x-4 mt-2 text-sm text-muted-foreground">
-                <div className="flex items-center space-x-1">
-                  <MapPin className="h-4 w-4" />
-                  <span>{job.location}</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <DollarSign className="h-4 w-4" />
-                  <span>
-                    ₹{job.salary.min.toLocaleString()} - ₹{job.salary.max.toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <Calendar className="h-4 w-4" />
-                  <span>Deadline: {new Date(job.deadline).toLocaleDateString()}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>
-                <Eye className="mr-2 h-4 w-4" />
-                View Details
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Edit className="mr-2 h-4 w-4" />
-                Edit Job
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Users className="mr-2 h-4 w-4" />
-                View Applications
-              </DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive">
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete Job
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-2">
-            <p className="text-muted-foreground line-clamp-2 mb-4">{job.description}</p>
-            <div className="space-y-2">
-              <div>
-                <span className="font-medium">Skills: </span>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {job.skills.slice(0, 4).map((skill, index) => (
-                    <Badge key={index} variant="outline" className="text-xs">
-                      {skill}
-                    </Badge>
-                  ))}
-                  {job.skills.length > 4 && (
-                    <Badge variant="outline" className="text-xs">
-                      +{job.skills.length - 4} more
-                    </Badge>
-                  )}
-                </div>
-              </div>
-              <div>
-                <span className="font-medium">Departments: </span>
-                <span className="text-muted-foreground">{job.department.join(", ")}</span>
-              </div>
-            </div>
-          </div>
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4 text-center">
-              <div className="p-3 bg-muted rounded-lg">
-                <div className="text-lg font-bold">24</div>
-                <div className="text-xs text-muted-foreground">Applications</div>
-              </div>
-              <div className="p-3 bg-muted rounded-lg">
-                <div className="text-lg font-bold">8</div>
-                <div className="text-xs text-muted-foreground">Shortlisted</div>
-              </div>
-            </div>
-            <div className="flex space-x-2">
-              <Button variant="outline" size="sm" className="flex-1 bg-transparent">
-                <Users className="mr-2 h-4 w-4" />
-                Applications
-              </Button>
-              <Button variant="outline" size="sm" className="flex-1 bg-transparent">
-                <Edit className="mr-2 h-4 w-4" />
-                Edit
-              </Button>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}

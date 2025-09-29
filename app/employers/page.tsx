@@ -1,54 +1,23 @@
 "use client"
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import EmployerCard from "@/components/emplyer/EmployerCard"
+import EmployerDetailsDialog from "@/components/emplyer/EmployerDetailsDialog"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { useAuth } from "@/contexts/auth-context"
-import { mockEmployers } from "@/lib/mock-data"
+import { Company } from "@/lib/types"
+import axios from "axios"
 import {
-  Search,
-  Plus,
-  Building2,
-  Mail,
-  MapPin,
-  Users,
   Briefcase,
-  Calendar,
+  Building2,
+  Plus,
+  Search,
   Star,
-  Eye,
-  MessageSquare,
+  Users
 } from "lucide-react"
-
-// Extended mock data for employers
-const extendedEmployers = [
-  ...mockEmployers,
-  {
-    id: "2",
-    name: "Sarah Chen",
-    email: "sarah.chen@datatech.com",
-    company: "DataTech Solutions",
-    avatar: "/employer-meeting.png",
-  },
-  {
-    id: "3",
-    name: "David Rodriguez",
-    email: "david@startupxyz.com",
-    company: "StartupXYZ",
-    avatar: "/employer-meeting.png",
-  },
-  {
-    id: "4",
-    name: "Emily Watson",
-    email: "emily.watson@megacorp.com",
-    company: "MegaCorp Ltd.",
-    avatar: "/employer-meeting.png",
-  },
-]
+import { useSession } from "next-auth/react"
+import { useEffect, useState } from "react"
 
 // Extended company information
 const companyDetails = {
@@ -103,12 +72,53 @@ const companyDetails = {
 }
 
 export default function EmployersPage() {
-  const { user } = useAuth()
+  const { data:session, status } = useSession();
   const [searchTerm, setSearchTerm] = useState("")
   const [industryFilter, setIndustryFilter] = useState("all")
-  const [selectedEmployer, setSelectedEmployer] = useState<(typeof extendedEmployers)[0] | null>(null)
+  const [selectedEmployer, setSelectedEmployer] = useState<Company | null>(null)
+  const [companies, setCompanies] = useState<Company[]>([])
+  const [loading, setLoading] = useState(false)
 
-  if (user?.role !== "placement_cell") {
+  const getCompanies = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get("/api/get-companies", { withCredentials: true });
+      if (res.status === 200) {
+        setCompanies(res.data.companies);
+      }
+    } catch (error) {
+      console.error("Error fetching companies:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const filteredEmployers = companies.filter((comp) => {
+    const matchesSearch =
+      comp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (comp.employees && comp.employees[0].name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (comp.employees && comp.employees[0].email.toLowerCase().includes(searchTerm.toLowerCase()))
+
+    const matchesIndustry = industryFilter === "all" || (comp.industry === industryFilter)
+
+    return matchesSearch && matchesIndustry
+  })
+
+  const industries = Array.from(new Set(Object.values(companyDetails).map((c) => c.industry)))
+  const totalCompanies = Object.keys(companyDetails).length
+  const totalActiveJobs = Object.values(companyDetails).reduce((sum, company) => sum + company.activeJobs, 0)
+  const totalHires = Object.values(companyDetails).reduce((sum, company) => sum + company.totalHires, 0)
+
+  useEffect(() => {
+    if (status === "unauthenticated" || status === "loading") return;
+    getCompanies();
+  }, [status])
+
+  if (status === "loading" || status === "unauthenticated" || loading) {
+    return <div className="p-6">Loading...</div>
+  }
+
+  if (session?.user?.role !== "placement-cell") {
     return (
       <div className="p-6">
         <div className="text-center py-12">
@@ -118,23 +128,6 @@ export default function EmployersPage() {
       </div>
     )
   }
-
-  const filteredEmployers = extendedEmployers.filter((employer) => {
-    const company = companyDetails[employer.company as keyof typeof companyDetails]
-    const matchesSearch =
-      employer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      employer.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      employer.email.toLowerCase().includes(searchTerm.toLowerCase())
-
-    const matchesIndustry = industryFilter === "all" || (company && company.industry === industryFilter)
-
-    return matchesSearch && matchesIndustry
-  })
-
-  const industries = Array.from(new Set(Object.values(companyDetails).map((c) => c.industry)))
-  const totalCompanies = Object.keys(companyDetails).length
-  const totalActiveJobs = Object.values(companyDetails).reduce((sum, company) => sum + company.activeJobs, 0)
-  const totalHires = Object.values(companyDetails).reduce((sum, company) => sum + company.totalHires, 0)
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -225,11 +218,11 @@ export default function EmployersPage() {
 
       {/* Employer Cards */}
       <div className="grid gap-6">
-        {filteredEmployers.map((employer) => (
+        {filteredEmployers.map((company) => (
           <EmployerCard
-            key={employer.id}
-            employer={employer}
-            companyInfo={companyDetails[employer.company as keyof typeof companyDetails]}
+            key={company.id}
+            company={company}
+            // companyInfo={companyDetails[employer.company as keyof typeof companyDetails]}
             onViewDetails={setSelectedEmployer}
           />
         ))}
@@ -237,268 +230,10 @@ export default function EmployersPage() {
 
       {/* Employer Details Dialog */}
       <EmployerDetailsDialog
-        employer={selectedEmployer}
-        companyInfo={selectedEmployer ? companyDetails[selectedEmployer.company as keyof typeof companyDetails] : null}
+        company={selectedEmployer}
+        // companyInfo={selectedEmployer ? companyDetails[selectedEmployer.company as keyof typeof companyDetails] : null}
         onClose={() => setSelectedEmployer(null)}
       />
     </div>
-  )
-}
-
-function EmployerCard({
-  employer,
-  companyInfo,
-  onViewDetails,
-}: {
-  employer: (typeof extendedEmployers)[0]
-  companyInfo: any
-  onViewDetails: (employer: (typeof extendedEmployers)[0]) => void
-}) {
-  return (
-    <Card className="hover:shadow-lg transition-shadow">
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex items-start space-x-4">
-            <div className="p-3 bg-primary/10 rounded-lg">
-              <Building2 className="h-8 w-8 text-primary" />
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center space-x-2 mb-1">
-                <CardTitle className="text-xl">{employer.company}</CardTitle>
-                {companyInfo && (
-                  <div className="flex items-center space-x-1">
-                    <Star className="h-4 w-4 fill-current text-yellow-500" />
-                    <span className="text-sm font-medium">{companyInfo.rating}</span>
-                  </div>
-                )}
-              </div>
-              <CardDescription className="text-base font-medium">Contact: {employer.name}</CardDescription>
-              <div className="flex items-center space-x-4 mt-2 text-sm text-muted-foreground">
-                <div className="flex items-center space-x-1">
-                  <Mail className="h-4 w-4" />
-                  <span>{employer.email}</span>
-                </div>
-                {companyInfo && (
-                  <>
-                    <div className="flex items-center space-x-1">
-                      <MapPin className="h-4 w-4" />
-                      <span>{companyInfo.location}</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Users className="h-4 w-4" />
-                      <span>{companyInfo.size} employees</span>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-          <Badge variant="secondary">{companyInfo?.industry}</Badge>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {companyInfo && (
-          <>
-            <p className="text-muted-foreground line-clamp-2">{companyInfo.description}</p>
-
-            <div className="grid grid-cols-4 gap-4 text-center">
-              <div className="p-3 bg-muted rounded-lg">
-                <div className="text-lg font-bold">{companyInfo.activeJobs}</div>
-                <div className="text-xs text-muted-foreground">Active Jobs</div>
-              </div>
-              <div className="p-3 bg-muted rounded-lg">
-                <div className="text-lg font-bold">{companyInfo.totalHires}</div>
-                <div className="text-xs text-muted-foreground">Total Hires</div>
-              </div>
-              <div className="p-3 bg-muted rounded-lg">
-                <div className="text-lg font-bold">₹{(companyInfo.avgSalary / 100000).toFixed(1)}L</div>
-                <div className="text-xs text-muted-foreground">Avg. Package</div>
-              </div>
-              <div className="p-3 bg-muted rounded-lg">
-                <div className="text-lg font-bold">
-                  {new Date().getFullYear() - Number.parseInt(companyInfo.established)}
-                </div>
-                <div className="text-xs text-muted-foreground">Years Old</div>
-              </div>
-            </div>
-          </>
-        )}
-
-        <div className="flex items-center justify-between pt-4 border-t">
-          <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-            <Calendar className="h-4 w-4" />
-            <span>Last interaction: 2 days ago</span>
-          </div>
-          <div className="flex space-x-2">
-            <Button variant="outline" size="sm">
-              <MessageSquare className="mr-2 h-4 w-4" />
-              Contact
-            </Button>
-            <Button size="sm" onClick={() => onViewDetails(employer)}>
-              <Eye className="mr-2 h-4 w-4" />
-              View Details
-            </Button>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-function EmployerDetailsDialog({
-  employer,
-  companyInfo,
-  onClose,
-}: {
-  employer: (typeof extendedEmployers)[0] | null
-  companyInfo: any
-  onClose: () => void
-}) {
-  if (!employer || !companyInfo) return null
-
-  return (
-    <Dialog open={!!employer} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center space-x-2">
-            <Building2 className="h-5 w-5" />
-            <span>{employer.company}</span>
-          </DialogTitle>
-          <DialogDescription>
-            {companyInfo.industry} • {companyInfo.size} employees • Est. {companyInfo.established}
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="space-y-6">
-          {/* Company Overview */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Company Overview</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-muted-foreground">{companyInfo.description}</p>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Website</label>
-                  <p className="text-primary hover:underline cursor-pointer">{companyInfo.website}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Location</label>
-                  <p>{companyInfo.location}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Company Size</label>
-                  <p>{companyInfo.size} employees</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Rating</label>
-                  <div className="flex items-center space-x-1">
-                    <Star className="h-4 w-4 fill-current text-yellow-500" />
-                    <span>{companyInfo.rating}/5.0</span>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Contact Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Primary Contact</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-start space-x-4">
-                <Avatar className="h-16 w-16">
-                  <AvatarImage src={employer.avatar || "/placeholder.svg"} alt={employer.name} />
-                  <AvatarFallback className="text-lg">
-                    {employer.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold">{employer.name}</h3>
-                  <p className="text-muted-foreground">HR Representative</p>
-                  <div className="grid grid-cols-2 gap-4 mt-4">
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">Email</label>
-                      <p>{employer.email}</p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground">Company</label>
-                      <p>{employer.company}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Recruitment Statistics */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Recruitment Statistics</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <div className="text-center p-4 bg-muted rounded-lg">
-                  <div className="text-2xl font-bold text-primary">{companyInfo.activeJobs}</div>
-                  <div className="text-sm text-muted-foreground">Active Job Postings</div>
-                </div>
-                <div className="text-center p-4 bg-muted rounded-lg">
-                  <div className="text-2xl font-bold text-secondary">{companyInfo.totalHires}</div>
-                  <div className="text-sm text-muted-foreground">Students Hired</div>
-                </div>
-                <div className="text-center p-4 bg-muted rounded-lg">
-                  <div className="text-2xl font-bold text-accent">₹{(companyInfo.avgSalary / 100000).toFixed(1)}L</div>
-                  <div className="text-sm text-muted-foreground">Average Package</div>
-                </div>
-                <div className="text-center p-4 bg-muted rounded-lg">
-                  <div className="text-2xl font-bold">{companyInfo.rating}</div>
-                  <div className="text-sm text-muted-foreground">Company Rating</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Recent Activity */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-start space-x-3">
-                <div className="p-1 bg-green-100 rounded-full">
-                  <Briefcase className="h-3 w-3 text-green-600" />
-                </div>
-                <div className="flex-1 text-sm">
-                  <p className="font-medium">Posted new job: Senior Software Engineer</p>
-                  <p className="text-muted-foreground">2 days ago</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <div className="p-1 bg-blue-100 rounded-full">
-                  <Users className="h-3 w-3 text-blue-600" />
-                </div>
-                <div className="flex-1 text-sm">
-                  <p className="font-medium">Interviewed 5 candidates</p>
-                  <p className="text-muted-foreground">1 week ago</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <div className="p-1 bg-yellow-100 rounded-full">
-                  <Star className="h-3 w-3 text-yellow-600" />
-                </div>
-                <div className="flex-1 text-sm">
-                  <p className="font-medium">Selected 3 students for internship</p>
-                  <p className="text-muted-foreground">2 weeks ago</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </DialogContent>
-    </Dialog>
   )
 }
