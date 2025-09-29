@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/contexts/auth-context"
 import { mockStudents } from "@/lib/mock-data"
-import { JobRecommendations } from "@/components/matching/job-recommendations"
+// import { JobRecommendations } from "@/components/matching/job-recommendations"
 
 export default function RecommendationsPage() {
   const { user } = useAuth()
@@ -27,7 +27,7 @@ export default function RecommendationsPage() {
         <p className="text-muted-foreground">Personalized job matches based on your profile, skills, and preferences</p>
       </div>
 
-      <JobRecommendations student={student} />
+      {/* <JobRecommendations student={student} /> */}
     </div>
   )
 }
