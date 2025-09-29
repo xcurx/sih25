@@ -71,7 +71,7 @@ export default function StudentDashboard() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-medium truncate">{job.title}</h3>
-                  <p className="text-sm text-muted-foreground">{job.company}</p>
+                  <p className="text-sm text-muted-foreground">{job.companyId}</p>
                   <div className="flex items-center space-x-2 mt-2">
                     <Badge variant="secondary">{job.type}</Badge>
                     <Badge variant="outline">{job.location}</Badge>
