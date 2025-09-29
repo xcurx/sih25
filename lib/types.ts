@@ -86,7 +86,7 @@ export interface Opportunity {
   _count: {
     applications: number
   }
-  appled?: boolean
+  applied?: boolean
   companyRel?: Company
 }
 

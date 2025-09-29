@@ -124,14 +124,14 @@ export default function JobCard({ job, setJobs }: JobCardProps) {
           <div className="flex space-x-2">
             <Button variant="outline">View Details</Button>
             <Button disabled={
-                daysUntilDeadline <= 0 || job.appled
+                daysUntilDeadline <= 0 || job.applied
             }
             onClick={handleApply}
             >
             {
                 loading ? "Applying..." :
                 (
-                    job.appled ? "Applied" : "Apply Now"
+                    job.applied ? "Applied" : "Apply Now"
                 )
             }
             </Button>
