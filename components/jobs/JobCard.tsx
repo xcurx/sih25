@@ -22,7 +22,6 @@ export default function JobCard({ job, setJobs }: JobCardProps) {
     try {
         const res = await axios.post(`/api/apply/${job.id}`, { withCredentials: true });
         // Update the job state to reflect the application
-        // @ts-expect-error
         setJobs(prevJobs => prevJobs.map(j => j.id === job.id ? { ...j, applied: true, _count: { applications: j._count.applications + 1 } } : j));
         setLoading(false);
         toast.success("Application submitted successfully");
@@ -45,8 +44,7 @@ export default function JobCard({ job, setJobs }: JobCardProps) {
             <div className="flex-1">
               <CardTitle className="text-xl">{job.title}</CardTitle>
               <CardDescription className="text-lg font-medium text-foreground">{
-                //@ts-expect-error
-                job.companyRel.name
+                job.companyRel?.name
               }</CardDescription>
               <div className="flex items-center space-x-4 mt-2 text-sm text-muted-foreground">
                 <div className="flex items-center space-x-1">
@@ -119,7 +117,6 @@ export default function JobCard({ job, setJobs }: JobCardProps) {
             <div className="flex items-center space-x-1">
               <Users className="h-4 w-4" />
               <span>{
-                //@ts-expect-error
                 job._count.applications
               } applicants</span>
             </div>
@@ -127,16 +124,14 @@ export default function JobCard({ job, setJobs }: JobCardProps) {
           <div className="flex space-x-2">
             <Button variant="outline">View Details</Button>
             <Button disabled={
-                //@ts-expect-error
-                daysUntilDeadline <= 0 || job.applied
+                daysUntilDeadline <= 0 || job.appled
             }
             onClick={handleApply}
             >
             {
                 loading ? "Applying..." :
                 (
-                    //@ts-expect-error
-                    job.applied ? "Applied" : "Apply Now"
+                    job.appled ? "Applied" : "Apply Now"
                 )
             }
             </Button>

@@ -7,8 +7,8 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Opportunity } from "@/lib/generated/prisma"
 import { mockJobs } from "@/lib/mock-data"
+import { Opportunity } from "@/lib/types"
 import axios from "axios"
 import { Briefcase, Filter, Search } from "lucide-react"
 import { useSession } from "next-auth/react"
@@ -28,9 +28,9 @@ export default function JobsPage() {
   const [jobs, setJobs] = useState<Opportunity[]>([])
   const router = useRouter();
 
-  const allSkills = Array.from(new Set(mockJobs.flatMap((job) => job.skills)))
-  const allDepartments = Array.from(new Set(mockJobs.flatMap((job) => job.department)))
-  const allLocations = Array.from(new Set(mockJobs.map((job) => job.location)))
+  const allSkills = Array.from(new Set(jobs.flatMap((job) => job.skillsRequired)))
+  const allDepartments = Array.from(new Set(jobs.flatMap((job) => job.eligibleDepartments)))
+  const allLocations = Array.from(new Set(jobs.map((job) => job.location)))
 
   const getOpportunities = async () => {
     try {
@@ -48,8 +48,7 @@ export default function JobsPage() {
     return jobs.filter((job) => {
       const matchesSearch =
         job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        //@ts-expect-error
-        job.companyRel.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        job.companyRel?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         job.description.toLowerCase().includes(searchTerm.toLowerCase())
 
       const matchesDepartment = !selectedDepartment || job.eligibleDepartments.includes(selectedDepartment)

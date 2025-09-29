@@ -1,4 +1,4 @@
-import type { Student, Job, Application, Faculty, Employer } from "./types"
+import type { Student, Application, Faculty, Employer, Opportunity } from "./types"
 
 export const mockStudents: Student[] = [
   {
@@ -6,8 +6,8 @@ export const mockStudents: Student[] = [
     name: "John Doe",
     email: "student@college.edu",
     phone: "+1234567890",
-    department: "Computer Science",
-    year: 3,
+    branch: "Computer Science",
+    batch: 3,
     cgpa: 8.5,
     avatar: "/diverse-students-studying.png",
     resume: "/resume-john-doe.pdf",
@@ -52,64 +52,36 @@ export const mockStudents: Student[] = [
   },
 ]
 
-export const mockJobs: Job[] = [
+export const mockJobs: Opportunity[] = [
   {
     id: "1",
     title: "Software Development Intern",
-    company: "TechCorp Inc.",
+    companyId: "TechCorp Inc.",
     description:
       "Join our dynamic team as a software development intern. Work on cutting-edge projects using modern technologies.",
     requirements: ["React", "Node.js", "JavaScript", "Git"],
     location: "Bangalore",
     type: "internship",
-    salary: { min: 25000, max: 35000 },
-    deadline: "2024-12-31",
-    postedDate: "2024-11-01",
-    department: ["Computer Science", "Information Technology"],
-    skills: ["React", "Node.js", "JavaScript"],
+    salary: 56745,
+    applicationDeadline: "2024-12-31",
+    postedAt: "2024-11-01",
+    eligibleDepartments: ["Computer Science", "Information Technology"],
+    skillsRequired: ["React", "Node.js", "JavaScript"],
+    employerId: "1",
     status: "active",
-  },
-  {
-    id: "2",
-    title: "Data Science Intern",
-    company: "DataTech Solutions",
-    description: "Work with our data science team to build predictive models and analyze large datasets.",
-    requirements: ["Python", "Machine Learning", "SQL", "Statistics"],
-    location: "Mumbai",
-    type: "internship",
-    salary: { min: 30000, max: 40000 },
-    deadline: "2024-12-25",
-    postedDate: "2024-10-15",
-    department: ["Computer Science", "Mathematics"],
-    skills: ["Python", "Machine Learning", "SQL"],
-    status: "active",
-  },
-  {
-    id: "3",
-    title: "Full Stack Developer",
-    company: "StartupXYZ",
-    description: "Full-time position for experienced developers to work on our core product.",
-    requirements: ["React", "Node.js", "MongoDB", "AWS"],
-    location: "Remote",
-    type: "full-time",
-    salary: { min: 600000, max: 1000000 },
-    deadline: "2024-12-20",
-    postedDate: "2024-10-20",
-    department: ["Computer Science"],
-    skills: ["React", "Node.js", "MongoDB"],
-    status: "active",
+    _count: { applications: 5 },
   },
 ]
 
 export const mockApplications: Application[] = [
   {
     id: "1",
-    jobId: "1",
+    opportunityId: "1",
     studentId: "1",
-    status: "pending",
-    appliedDate: "2024-11-15",
+    status: "applied",
+    appliedAt: "2024-11-15",
     coverLetter: "I am excited to apply for this internship position...",
-    interviews: [],
+    opportunityRel: mockJobs[0],
   },
 ]
 
@@ -128,7 +100,7 @@ export const mockEmployers: Employer[] = [
     id: "1",
     name: "Mike Johnson",
     email: "hr@techcorp.com",
-    company: "TechCorp Inc.",
+    companyId: "TechCorp Inc.",
     avatar: "/employer-meeting.png",
   },
 ]

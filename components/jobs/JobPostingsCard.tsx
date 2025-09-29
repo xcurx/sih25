@@ -50,8 +50,7 @@ export default function JobPostingCard({ job }: { job: Opportunity }) {
                 {/* <Badge variant={getStatusColor(job.status)}>{job.status}</Badge> */}
               </div>
               <CardDescription className="text-lg font-medium text-foreground">{
-                //@ts-expect-error
-                job?.companyRel.name
+                job?.companyRel?.name
               }</CardDescription>
               <div className="flex items-center space-x-4 mt-2 text-sm text-muted-foreground">
                 <div className="flex items-center space-x-1">

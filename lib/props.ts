@@ -1,4 +1,4 @@
-import { Opportunity } from "./generated/prisma";
+import { Opportunity } from "./types";
 
 export interface JobCardProps {
     job: Opportunity;
