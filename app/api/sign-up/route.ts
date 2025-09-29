@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 const prisma = new PrismaClient()
 
 export async function POST(req: NextRequest) {
-    const { email, name, password, roll, company } = await req.json();
+    const { email, name, password, roll, companyId } = await req.json();
 
     if (!email || !name || !password || !roll) {
         return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (roll === "employer") {
-        if (!company) {
+        if (!companyId) {
             return NextResponse.json({ error: "Company name is required for employers" }, { status: 400 });
         }
 
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
                 email,
                 name,
                 password,
-                company,
+                companyId,
             },
         })
 
