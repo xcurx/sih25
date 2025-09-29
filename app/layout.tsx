@@ -4,7 +4,6 @@ import { DM_Sans } from "next/font/google"
 import { AuthProvider } from "@/contexts/auth-context"
 import { Suspense } from "react"
 import { SessionProvider } from "next-auth/react"
-// @ts-expect-error TypeScript doesn't recognize CSS imports
 import "./globals.css"
 import { Toaster } from "@/components/ui/sonner"
 
