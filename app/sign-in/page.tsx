@@ -7,17 +7,25 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { GraduationCap } from "lucide-react"
+import { GraduationCap, Loader2 } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { signIn } from "next-auth/react"
+import { AuthError } from "next-auth"
+import { redirect, useSearchParams } from "next/navigation"
+import { toast } from "sonner"
 
 export default function LoginForm() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [selectedRole, setSelectedRole] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+
+  const search = useSearchParams();
+  const error = search.get("error");
 
   const credentialsAction = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    setIsLoading(true)
     const formData = new FormData(e.currentTarget)
 
     const email = formData.get("email") as string
@@ -26,20 +34,19 @@ export default function LoginForm() {
 
     console.log("Submitted:", { email, password, role })
 
-    await signIn("credentials", {
-      redirect: true, // or false if you want to handle manually
-      email,
-      password,
-      role,
-      callbackUrl: "/" // where to redirect after login
-    })
+    try {
+      await signIn("credentials", {
+        redirect: true, // or false if you want to handle manually
+        email,
+        password,
+        role,
+        callbackUrl: "/" // where to redirect after login
+      })
+      setIsLoading(false)
+    } catch (error) {
+      setIsLoading(false)
+    }
   }
-
-  // const credentialsAction = (formData: FormData) => {
-  //   console.log("Form Data Submitted:")
-  //   console.log(formData.entries().forEach(entry => console.log(entry)))
-  //   signIn("credentials", formData)
-  // }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
@@ -100,16 +107,25 @@ export default function LoginForm() {
               className="w-full" 
               onClick={() => console.log("🔘 Button clicked!")}
             >
-              {/* {isLoading ? (
+              {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Signing in...
                 </>
-              ) : ( */}
-                Sign In
-              {/* )} */}
+              ) : (
+                "Sign In"
+              )}
             </Button>
           </form>
+
+          <div className="text-center text-sm text-red-600 h-5">
+            {error === "CredentialsSignin" ? (
+              "Invalid email or password. Please try again."
+            ) : error && (
+              "Something went wrong! Please try again."
+            )
+            }
+          </div>
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">

@@ -116,7 +116,7 @@ export function Sidebar() {
         </div>
         <Button
          variant="outline" size="sm" className="w-full bg-transparent"
-         onClick={async () => {
+         onClick={async () => { 
           await axios.post("/api/sign-out");
           router.push("/sign-in");
          }}
@@ -146,7 +146,7 @@ export function Sidebar() {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed left-0 top-0 z-40 h-full w-64 bg-sidebar border-r border-sidebar-border transition-transform duration-200 ease-in-out md:translate-x-0",
+          "z-40 h-full w-64 bg-sidebar border-r border-sidebar-border transition-transform duration-200 ease-in-out md:translate-x-0",
           isOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >

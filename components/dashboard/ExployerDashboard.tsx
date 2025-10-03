@@ -8,31 +8,41 @@ import { mockJobs, mockStudents } from "@/lib/mock-data"
 import { useEffect, useState } from "react"
 import { Opportunity, Student } from "@/lib/types"
 import axios from "axios"
+import Loader from "../loader/Loader"
 
 
 export default function EmployerDashboard() {
     const [students, setStudents] = useState<Student[]>([]);
     const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
+    const [loadingStudents, setLoadingStudents] = useState(true);
+    const [loadingOpportunities, setLoadingOpportunities] = useState(true);
 
     const getStudents = async () => {
+      setLoadingStudents(true);
       try {
         const res = await axios.get("/api/get-applied-students", { withCredentials: true });
         if (res.status === 200) {
           setStudents(res.data.applications.map((app: any) => app.studentRel));
         }
+        setLoadingStudents(false);
       } catch (error) {
         console.error("Error fetching students:", error);
+        setLoadingStudents(false);
       }
     }
 
     const getOpportunities = async () => {
+      setLoadingOpportunities(true);
       try {
         const res = await axios.get("/api/get-company-opportunities", { withCredentials: true });
         if (res.status === 200) {
+          console.log(res.data.opportunities);  
           setOpportunities(res.data.opportunities);
         }
+        setLoadingOpportunities(false);
       } catch (error) {
         console.error("Error fetching opportunities:", error);
+        setLoadingOpportunities(false);
       }
     }
 
@@ -125,6 +135,12 @@ export default function EmployerDashboard() {
                 </div>
               </div>
             ))}
+            {
+              !loadingStudents && students.length === 0 && <p className="text-sm text-center text-muted-foreground">No applications yet.</p>
+            }
+            {
+              loadingStudents && <Loader/>
+            }
           </CardContent>
         </Card>
 
@@ -159,6 +175,12 @@ export default function EmployerDashboard() {
                 </div>
               </div>
             ))}
+            {
+              !loadingOpportunities && opportunities.length === 0 && <p className="text-sm text-center text-muted-foreground">No job postings yet.</p>
+            }
+            {
+              loadingOpportunities && <Loader/>
+            }
           </CardContent>
         </Card>
       </div>

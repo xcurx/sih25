@@ -1,13 +1,13 @@
 "use client"
 
 import JobCard from "@/components/jobs/JobCard"
+import Loader from "@/components/loader/Loader"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { mockJobs } from "@/lib/mock-data"
 import { Opportunity } from "@/lib/types"
 import axios from "axios"
 import { Briefcase, Filter, Search } from "lucide-react"
@@ -80,7 +80,7 @@ export default function JobsPage() {
   },[status, loading])
 
   if (status === "loading" || loading) {
-    return <div className="p-6 max-w-7xl mx-auto">Loading...</div>
+    return <Loader/>
   }
 
   if (session?.user?.role !== "student") {
@@ -88,7 +88,7 @@ export default function JobsPage() {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="p-6 max-w-7xl w-full mx-auto">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-primary">Browse Jobs</h1>
         <p className="text-muted-foreground">Discover internships and full-time opportunities</p>

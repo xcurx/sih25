@@ -2,6 +2,7 @@
 
 import ApplicationCard from "@/components/applications/ApplicationCard"
 import ApplicationDetailsDialog from "@/components/applications/ApplicationDetailsDialog"
+import Loader from "@/components/loader/Loader"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -63,7 +64,7 @@ export default function ApplicationsPage() {
   }, [status]);
 
   if (status === "loading" || status === "unauthenticated" || loading) {
-    return <div className="p-6">Loading...</div>
+    return <Loader/>
   }
 
   if (session?.user?.role !== "student" && session?.user?.role !== "placement-cell") {
@@ -71,7 +72,7 @@ export default function ApplicationsPage() {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="p-6 max-w-7xl w-full mx-auto">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-primary">
           {session?.user?.role === "student" ? "My Applications" : "Student Applications"}

@@ -2,6 +2,7 @@
 
 import EmployerCard from "@/components/emplyer/EmployerCard"
 import EmployerDetailsDialog from "@/components/emplyer/EmployerDetailsDialog"
+import Loader from "@/components/loader/Loader"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -115,7 +116,7 @@ export default function EmployersPage() {
   }, [status])
 
   if (status === "loading" || status === "unauthenticated" || loading) {
-    return <div className="p-6">Loading...</div>
+    return <Loader/>
   }
 
   if (session?.user?.role !== "placement-cell") {
@@ -130,7 +131,7 @@ export default function EmployersPage() {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="p-6 max-w-7xl w-full mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold text-primary">Employer Management</h1>

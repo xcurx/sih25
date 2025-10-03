@@ -1,5 +1,6 @@
 "use client"
 
+import Loader from "@/components/loader/Loader"
 import Certificates from "@/components/profileTabs/Certificates"
 import Documents from "@/components/profileTabs/Documents"
 import Overview from "@/components/profileTabs/Overview"
@@ -20,26 +21,24 @@ import {
   User
 } from "lucide-react"
 import { useSession } from "next-auth/react"
+import { redirect } from "next/navigation"
 import { useState } from "react"
 
 export default function ProfilePage() {
-  const { data:session } = useSession()
+  const { data:session,status } = useSession()
   const [student, setStudent] = useState<Student>(mockStudents[0])
   const [isEditing, setIsEditing] = useState(false)
 
+  if (status === "loading") {
+      return <Loader/>
+  }
+
   if (session?.user?.role !== "student") {
-    return (
-      <div className="p-6">
-        <div className="text-center py-12">
-          <h1 className="text-2xl font-bold text-destructive">Access Denied</h1>
-          <p className="text-muted-foreground">This page is only accessible to students.</p>
-        </div>
-      </div>
-    )
+    redirect("/")
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="p-6 max-w-6xl w-full mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold text-primary">My Profile</h1>

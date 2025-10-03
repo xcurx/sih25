@@ -6,6 +6,7 @@ import { Suspense } from "react"
 import { SessionProvider } from "next-auth/react"
 import "./globals.css"
 import { Toaster } from "@/components/ui/sonner"
+import { DashboardLayout } from "./(app)/page"
 
 const dmSans = DM_Sans({
   subsets: ["latin"],

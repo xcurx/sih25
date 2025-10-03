@@ -8,32 +8,28 @@ import { Opportunity, Student } from "@/lib/types"
 import axios from "axios"
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { useRouter } from "next/navigation"
+import { redirect, useRouter } from "next/navigation"
+import Loader from "@/components/loader/Loader"
+import { useSession } from "next-auth/react"
 
 export default function EmplyersApplicationsPage() {
+    const { data:session,status } = useSession()
     const [students, setStudents] = useState<Student[]>([]);
     const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
     const router = useRouter();
-
-    // const getStudents = async () => {
-    //   try {
-    //     const res = await axios.get("/api/get-applied-students", { withCredentials: true });
-    //     if (res.status === 200) {
-    //       setStudents(res.data.applications.map((app: any) => app.studentRel));
-    //     }
-    //   } catch (error) {
-    //     console.error("Error fetching students:", error);
-    //   }
-    // }
+    const [loading, setLoading] = useState(true);
 
     const getOpportunities = async () => {
+      setLoading(true);
       try {
         const res = await axios.get("/api/get-company-opportunities", { withCredentials: true });
         if (res.status === 200) {
           setOpportunities(res.data.opportunities);
         }
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching opportunities:", error);
+        setLoading(false);
       }
     }
 
@@ -41,8 +37,17 @@ export default function EmplyersApplicationsPage() {
       getOpportunities();
     }, []);
 
+    if (status == "loading" || status == "unauthenticated" || loading) {
+      return <Loader/>
+    }
+
+    if (session?.user?.role !== "employer") {
+      redirect("/");
+    }
+      
+
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="p-6 max-w-7xl w-full mx-auto">
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>

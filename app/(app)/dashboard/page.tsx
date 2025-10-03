@@ -20,7 +20,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="p-6 max-w-7xl w-full mx-auto">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-primary">Welcome back, {user.name}!</h1>
         <p className="text-muted-foreground">

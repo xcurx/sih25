@@ -1,6 +1,7 @@
 "use client"
 
 import JobPostingCard from "@/components/jobs/JobPostingsCard"
+import Loader from "@/components/loader/Loader"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -25,12 +26,21 @@ export default function JobPostingsPage() {
   const [statusFilter, setStatusFilter] = useState("all")
   const [jobs, setJobs] = useState<Opportunity[]>([])
   const router = useRouter()
+  const [loading, setLoading] = useState(true);
 
   const getOpportunities = async () => {
-    axios.get("/api/get-opportunities").then((response) => {
-      console.log(response.data)
-      setJobs(response.data.opportunities)
-    })
+    setLoading(true);
+    try {
+      const res = await axios.get("/api/get-opportunities")
+      console.log(res.data)
+      if (res.status === 200) {
+        setJobs(res.data.opportunities)
+      }
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
   }
  
   const filteredJobs = jobs.filter((job) => {
@@ -50,8 +60,8 @@ export default function JobPostingsPage() {
     getOpportunities();
   }, [status])
 
-  if (status === "loading" || status === "unauthenticated") {
-    return <div className="p-6">Loading...</div>
+  if (status === "loading" || status === "unauthenticated" || loading) {
+    return <Loader/>
   }
 
   if (session?.user?.role !== "placement-cell") {
@@ -59,7 +69,7 @@ export default function JobPostingsPage() {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="p-6 max-w-7xl w-full mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold text-primary">Job Postings</h1>
