@@ -117,8 +117,9 @@ export function Sidebar() {
         <Button
          variant="outline" size="sm" className="w-full bg-transparent"
          onClick={async () => { 
-          await axios.post("/api/sign-out");
-          router.push("/sign-in");
+          await axios.post("/api/sign-out")
+          .then(() => router.push("/sign-in"))
+          .catch((error) => console.error("Sign out error:", error));
          }}
         >
           <LogOut className="mr-2 h-4 w-4" />
