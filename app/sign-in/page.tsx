@@ -118,14 +118,16 @@ export default function LoginForm() {
             </Button>
           </form>
 
-          <div className="text-center text-sm text-red-600 h-5">
-            {error === "CredentialsSignin" ? (
+          {error === "CredentialsSignin" ? (
+            <div className="text-center text-sm text-red-600">
               "Invalid email or password. Please try again."
-            ) : error && (
+            </div>
+          ) : error && (
+            <div className="text-center text-sm text-red-600">
               "Something went wrong! Please try again."
-            )
-            }
-          </div>
+            </div>
+          )
+          }
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">

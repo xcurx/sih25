@@ -1,28 +1,27 @@
 "use client"
 
-import { useState } from "react"
-import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import axios from "axios";
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import {
-  LayoutDashboard,
-  Users,
+  BarChart3,
   Briefcase,
+  Building2,
   Calendar,
   FileText,
-  Settings,
+  GraduationCap,
+  LayoutDashboard,
   LogOut,
   Menu,
-  X,
-  GraduationCap,
-  Building2,
+  Settings,
   UserCheck,
-  BarChart3,
+  Users,
+  X,
 } from "lucide-react"
-import { useSession } from "next-auth/react"
+import { signOut, useSession } from "next-auth/react"
+import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
+import { useState } from "react"
 
 const navigationItems = {
   student: [
@@ -117,9 +116,7 @@ export function Sidebar() {
         <Button
          variant="outline" size="sm" className="w-full bg-transparent"
          onClick={async () => { 
-          await axios.post("/api/sign-out")
-          .then(() => router.push("/sign-in"))
-          .catch((error) => console.error("Sign out error:", error));
+          signOut({ callbackUrl: "/sign-in" });
          }}
         >
           <LogOut className="mr-2 h-4 w-4" />
