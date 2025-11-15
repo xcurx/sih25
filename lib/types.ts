@@ -100,7 +100,7 @@ export interface Application {
   opportunityRel: Opportunity
 }
 
-export type ApplicationStatus = "applied" | "reviewed" | "shortlisted" | "rejected" | "accepted"
+export type ApplicationStatus = "applied" | "reviewed" | "shortlisted" | "interviewed" | "rejected" | "accepted"
 
 export interface StudentApplication {
   id: string

@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Application } from "@/lib/types"
+import { Application, ApplicationStatus } from "@/lib/types"
 import {
     AlertCircle,
     Building2,
@@ -15,6 +15,7 @@ import {
     FileText,
     XCircle
 } from "lucide-react"
+import Status from "./Status"
 
 export default function ApplicationCard({
   application,
@@ -42,21 +43,23 @@ export default function ApplicationCard({
     }
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "pending":
-        return "secondary"
-      case "approved":
-        return "default"
-      case "rejected":
-        return "destructive"
-      case "interview":
-        return "default"
-      case "selected":
-        return "default"
-      default:
-        return "secondary"
-    }
+  const getStatusColor = (status: ApplicationStatus) => {
+      switch (status) {
+        case "applied":
+          return "bg-blue-400"
+        case "reviewed":
+          return "bg-indigo-400"
+        case "shortlisted":
+          return "bg-emerald-500"
+        case "interviewed":
+          return "bg-amber-500"
+        case "rejected":
+          return "bg-rose-500"
+        case "accepted":
+          return "bg-green-500"
+        default:
+          return "secondary"
+      }
   }
 
   return (
@@ -68,12 +71,15 @@ export default function ApplicationCard({
               <Building2 className="h-6 w-6 text-primary" />
             </div>
             <div className="flex-1">
-              <div className="flex items-center space-x-2 mb-1">
+              <div className="flex w-full items-center space-x-2 mb-1 justify-between">
                 <CardTitle className="text-xl">{application.opportunityRel.title}</CardTitle>
-                <Badge variant={getStatusColor(application.status)} className="flex items-center gap-1">
-                  {getStatusIcon(application.status)}
-                  <span className="capitalize">{application.status}</span>
-                </Badge>
+                <div className="flex items-center space-x-1">
+                  <Status status={application.status}/>
+                  <Badge className={`flex items-center gap-1 ${getStatusColor(application.status)}`}>
+                    {getStatusIcon(application.status)}
+                    <span className="capitalize">{application.status}</span>
+                  </Badge>
+                </div>
               </div>
               <CardDescription className="text-lg font-medium text-foreground">
                 {application.opportunityRel.companyRel?.name}
