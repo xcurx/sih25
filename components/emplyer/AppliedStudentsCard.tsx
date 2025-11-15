@@ -4,7 +4,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import type { Student } from "@/lib/types"
+import type { ApplicationStatus, Student } from "@/lib/types"
+import axios from "axios"
 import {
     Eye,
     Mail,
@@ -13,15 +14,49 @@ import {
     Phone
 } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { toast } from "sonner"
 
 export default function AppliedStudentCard({
   student,
+  status,
+  id,
   onViewDetails,
 }: {
   student: Student
+  status: ApplicationStatus
+  id: string
   onViewDetails: (student: Student) => void
 }) {
   const router = useRouter()
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [apStatus, setApStatus] = useState<ApplicationStatus>(status);
+
+  const handleReview = () => {
+    if (status === "applied") {
+      const res = axios.patch(`/api/application/review`, {apId: id}, { withCredentials: true })
+    }
+
+    router.push(`/company/applications/review/${student.id}`)
+  }
+
+  const handleShortlist = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.patch(`/api/application/shortlist`, {apId: id}, { withCredentials: true })
+      if (res.status === 200) {
+        toast.success("Student shortlisted successfully.");
+        setApStatus("shortlisted");
+      } else {
+        toast.error("Failed to shortlist student.");
+      }
+    } catch (error) {
+      toast.error("Failed to shortlist student.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <Card className="hover:shadow-lg transition-shadow">
@@ -107,16 +142,20 @@ export default function AppliedStudentCard({
               </Button>
               <Button 
                 size="sm" 
-                onClick={() => router.push(`/company/applications/review/${student.id}`)}
+                onClick={handleReview}
               >
                 <Eye className="mr-2 h-4 w-4" />
                 View Full Profile
               </Button>
             </div>
             <div>
-              <Button>
+              <Button disabled={apStatus !== "applied" && apStatus !== "reviewed"} onClick={handleShortlist}>
                 <MousePointerClick className="mr-2 h-4 w-4" />
-                Shortlist
+                {
+                  loading ? "Shortlisting..." : 
+                  apStatus === "applied" || apStatus === "reviewed" ? "Shortlist" : 
+                  apStatus.charAt(0).toUpperCase() + apStatus.slice(1)
+                }
               </Button>
             </div>
           </div>

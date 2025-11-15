@@ -16,9 +16,11 @@ export const GET = async (req: NextRequest, context: { params: Promise<{ id: str
     try {
         const applications = await prisma.application.findMany({
             where: { opportunityId: id },
-            include: {
+            select: {
+                id: true,
+                status: true,
                 studentRel: {
-                    select: {
+                     select: {
                         id: true,
                         name: true,
                         email: true,
@@ -30,7 +32,7 @@ export const GET = async (req: NextRequest, context: { params: Promise<{ id: str
                         skills: true,
                     }
                 }
-            }
+            },
         })
 
         return NextResponse.json({ applications }, { status: 200 });

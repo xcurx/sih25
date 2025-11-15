@@ -94,11 +94,13 @@ export interface Application {
   id: string
   opportunityId: string
   studentId: string
-  status: "applied" | "under_review" | "shortlisted" | "rejected" | "accepted"
+  status: "applied" | "reviewed" | "shortlisted" | "rejected" | "accepted"
   appliedAt: string
   coverLetter?: string
   opportunityRel: Opportunity
 }
+
+export type ApplicationStatus = "applied" | "reviewed" | "shortlisted" | "rejected" | "accepted"
 
 export interface StudentApplication {
   id: string

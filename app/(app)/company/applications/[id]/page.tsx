@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import type { Student } from "@/lib/types"
+import type { ApplicationStatus, Student } from "@/lib/types"
 import axios from "axios"
 import {
   Download,
@@ -25,7 +25,7 @@ export default function AppliedStudentsPage() {
   const [yearFilter, setYearFilter] = useState("all")
   const [placementStatus, setPlacementStatus] = useState("all")
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
-  const [students, setStudents] = useState<Student[]>([])
+  const [applications, setApplications] = useState<{ student: Student, status:ApplicationStatus, id:string }[]>([])
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const { id } = useParams();
@@ -35,7 +35,9 @@ export default function AppliedStudentsPage() {
       try {
         const res = await axios.get(`/api/get-applied-students-for-opportunity/${id}`, { withCredentials: true });
         if (res.status === 200) {
-          setStudents(res.data.applications.map((app: any) => app.studentRel));
+          setApplications(res.data.applications.map((app: any) => {
+            return { student: app.studentRel, status: app.status, id: app.id };
+          }));
         }
       } catch (error) {
         console.error("Error fetching students:", error);
@@ -44,7 +46,7 @@ export default function AppliedStudentsPage() {
       }
   }
 
-  const filteredStudents = students.filter((student) => {
+  const filteredStudents = applications.filter(({student}) => {
     const matchesSearch =
       student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -56,8 +58,8 @@ export default function AppliedStudentsPage() {
     return matchesSearch && matchesDepartment && matchesYear
   })
 
-  const departments = Array.from(new Set(students.map((s) => s.branch)))    
-  const years = Array.from(new Set(students.map((s) => `${4-(s.batch-2025)}`))).sort()
+  const departments = Array.from(new Set(applications.map(({student}) => student.branch)))    
+  const years = Array.from(new Set(applications.map(({student}) => `${4-(student.batch-2025)}`))).sort()
 
   useEffect(() => {
     if (status === "unauthenticated" || status === "loading") return;
@@ -138,8 +140,8 @@ export default function AppliedStudentsPage() {
 
         <TabsContent value="all" className="space-y-4">
           <div className="grid gap-4">
-            {filteredStudents.map((student) => (
-              <AppliedStudentCard key={student.id} student={student} onViewDetails={setSelectedStudent} />
+            {filteredStudents.map(({student, status, id}) => (
+              <AppliedStudentCard key={id} student={student} status={status} id={id} onViewDetails={setSelectedStudent} />
             ))}
             {
               !loading && filteredStudents.length === 0 && <p className="text-sm text-center text-muted-foreground">No students found.</p>
