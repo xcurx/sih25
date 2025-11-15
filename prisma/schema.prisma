@@ -101,7 +101,7 @@ enum Status {
 
 enum ApplicationStatus {
   applied
-  under_review
+  reviewed
   shortlisted
   rejected
   accepted

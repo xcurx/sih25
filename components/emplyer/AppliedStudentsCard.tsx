@@ -9,8 +9,10 @@ import {
     Eye,
     Mail,
     MessageSquare,
+    MousePointerClick,
     Phone
 } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 export default function AppliedStudentCard({
   student,
@@ -19,6 +21,7 @@ export default function AppliedStudentCard({
   student: Student
   onViewDetails: (student: Student) => void
 }) {
+  const router = useRouter()
 
   return (
     <Card className="hover:shadow-lg transition-shadow">
@@ -89,15 +92,33 @@ export default function AppliedStudentCard({
             <MapPin className="h-4 w-4" />
             <span>Prefers: {student.preferences.locations.slice(0, 2).join(", ")}</span>
           </div> */}
-          <div className="flex space-x-2">
-            <Button variant="outline" size="sm">
-              <MessageSquare className="mr-2 h-4 w-4" />
-              Contact
-            </Button>
-            <Button size="sm" onClick={() => onViewDetails(student)}>
-              <Eye className="mr-2 h-4 w-4" />
-              View Profile
-            </Button>
+          <div className="w-full flex justify-between items-center">
+            <div className="flex space-x-2">
+              <Button variant="outline" size="sm">
+                <MessageSquare className="mr-2 h-4 w-4" />
+                Contact
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => onViewDetails(student)}
+              >
+                Quick View
+              </Button>
+              <Button 
+                size="sm" 
+                onClick={() => router.push(`/company/applications/review/${student.id}`)}
+              >
+                <Eye className="mr-2 h-4 w-4" />
+                View Full Profile
+              </Button>
+            </div>
+            <div>
+              <Button>
+                <MousePointerClick className="mr-2 h-4 w-4" />
+                Shortlist
+              </Button>
+            </div>
           </div>
         </div>
       </CardContent>
