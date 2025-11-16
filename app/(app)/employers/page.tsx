@@ -1,7 +1,7 @@
 "use client"
 
-import EmployerCard from "@/components/emplyer/EmployerCard"
-import EmployerDetailsDialog from "@/components/emplyer/EmployerDetailsDialog"
+import EmployerCard from "@/components/employer/EmployerCard"
+import EmployerDetailsDialog from "@/components/employer/EmployerDetailsDialog"
 import Loader from "@/components/loader/Loader"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"

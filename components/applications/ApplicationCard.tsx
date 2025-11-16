@@ -28,7 +28,7 @@ export default function ApplicationCard({
 }) {
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "pending":
+      case "mentor_approval_needed":
         return <Clock className="h-4 w-4" />
       case "approved":
         return <CheckCircle className="h-4 w-4" />
@@ -45,6 +45,8 @@ export default function ApplicationCard({
 
   const getStatusColor = (status: ApplicationStatus) => {
       switch (status) {
+        case "mentor_approval_needed":
+          return "bg-yellow-400"
         case "applied":
           return "bg-blue-400"
         case "reviewed":
@@ -77,7 +79,10 @@ export default function ApplicationCard({
                   <Status status={application.status}/>
                   <Badge className={`flex items-center gap-1 ${getStatusColor(application.status)}`}>
                     {getStatusIcon(application.status)}
-                    <span className="capitalize">{application.status}</span>
+                    <span className="capitalize">{
+                      application.status === "mentor_approval_needed"?
+                      "Mentor Approval Needed" : application.status
+                    }</span>
                   </Badge>
                 </div>
               </div>

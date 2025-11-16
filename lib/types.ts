@@ -94,13 +94,14 @@ export interface Application {
   id: string
   opportunityId: string
   studentId: string
-  status: "applied" | "reviewed" | "shortlisted" | "rejected" | "accepted"
+  status: "applied" | "reviewed" | "shortlisted" | "rejected" | "accepted" | "mentor_approval_needed"
   appliedAt: string
   coverLetter?: string
   opportunityRel: Opportunity
+  mentorApproved?: boolean
 }
 
-export type ApplicationStatus = "applied" | "reviewed" | "shortlisted" | "interviewed" | "rejected" | "accepted"
+export type ApplicationStatus = "mentor_approval_needed" | "applied" | "reviewed" | "shortlisted" | "interviewed" | "rejected" | "accepted"
 
 export interface StudentApplication {
   id: string
@@ -129,4 +130,18 @@ export interface Faculty {
   email: string
   department: string
   avatar?: string
+}
+
+export interface ApprovalApplication extends Application {
+  studentRel?: {
+    id: string
+    name: string
+    email: string
+    phone: string
+    branch: string
+    batch: number
+    cgpa: number
+    avatar?: string
+    skills: string[]
+  }
 }

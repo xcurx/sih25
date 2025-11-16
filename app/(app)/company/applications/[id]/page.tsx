@@ -1,6 +1,6 @@
 "use client"
 
-import AppliedStudentCard from "@/components/emplyer/AppliedStudentsCard"
+import AppliedStudentCard from "@/components/employer/AppliedStudentsCard"
 import Loader from "@/components/loader/Loader"
 import StudentDetailsDialog from "@/components/students/StudentDetailsDialog"
 import { Button } from "@/components/ui/button"

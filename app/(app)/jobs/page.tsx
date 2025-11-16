@@ -72,7 +72,7 @@ export default function JobsPage() {
     setSelectedSkills([])
   }
 
-  console.log(filteredJobs);
+  // console.log(filteredJobs);
 
   useEffect(() => {
     if (status === "loading" || status === "unauthenticated") return;

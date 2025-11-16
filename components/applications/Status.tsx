@@ -32,6 +32,10 @@ const Status = ({status}:{status:ApplicationStatus}) => {
         allStatuses[allStatuses.length-1] = "rejected"
     }
 
+    if (status === "mentor_approval_needed") {
+      return <></>
+    }
+
 
   return (
     <div className='flex items-center'>

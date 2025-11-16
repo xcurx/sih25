@@ -12,10 +12,25 @@ import { toast } from "sonner"
 export default function JobCard({ job, setJobs }: JobCardProps) {
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [loading, setLoading] = useState(false);
-
-  console.log(job);
+  const [sendingApproval, setSendingApproval] = useState(false);
 
   const daysUntilDeadline = Math.ceil((new Date(job.applicationDeadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+
+  const handleApproval = async () => {
+    setSendingApproval(true);
+    try {
+        console.log("Sending mentor approval for job id:", job.id);
+        const res = await axios.post(`/api/send-mentor-approval/${job.id}`, { withCredentials: true });
+        // Update the job state to reflect the application
+        setJobs(prevJobs => prevJobs.map(j => j.id === job.id ? { ...j, applied: true, _count: { applications: j._count.applications + 1 } } : j));
+        setSendingApproval(false);
+        toast.success("Mentor approval request sent successfully");
+    } catch (error) {
+        toast.error("Failed to send mentor approval request");   
+    } finally {
+        setSendingApproval(false);
+    }
+  }
 
   const handleApply = async () => {
     setLoading(true);
@@ -123,6 +138,19 @@ export default function JobCard({ job, setJobs }: JobCardProps) {
           </div>
           <div className="flex space-x-2">
             <Button variant="outline">View Details</Button>
+            <Button disabled={
+                daysUntilDeadline <= 0 || job.applied
+            }
+            className={`${job.applied ? "cursor-not-allowed hidden" : ""}`}
+            onClick={handleApproval}
+            >
+              {
+                sendingApproval ? "Sending..." :
+                (
+                  "Send Mentor Approval"
+                )
+              }
+            </Button>
             <Button disabled={
                 daysUntilDeadline <= 0 || job.applied
             }

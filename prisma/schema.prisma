@@ -35,6 +35,8 @@ model Student {
   linkedin String?
   github String?
   applications Application[]
+  mentorId String?
+  mentorRel Faculty? @relation(fields: [mentorId], references: [id])
 }
 
 model Faculty {
@@ -45,6 +47,7 @@ model Faculty {
   department String?
   phone String?
   linkedin String?
+  mentees Student[]
 }
 
 model Company {
@@ -101,6 +104,8 @@ model Application {
   appliedAt DateTime @default(now())
   status ApplicationStatus @default(applied)
   coverLetter String?
+  mentorRemarks String?
+  mentorApproved Boolean? @default(false)
 }
 
 enum Status {
@@ -110,6 +115,7 @@ enum Status {
 }
 
 enum ApplicationStatus {
+  mentor_approval_needed
   applied
   reviewed
   shortlisted
