@@ -106,6 +106,17 @@ model Application {
   coverLetter String?
   mentorRemarks String?
   mentorApproved Boolean? @default(false)
+  interviewRel Interview?
+}
+
+model Interview {
+  id String @id @default(cuid())
+  applicationId String @unique
+  applicationRel Application @relation(fields: [applicationId], references: [id])
+  scheduledAt DateTime
+  interviewLink String
+  interviewerDetails String?
+  remarks String?
 }
 
 enum Status {

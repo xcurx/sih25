@@ -115,13 +115,14 @@ export interface StudentApplication {
 export interface Interview {
   id: string
   applicationId: string
-  date: string
-  time: string
-  type: "online" | "offline"
-  location?: string
-  meetingLink?: string
-  status: "scheduled" | "completed" | "cancelled"
-  feedback?: string
+  scheduledAt: string
+  interviewLink: string
+  interviewDetails?: string
+  remark?: string
+}
+
+export interface InterviewApplication extends Application {
+  interviewRel?: Interview
 }
 
 export interface Faculty {
