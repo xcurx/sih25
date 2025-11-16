@@ -83,7 +83,7 @@ export default function EmployersPage() {
   const getCompanies = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("/api/get-companies", { withCredentials: true });
+      const res = await axios.get("/api/placementcell/get-companies", { withCredentials: true });
       if (res.status === 200) {
         setCompanies(res.data.companies);
       }

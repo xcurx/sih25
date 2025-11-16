@@ -33,7 +33,7 @@ export default function ApplicationsPage() {
   const getApplications = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("/api/get-applications", { withCredentials: true });
+      const res = await axios.get("/api/student/get-applications", { withCredentials: true });
       if (res.status === 200) {
         setApplications(res.data.applications);
       }

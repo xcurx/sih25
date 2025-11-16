@@ -31,7 +31,7 @@ export default function JobPostingsPage() {
   const getOpportunities = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("/api/get-opportunities")
+      const res = await axios.get("/api/placementcell/get-opportunities")
       console.log(res.data)
       if (res.status === 200) {
         setJobs(res.data.opportunities)

@@ -35,7 +35,7 @@ export default function AppliedStudentCard({
 
   const handleReview = () => {
     if (status === "applied") {
-      const res = axios.patch(`/api/application/review`, {apId: id}, { withCredentials: true })
+      const res = axios.patch(`/api/employer/application/review`, {apId: id}, { withCredentials: true })
     }
 
     router.push(`/company/applications/review/${student.id}`)
@@ -44,7 +44,7 @@ export default function AppliedStudentCard({
   const handleShortlist = async () => {
     setLoading(true);
     try {
-      const res = await axios.patch(`/api/application/shortlist`, {apId: id}, { withCredentials: true })
+      const res = await axios.patch(`/api/employer/application/shortlist`, {apId: id}, { withCredentials: true })
       if (res.status === 200) {
         toast.success("Student shortlisted successfully.");
         setApStatus("shortlisted");

@@ -34,7 +34,7 @@ export default function InterviewsPage() {
   const getInterviews = async () => {
     setLoading(true)
     try {
-      const res = await axios.get("/api/get-interviews", { withCredentials: true })
+      const res = await axios.get("/api/student/get-interviews", { withCredentials: true })
       console.log(res.data)
       if (res.status === 200) {
         setApplications(res.data.applications || [])

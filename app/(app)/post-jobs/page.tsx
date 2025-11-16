@@ -75,7 +75,7 @@ export default function PostJobsPage() {
   const [error, setError] = useState<string | null>(null);
 
   const getCompanies = async () => {
-    await axios.get('/api/get-companies').then((res) => {
+    await axios.get('/api/placementcell/get-companies').then((res) => {
       setCompanies(res.data.companies);
     }).catch((err) => {
       console.log(err);
@@ -125,7 +125,7 @@ export default function PostJobsPage() {
     // Here you would typically send the data to your backend
     console.log("Job posting:", { ...formData, status: draft ? "draft" : "active" })
     try {
-      const res = await axios.post("/api/post-opportunity", {...formData});
+      const res = await axios.post("/api/placementcell/post-opportunity", {...formData});
       console.log(res);
       if (res.status === 200) {
         setPosted(true);

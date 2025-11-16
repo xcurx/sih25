@@ -32,7 +32,7 @@ export default function StudentReviewPage() {
   const getStudent = async () => {
     setLoading(true)
     try {
-      const res = await axios.get(`/api/student-profile/${id}`, { withCredentials: true })
+      const res = await axios.get(`/api/employer/student-profile/${id}`, { withCredentials: true })
       if (res.status === 200) {
         setStudent(res.data.student)
       }

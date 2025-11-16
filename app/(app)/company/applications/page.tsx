@@ -22,7 +22,7 @@ export default function EmplyersApplicationsPage() {
     const getOpportunities = async () => {
       setLoading(true);
       try {
-        const res = await axios.get("/api/get-company-opportunities", { withCredentials: true });
+        const res = await axios.get("/api/employer/get-company-opportunities", { withCredentials: true });
         if (res.status === 200) {
           setOpportunities(res.data.opportunities);
         }

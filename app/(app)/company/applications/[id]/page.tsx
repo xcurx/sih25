@@ -33,7 +33,7 @@ export default function AppliedStudentsPage() {
   const getStudents = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(`/api/get-applied-students-for-opportunity/${id}`, { withCredentials: true });
+        const res = await axios.get(`/api/employer/get-applied-students-for-opportunity/${id}`, { withCredentials: true });
         if (res.status === 200) {
           setApplications(res.data.applications.map((app: any) => {
             return { student: app.studentRel, status: app.status, id: app.id };

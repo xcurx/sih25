@@ -42,7 +42,7 @@ const Overview = ({isEditing}: {isEditing:boolean}) => {
 
     const getStudent = async () => {
         try {
-            const student = await axios.get('/api/profile/overview', { withCredentials: true })
+            const student = await axios.get('/api/student/profile/overview', { withCredentials: true })
             console.log(student)
             setStudent(student.data)
         } catch (error) {
@@ -233,7 +233,7 @@ const AddSkillDiaglog = ({
                  onClick={async () => {
                     // if (selectedSkills)
                     try {
-                        const student = await axios.post('/api/profile/skills', { skills: selectedSkills }, { withCredentials: true })
+                        const student = await axios.post('/api/student/profile/skills', { skills: selectedSkills }, { withCredentials: true })
                         console.log(student)    
                         setStudent(prev => ({...prev, skills: student.data.user.skills} as Student))
                         setOpen(false)

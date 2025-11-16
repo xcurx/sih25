@@ -155,7 +155,7 @@ const ApplicationsDialog = ({ id }:{ id:string }) => {
     const getApplications = async () => {
         setLoading(true);
         try {
-            const res = await axios.get(`/api/get-applications-for-opportunity/${id}`);
+            const res = await axios.get(`/api/placementcell/get-applications-for-opportunity/${id}`);
             if (res.status === 200) {
                 setApplications(res.data.applications);
             }

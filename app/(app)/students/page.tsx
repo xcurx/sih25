@@ -42,7 +42,7 @@ export default function StudentsPage() {
   const getStudents = async () => {
       setLoading(true);
       try {
-        const res = await axios.get("/api/get-students", { withCredentials: true });
+        const res = await axios.get("/api/placementcell/get-students", { withCredentials: true });
         if (res.status === 200) {
           setStudents(res.data.students);
         }

@@ -20,7 +20,7 @@ export default function EmployerDashboard() {
     const getStudents = async () => {
       setLoadingStudents(true);
       try {
-        const res = await axios.get("/api/get-applied-students", { withCredentials: true });
+        const res = await axios.get("/api/employer/get-applied-students", { withCredentials: true });
         if (res.status === 200) {
           setStudents(res.data.applications.map((app: any) => app.studentRel));
         }
@@ -34,7 +34,7 @@ export default function EmployerDashboard() {
     const getOpportunities = async () => {
       setLoadingOpportunities(true);
       try {
-        const res = await axios.get("/api/get-company-opportunities", { withCredentials: true });
+        const res = await axios.get("/api/employer/get-company-opportunities", { withCredentials: true });
         if (res.status === 200) {
           console.log(res.data.opportunities);  
           setOpportunities(res.data.opportunities);

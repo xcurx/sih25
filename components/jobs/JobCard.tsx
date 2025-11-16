@@ -20,7 +20,7 @@ export default function JobCard({ job, setJobs }: JobCardProps) {
     setSendingApproval(true);
     try {
         console.log("Sending mentor approval for job id:", job.id);
-        const res = await axios.post(`/api/send-mentor-approval/${job.id}`, { withCredentials: true });
+        const res = await axios.post(`/api/student/send-mentor-approval/${job.id}`, { withCredentials: true });
         // Update the job state to reflect the application
         setJobs(prevJobs => prevJobs.map(j => j.id === job.id ? { ...j, applied: true, _count: { applications: j._count.applications + 1 } } : j));
         setSendingApproval(false);
@@ -35,7 +35,7 @@ export default function JobCard({ job, setJobs }: JobCardProps) {
   const handleApply = async () => {
     setLoading(true);
     try {
-        const res = await axios.post(`/api/apply/${job.id}`, { withCredentials: true });
+        const res = await axios.post(`/api/student/apply/${job.id}`, { withCredentials: true });
         // Update the job state to reflect the application
         setJobs(prevJobs => prevJobs.map(j => j.id === job.id ? { ...j, applied: true, _count: { applications: j._count.applications + 1 } } : j));
         setLoading(false);
