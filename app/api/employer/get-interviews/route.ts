@@ -7,14 +7,16 @@ const prisma = new PrismaClient()
 export const GET = async (req: NextRequest) => {
     const session = await auth()
 
-    if (!session?.user || (session.user.role !== "student" && session.user.role !== "employer")) { 
+    if (!session?.user || session.user.role !== "employer") { 
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     try {
         const applications = await prisma.application.findMany({
             where: {
-                studentId: session.user.id,
+                opportunityRel: {
+                    employerId: session.user.id,
+                },
                 status: { in: ["shortlisted", "rejected", "accepted"] },
             },
             include: {

@@ -172,7 +172,7 @@ export default function ApplicationCard({
               <Eye className="mr-2 h-4 w-4" />
               View Details
             </Button>
-            {userRole !== "student" && application.status === "applied" && (
+            {(userRole !== "student" && userRole !== "placement-cell") && application.status === "applied" && (
               <>
                 <Button variant="outline" size="sm">
                   <XCircle className="mr-2 h-4 w-4" />

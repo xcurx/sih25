@@ -212,7 +212,7 @@ export default function ApplicationDetailsDialog({
           )} */}
 
           {/* Actions for non-student users */}
-          {userRole !== "student" && application.status === "applied" && (
+          {userRole !== "student" && userRole !== "placement-cell" && application.status === "applied" && (
             <Card>
               <CardHeader>
                 <CardTitle>Review Application</CardTitle>

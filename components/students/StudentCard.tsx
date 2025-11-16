@@ -7,10 +7,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import type { Student } from "@/lib/types"
 import {
     Eye,
+    FunnelPlusIcon,
     Mail,
     MessageSquare,
-    Phone
+    Phone,
+    ViewIcon
 } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 export default function StudentCard({
   student,
@@ -19,6 +22,8 @@ export default function StudentCard({
   student: Student
   onViewDetails: (student: Student) => void
 }) {
+  const router = useRouter()
+
   const getPlacementStatus = (student: Student) => {
     if (student.applications.some((app) => app.status === "accepted")) {
       return { status: "Placed", color: "default" }
@@ -113,6 +118,10 @@ export default function StudentCard({
             <Button size="sm" onClick={() => onViewDetails(student)}>
               <Eye className="mr-2 h-4 w-4" />
               View Profile
+            </Button>
+            <Button size="sm" onClick={() => router.push(`/students/${student.id}`)}>
+              <ViewIcon className="mr-2 h-4 w-4"/>
+              View Full Profile
             </Button>
           </div>
         </div>

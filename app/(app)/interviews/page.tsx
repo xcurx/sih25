@@ -34,7 +34,7 @@ export default function InterviewsPage() {
   const getInterviews = async () => {
     setLoading(true)
     try {
-      const res = await axios.get("/api/student/get-interviews", { withCredentials: true })
+      const res = await axios.get(`/api/${session?.user.role}/get-interviews`, { withCredentials: true })
       console.log(res.data)
       if (res.status === 200) {
         setApplications(res.data.applications || [])
@@ -90,7 +90,7 @@ export default function InterviewsPage() {
     return <Loader />
   }
 
-  if (status === "unauthenticated" || session?.user?.role !== "student") {
+  if (status === "unauthenticated" || (session?.user?.role !== "student" && session?.user?.role !== "employer")) {
     router.replace("/")
     return null
   }
@@ -98,7 +98,11 @@ export default function InterviewsPage() {
   return (
     <div className="p-6 max-w-7xl w-full mx-auto">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-primary">My Interviews</h1>
+        <h1 className="text-3xl font-bold text-primary">
+          {
+            session?.user?.role === "employer" ? "Candidate Interviews" : "My Interviews"
+          }
+        </h1>
         <p className="text-muted-foreground">
           Manage your scheduled and completed interviews
         </p>
