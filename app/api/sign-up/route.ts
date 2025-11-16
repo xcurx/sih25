@@ -30,6 +30,26 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ message: "Student sign-up successful", student }, { status: 200 });
     }
 
+    if (roll === "faculty") {
+        const facultyExist = await prisma.faculty.findUnique({
+            where: { email },
+        })
+
+        if (facultyExist) {
+            return NextResponse.json({ error: "Faculty with this email already exists" }, { status: 400 });
+        }
+
+        const faculty = await prisma.faculty.create({
+            data: {
+                email,
+                name,
+                password,
+            },
+        })
+
+        return NextResponse.json({ message: "Faculty sign-up successful", faculty }, { status: 200 });
+    }
+
     if (roll === "placement-cell") {
         const cellExist = await prisma.placmentCell.findUnique({
             where: { email },

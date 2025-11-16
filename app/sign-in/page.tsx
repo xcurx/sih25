@@ -97,6 +97,7 @@ export default function LoginForm() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="student">Student</SelectItem>
+                  <SelectItem value="faculty">Faculty</SelectItem>
                   <SelectItem value="placement-cell">Placement Cell</SelectItem>
                   <SelectItem value="employer">Employer</SelectItem>
                 </SelectContent>

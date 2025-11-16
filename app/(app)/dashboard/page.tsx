@@ -29,7 +29,7 @@ export default function DashboardPage() {
       </div>
 
       {user.role === "student" && <StudentDashboard />}
-      {/* {user.role === "faculty" && <FacultyDashboard />} */}
+      {user.role === "faculty" && <FacultyDashboard />}
       {user.role === "placement-cell" && <PlacementCellDashboard />}
       {user.role === "employer" && <EmployerDashboard />}
     </div>

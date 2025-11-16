@@ -9,20 +9,20 @@ declare module "next-auth" {
             id: string
             email: string
             name: string
-            role: "student" | "placement-cell" | "employer"
+            role: "student" | "placement-cell" | "employer" | "faculty"
         }
     }
 
     interface User {
         id: string
-        role: "student" | "placement-cell" | "employer"
+        role: "student" | "placement-cell" | "employer" | "faculty"
     }
 }
 
 declare module "next-auth/jwt" {
     interface JWT {
         id: string
-        role: "student" | "placement-cell" | "employer"
+        role: "student" | "placement-cell" | "employer" | "faculty"
     }
 }
 
@@ -63,6 +63,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 }
             }
 
+            if (credentials?.role === "faculty") {
+                const user = await prisma.faculty.findUnique({
+                    where: { email: credentials.email as string },
+                });
+
+                console.log("Found faculty user:", user);
+
+                if (user && user.password === credentials?.password) {
+                    return { id: user.id, email: user.email, name: user.name, role: "faculty" };
+                }
+            }
+
             if (credentials?.role === "placement-cell") {
                 const user = await prisma.placmentCell.findUnique({
                     where: { email: credentials.email as string },
@@ -97,7 +109,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 id: token.id as string,
                 email: session.user?.email || "",
                 name: session.user?.name || "",
-                role: token.role as "student" | "placement-cell" | "employer",
+                role: token.role as "student" | "placement-cell" | "employer" | "faculty",
             }
         }
     },

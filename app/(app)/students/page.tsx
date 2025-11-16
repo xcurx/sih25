@@ -85,7 +85,7 @@ export default function StudentsPage() {
     return <Loader/>
   }
 
-  if (session?.user?.role !== "placement-cell") {
+  if (session?.user?.role !== "placement-cell" && session?.user?.role !== "faculty") {
     router.replace("/")
   }
 

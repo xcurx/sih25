@@ -37,6 +37,16 @@ model Student {
   applications Application[]
 }
 
+model Faculty {
+  id String @id @default(cuid())
+  email String @unique
+  name String
+  password String
+  department String?
+  phone String?
+  linkedin String?
+}
+
 model Company {
   id String @id @default(cuid())
   name String
