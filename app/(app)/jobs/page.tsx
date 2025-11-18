@@ -35,7 +35,7 @@ export default function JobsPage() {
 
   const getOpportunities = async () => {
     try {
-      const res = await axios("/api/placementcell/get-opportunities", { withCredentials: true });
+      const res = await axios("/api/student/get-opportunities", { withCredentials: true });
       if (res.status === 200) {
         setJobs(res.data.opportunities);
         setLoading(false);
