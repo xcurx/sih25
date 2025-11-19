@@ -9,21 +9,33 @@ import { TabsContent } from "@/components/ui/tabs"
 const Settings = () => {
   return (
     <TabsContent value="settings" className="space-y-6">
-      <Card>
+      <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-lg">
         <CardHeader>
-          <CardTitle>Account Settings</CardTitle>
-          <CardDescription>Manage your account preferences and privacy settings</CardDescription>
+          <CardTitle className="text-slate-900">Account Settings</CardTitle>
+          <CardDescription className="text-slate-600">Manage your account preferences and privacy settings</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="password">Change Password</Label>
-            <Input id="password" type="password" placeholder="Enter new password" />
+            <Label htmlFor="password" className="text-slate-700 font-medium">Change Password</Label>
+            <Input 
+              id="password" 
+              type="password" 
+              placeholder="Enter new password"
+              className="rounded-full border-slate-200 focus:border-sky-300 focus:ring-sky-200"
+            />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="confirm-password">Confirm Password</Label>
-            <Input id="confirm-password" type="password" placeholder="Confirm new password" />
+            <Label htmlFor="confirm-password" className="text-slate-700 font-medium">Confirm Password</Label>
+            <Input 
+              id="confirm-password" 
+              type="password" 
+              placeholder="Confirm new password"
+              className="rounded-full border-slate-200 focus:border-sky-300 focus:ring-sky-200"
+            />
           </div>
-          <Button>Update Password</Button>
+          <Button className="rounded-full bg-gradient-to-r from-sky-600 to-blue-600 text-white hover:from-sky-700 hover:to-blue-700">
+            Update Password
+          </Button>
         </CardContent>
       </Card>
     </TabsContent>

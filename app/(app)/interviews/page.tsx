@@ -96,57 +96,61 @@ export default function InterviewsPage() {
   }
 
   return (
-    <div className="p-6 max-w-7xl w-full mx-auto">
+    <div className="relative p-6 max-w-7xl w-full mx-auto space-y-8">
+      <div
+        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_10%_20%,rgba(14,165,233,0.15),transparent_45%),radial-gradient(circle_at_90%_10%,rgba(37,99,235,0.2),transparent_45%),linear-gradient(180deg,rgba(255,255,255,0.8),transparent)]"
+        aria-hidden="true"
+      />
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-primary">
+        <h1 className="text-3xl font-bold text-sky-700">
           {
             session?.user?.role === "employer" ? "Candidate Interviews" : "My Interviews"
           }
         </h1>
-        <p className="text-muted-foreground">
+        <p className="text-slate-600">
           Manage your scheduled and completed interviews
         </p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-        <Card>
+        <Card className="border-slate-200 bg-white/90 shadow-lg hover:shadow-xl hover:border-sky-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Interviews</CardTitle>
-            <Video className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-slate-700">Total Interviews</CardTitle>
+            <Video className="h-4 w-4 text-sky-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{filteredApplications.length}</div>
-            <p className="text-xs text-muted-foreground">All time</p>
+            <div className="text-2xl font-bold text-sky-700">{filteredApplications.length}</div>
+            <p className="text-xs text-slate-500">All time</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border-slate-200 bg-white/90 shadow-lg hover:shadow-xl hover:border-sky-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Upcoming</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-slate-700">Upcoming</CardTitle>
+            <Clock className="h-4 w-4 text-sky-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{upcomingInterviews.length}</div>
-            <p className="text-xs text-muted-foreground">Scheduled</p>
+            <div className="text-2xl font-bold text-sky-700">{upcomingInterviews.length}</div>
+            <p className="text-xs text-slate-500">Scheduled</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border-slate-200 bg-white/90 shadow-lg hover:shadow-xl hover:border-sky-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completed</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-slate-700">Completed</CardTitle>
+            <CheckCircle className="h-4 w-4 text-emerald-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{completedInterviews.length}</div>
-            <p className="text-xs text-muted-foreground">Finished</p>
+            <div className="text-2xl font-bold text-emerald-700">{completedInterviews.length}</div>
+            <p className="text-xs text-slate-500">Finished</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border-slate-200 bg-white/90 shadow-lg hover:shadow-xl hover:border-sky-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">This Week</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-slate-700">This Week</CardTitle>
+            <Calendar className="h-4 w-4 text-sky-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-2xl font-bold text-sky-700">
               {applications.filter((app) => {
                 if (!app.interviewRel?.scheduledAt) return false
                 const weekFromNow = new Date()
@@ -155,26 +159,26 @@ export default function InterviewsPage() {
                 return interviewDate >= new Date() && interviewDate <= weekFromNow
               }).length}
             </div>
-            <p className="text-xs text-muted-foreground">Next 7 days</p>
+            <p className="text-xs text-slate-500">Next 7 days</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Search and Filter */}
-      <Card className="mb-6">
+      <Card className="border-slate-200 bg-white/90 shadow-lg rounded-3xl">
         <CardContent className="p-6">
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
               <Input
                 placeholder="Search by job title or company..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-10 h-12 rounded-2xl border-slate-200 focus:border-sky-400 focus:ring-sky-400"
               />
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full lg:w-48">
+              <SelectTrigger className="w-full lg:w-48 rounded-2xl border-slate-200 hover:bg-sky-50 hover:border-sky-300">
                 <SelectValue placeholder="All Status" />
               </SelectTrigger>
               <SelectContent>
@@ -191,10 +195,10 @@ export default function InterviewsPage() {
 
       {/* Interviews Tabs */}
       <Tabs defaultValue="all" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="all">All ({filteredApplications.length})</TabsTrigger>
-          <TabsTrigger value="upcoming">Upcoming ({upcomingInterviews.length})</TabsTrigger>
-          <TabsTrigger value="completed">Completed ({completedInterviews.length})</TabsTrigger>
+        <TabsList className="bg-slate-100/60 rounded-2xl">
+          <TabsTrigger value="all" className="data-[state=active]:bg-sky-600 data-[state=active]:text-white">All ({filteredApplications.length})</TabsTrigger>
+          <TabsTrigger value="upcoming" className="data-[state=active]:bg-sky-600 data-[state=active]:text-white">Upcoming ({upcomingInterviews.length})</TabsTrigger>
+          <TabsTrigger value="completed" className="data-[state=active]:bg-sky-600 data-[state=active]:text-white">Completed ({completedInterviews.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="all" className="space-y-4">
@@ -202,7 +206,7 @@ export default function InterviewsPage() {
             <>
               {sortedUpcoming.length > 0 && (
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-primary">Upcoming Interviews</h3>
+                  <h3 className="text-lg font-semibold text-sky-700">Upcoming Interviews</h3>
                   {sortedUpcoming.map((app) => (
                     <InterviewCard
                       key={app.id}
@@ -214,7 +218,7 @@ export default function InterviewsPage() {
               )}
               {sortedCompleted.length > 0 && (
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-muted-foreground mt-6">
+                  <h3 className="text-lg font-semibold text-slate-600 mt-6">
                     Completed Interviews
                   </h3>
                   {sortedCompleted.map((app) => (
@@ -228,11 +232,11 @@ export default function InterviewsPage() {
               )}
             </>
           ) : (
-            <Card>
+            <Card className="border-slate-200 bg-white/90 shadow-lg">
               <CardContent className="p-12 text-center">
-                <Video className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">No interviews found</p>
-                <p className="text-sm text-muted-foreground mt-2">
+                <Video className="h-12 w-12 mx-auto text-sky-400 mb-4" />
+                <p className="text-slate-600">No interviews found</p>
+                <p className="text-sm text-slate-500 mt-2">
                   Interviews will appear here once you're shortlisted
                 </p>
               </CardContent>
@@ -250,11 +254,11 @@ export default function InterviewsPage() {
               />
             ))
           ) : (
-            <Card>
+            <Card className="border-slate-200 bg-white/90 shadow-lg">
               <CardContent className="p-12 text-center">
-                <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">No upcoming interviews</p>
-                <p className="text-sm text-muted-foreground mt-2">
+                <Calendar className="h-12 w-12 mx-auto text-sky-400 mb-4" />
+                <p className="text-slate-600">No upcoming interviews</p>
+                <p className="text-sm text-slate-500 mt-2">
                   Your scheduled interviews will appear here
                 </p>
               </CardContent>
@@ -272,11 +276,11 @@ export default function InterviewsPage() {
               />
             ))
           ) : (
-            <Card>
+            <Card className="border-slate-200 bg-white/90 shadow-lg">
               <CardContent className="p-12 text-center">
-                <CheckCircle className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">No completed interviews</p>
-                <p className="text-sm text-muted-foreground mt-2">
+                <CheckCircle className="h-12 w-12 mx-auto text-emerald-400 mb-4" />
+                <p className="text-slate-600">No completed interviews</p>
+                <p className="text-sm text-slate-500 mt-2">
                   Completed interviews will appear here
                 </p>
               </CardContent>

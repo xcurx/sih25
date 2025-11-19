@@ -2,6 +2,7 @@
 
 import JobCard from "@/components/jobs/JobCard"
 import Loader from "@/components/loader/Loader"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -10,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Opportunity } from "@/lib/types"
 import axios from "axios"
-import { Briefcase, Filter, Search } from "lucide-react"
+import { Briefcase, Filter, Search, Sparkles, TrendingUp } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
@@ -34,7 +35,7 @@ export default function JobsPage() {
 
   const getOpportunities = async () => {
     try {
-      const res = await axios("/api/placementcell/get-opportunities", { withCredentials: true });
+      const res = await axios("/api/student/get-opportunities", { withCredentials: true });
       if (res.status === 200) {
         setJobs(res.data.opportunities);
         setLoading(false);
@@ -88,47 +89,88 @@ export default function JobsPage() {
   }
 
   return (
-    <div className="p-6 max-w-7xl w-full mx-auto">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-primary">Browse Jobs</h1>
-        <p className="text-muted-foreground">Discover internships and full-time opportunities</p>
+    <div className="relative p-6 max-w-7xl w-full mx-auto space-y-8">
+      {/* Background gradient effect */}
+      <div
+        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_10%_20%,rgba(14,165,233,0.15),transparent_45%),radial-gradient(circle_at_90%_10%,rgba(37,99,235,0.2),transparent_45%),linear-gradient(180deg,rgba(255,255,255,0.8),transparent)]"
+        aria-hidden="true"
+      />
+      
+      {/* Hero Section */}
+      <div className="relative overflow-hidden rounded-3xl border border-sky-100 bg-gradient-to-br from-sky-600 via-sky-500 to-blue-500 p-8 text-white shadow-2xl">
+        <div className="pointer-events-none absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white/20 blur-3xl" />
+        <div className="pointer-events-none absolute bottom-0 left-0 h-32 w-32 rounded-full bg-cyan-400/20 blur-3xl" />
+        <div className="relative space-y-4">
+          <Badge variant="outline" className="border-white/40 bg-white/10 text-white">
+            <Sparkles className="h-3 w-3 mr-1" />
+            Opportunity hub
+          </Badge>
+          <div>
+            <h1 className="text-3xl font-bold">Discover Your Next Career Move</h1>
+            <p className="text-white/90 mt-2">
+              Browse through {jobs.length} carefully curated opportunities from top companies
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-4">
+            {[
+              { label: "Total opportunities", value: jobs.length.toString() },
+              { label: "Active applications", value: jobs.filter(j => j.applied).length.toString() },
+              { label: "New this week", value: jobs.filter(j => {
+                const daysDiff = Math.ceil((new Date().getTime() - new Date(j.postedAt).getTime()) / (1000 * 60 * 60 * 24));
+                return daysDiff <= 7;
+              }).length.toString() },
+            ].map((stat) => (
+              <div key={stat.label} className="rounded-2xl border border-white/20 bg-white/10 px-4 py-3">
+                <p className="text-xs uppercase tracking-[0.2em] text-white/70">{stat.label}</p>
+                <p className="text-2xl font-semibold">{stat.value}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Search and Filter Bar */}
-      <Card className="mb-6">
+      <Card className="border-slate-200 bg-white/90 shadow-lg rounded-3xl">
         <CardContent className="p-6">
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
               <Input
                 placeholder="Search jobs, companies, or keywords..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-10 h-12 rounded-2xl border-slate-200 focus:border-sky-400 focus:ring-sky-400"
               />
             </div>
             <div className="flex gap-2">
               <Button
                 variant="outline"
                 onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 rounded-full border-slate-200 hover:bg-sky-50 hover:border-sky-300"
               >
                 <Filter className="h-4 w-4" />
                 Filters
+                {(selectedDepartment || selectedType || selectedLocation || selectedSkills.length > 0) && (
+                  <Badge className="ml-1 h-5 w-5 rounded-full bg-sky-500 p-0 flex items-center justify-center text-xs">
+                    {[selectedDepartment, selectedType, selectedLocation, ...selectedSkills].filter(Boolean).length}
+                  </Badge>
+                )}
               </Button>
-              <Button variant="outline" onClick={clearFilters}>
-                Clear All
-              </Button>
+              {(searchTerm || selectedDepartment || selectedType || selectedLocation || selectedSkills.length > 0) && (
+                <Button variant="outline" onClick={clearFilters} className="rounded-full border-slate-200 hover:bg-red-50 hover:border-red-300">
+                  Clear All
+                </Button>
+              )}
             </div>
           </div>
 
           {showFilters && (
-            <div className="mt-6 pt-6 border-t">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="mt-6 pt-6 border-t border-slate-200">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="space-y-2">
-                  <Label>Department</Label>
+                  <Label className="text-sm font-semibold text-slate-700">Department</Label>
                   <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
-                    <SelectTrigger>
+                    <SelectTrigger className="rounded-2xl border-slate-200 bg-slate-50/60 hover:bg-white">
                       <SelectValue placeholder="All Departments" />
                     </SelectTrigger>
                     <SelectContent>
@@ -143,9 +185,9 @@ export default function JobsPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Job Type</Label>
+                  <Label className="text-sm font-semibold text-slate-700">Job Type</Label>
                   <Select value={selectedType} onValueChange={setSelectedType}>
-                    <SelectTrigger>
+                    <SelectTrigger className="rounded-2xl border-slate-200 bg-slate-50/60 hover:bg-white">
                       <SelectValue placeholder="All Types" />
                     </SelectTrigger>
                     <SelectContent>
@@ -157,9 +199,9 @@ export default function JobsPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Location</Label>
+                  <Label className="text-sm font-semibold text-slate-700">Location</Label>
                   <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-                    <SelectTrigger>
+                    <SelectTrigger className="rounded-2xl border-slate-200 bg-slate-50/60 hover:bg-white">
                       <SelectValue placeholder="All Locations" />
                     </SelectTrigger>
                     <SelectContent>
@@ -174,16 +216,17 @@ export default function JobsPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Skills</Label>
-                  <div className="max-h-32 overflow-y-auto space-y-2">
+                  <Label className="text-sm font-semibold text-slate-700">Skills</Label>
+                  <div className="max-h-32 overflow-y-auto space-y-2 rounded-2xl border border-slate-200 bg-slate-50/60 p-3">
                     {allSkills.slice(0, 6).map((skill) => (
                       <div key={skill} className="flex items-center space-x-2">
                         <Checkbox
                           id={skill}
                           checked={selectedSkills.includes(skill)}
                           onCheckedChange={() => handleSkillToggle(skill)}
+                          className="data-[state=checked]:bg-sky-600"
                         />
-                        <Label htmlFor={skill} className="text-sm">
+                        <Label htmlFor={skill} className="text-sm text-slate-700 cursor-pointer">
                           {skill}
                         </Label>
                       </div>
@@ -197,14 +240,24 @@ export default function JobsPage() {
       </Card>
 
       {/* Results Summary */}
-      <div className="mb-6 flex items-center justify-between">
-        <p className="text-muted-foreground">
-          Showing {filteredJobs.length} of {jobs.length} jobs
-        </p>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl border border-slate-100 bg-slate-50/60 px-6 py-4">
+        <div className="flex items-center gap-3">
+          <div className="rounded-full bg-sky-100 p-2">
+            <TrendingUp className="h-5 w-5 text-sky-600" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-slate-900">
+              Showing {filteredJobs.length} of {jobs.length} opportunities
+            </p>
+            <p className="text-xs text-slate-500">
+              {filteredJobs.length === jobs.length ? "All results displayed" : "Filters applied"}
+            </p>
+          </div>
+        </div>
         <div className="flex items-center gap-2">
-          <Label htmlFor="sort">Sort by:</Label>
+          <Label htmlFor="sort" className="text-sm text-slate-700">Sort by:</Label>
           <Select defaultValue="recent">
-            <SelectTrigger className="w-40">
+            <SelectTrigger className="w-44 rounded-full border-slate-200 bg-white">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -218,17 +271,28 @@ export default function JobsPage() {
       </div>
 
       {/* Job Listings */}
-      <div className="grid gap-6">
+      <div className="space-y-6">
         {filteredJobs.map((job) => (
           <JobCard key={job.id} job={job} setJobs={setJobs}/>
         ))}
       </div>
 
       {filteredJobs.length === 0 && (
-        <div className="text-center py-12">
-          <Briefcase className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-          <h3 className="text-lg font-medium mb-2">No jobs found</h3>
-          <p className="text-muted-foreground">Try adjusting your search criteria or filters.</p>
+        <div className="rounded-3xl border border-slate-200 bg-white/90 p-12 text-center shadow-lg">
+          <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-slate-100">
+            <Briefcase className="h-10 w-10 text-slate-400" />
+          </div>
+          <h3 className="mb-2 text-xl font-semibold text-slate-900">No opportunities found</h3>
+          <p className="text-slate-500">
+            Try adjusting your search criteria or filters to discover more opportunities.
+          </p>
+          <Button 
+            onClick={clearFilters} 
+            variant="outline" 
+            className="mt-6 rounded-full border-slate-200 hover:bg-sky-50 hover:border-sky-300"
+          >
+            Reset all filters
+          </Button>
         </div>
       )}
     </div>

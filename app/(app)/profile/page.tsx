@@ -38,20 +38,24 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="p-6 max-w-6xl w-full mx-auto">
+    <div className="relative p-6 max-w-6xl w-full mx-auto space-y-8">
+      <div
+        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_10%_20%,rgba(14,165,233,0.15),transparent_45%),radial-gradient(circle_at_90%_10%,rgba(37,99,235,0.2),transparent_45%),linear-gradient(180deg,rgba(255,255,255,0.8),transparent)]"
+        aria-hidden="true"
+      />
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-primary">My Profile</h1>
-          <p className="text-muted-foreground">Manage your academic and professional information</p>
+          <h1 className="text-3xl font-bold text-sky-700">My Profile</h1>
+          <p className="text-slate-600">Manage your academic and professional information</p>
         </div>
-        <Button onClick={() => setIsEditing(!isEditing)}>
+        <Button onClick={() => setIsEditing(!isEditing)} className="rounded-full bg-sky-600 hover:bg-sky-700 text-white">
           <Edit className="mr-2 h-4 w-4" />
           {isEditing ? "Save Changes" : "Edit Profile"}
         </Button>
       </div>
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-6 bg-slate-100/60 rounded-2xl">
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <User className="h-4 w-4" />
             Overview
