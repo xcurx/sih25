@@ -1,12 +1,10 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { DM_Sans } from "next/font/google"
-import { AuthProvider } from "@/contexts/auth-context"
 import { Suspense } from "react"
 import { SessionProvider } from "next-auth/react"
 import "./globals.css"
 import { Toaster } from "@/components/ui/sonner"
-import { DashboardLayout } from "./(app)/page"
 
 const dmSans = DM_Sans({
   subsets: ["latin"],

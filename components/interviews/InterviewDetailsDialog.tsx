@@ -12,7 +12,11 @@ import {
   Clock,
   ExternalLink,
   MapPin,
-  Video
+  Video,
+  DollarSign,
+  Layers,
+  Briefcase,
+  FileText
 } from "lucide-react"
 
 interface InterviewApplication extends Application {
@@ -54,91 +58,100 @@ export default function InterviewDetailsDialog({
 
   return (
     <Dialog open={!!application} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center space-x-2">
-            <Video className="h-5 w-5" />
-            <span>Interview Details</span>
-          </DialogTitle>
-          <DialogDescription>
-            {application.opportunityRel.title} at {application.opportunityRel.companyRel?.name}
-          </DialogDescription>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl border-slate-200">
+        <DialogHeader className="space-y-4">
+          <div className="flex items-start gap-4">
+            <div className="rounded-2xl bg-gradient-to-br from-sky-100 to-blue-100 p-4 shadow-sm">
+              <Video className="h-6 w-6 text-sky-600" />
+            </div>
+            <div className="flex-1">
+              <DialogTitle className="text-2xl font-bold text-slate-900">
+                Interview Details
+              </DialogTitle>
+              <DialogDescription className="text-base font-semibold text-slate-700 mt-1">
+                {application.opportunityRel.title} at {application.opportunityRel.companyRel?.name}
+              </DialogDescription>
+            </div>
+          </div>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-6 mt-6">
           {/* Interview Schedule */}
           {application.interviewRel && (
-            <Card className={isUpcoming ? "border-primary/50" : ""}>
+            <Card className={`border-slate-200 rounded-3xl shadow-lg bg-white/90 ${isUpcoming ? "ring-2 ring-sky-200" : ""}`}>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
+                <CardTitle className="flex items-center gap-2 text-slate-900">
+                  <Calendar className="h-5 w-5 text-sky-600" />
                   Interview Schedule
                   {isUpcoming && (
-                    <Badge className="ml-2 bg-green-500">Upcoming</Badge>
+                    <Badge className="ml-2 rounded-full bg-emerald-100 text-emerald-700 border-emerald-200">
+                      Upcoming
+                    </Badge>
                   )}
                   {!isUpcoming && (
-                    <Badge className="ml-2" variant="secondary">Completed</Badge>
+                    <Badge className="ml-2 rounded-full bg-slate-100 text-slate-700 border-slate-200">
+                      Completed
+                    </Badge>
                   )}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {interviewDateTime && (
                     <>
-                      <div>
-                        <Label className="text-sm font-medium text-muted-foreground">Date</Label>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Calendar className="h-4 w-4 text-muted-foreground" />
-                          <p className="text-base">{interviewDateTime.date}</p>
+                      <div className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+                        <div className="rounded-full bg-slate-100 p-2">
+                          <Calendar className="h-4 w-4 text-slate-600" />
+                        </div>
+                        <div>
+                          <Label className="text-xs text-slate-500">Date</Label>
+                          <p className="text-sm font-medium text-slate-900">{interviewDateTime.date}</p>
                         </div>
                       </div>
-                      <div>
-                        <Label className="text-sm font-medium text-muted-foreground">Time</Label>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Clock className="h-4 w-4 text-muted-foreground" />
-                          <p className="text-base">{interviewDateTime.time}</p>
+                      <div className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+                        <div className="rounded-full bg-slate-100 p-2">
+                          <Clock className="h-4 w-4 text-slate-600" />
+                        </div>
+                        <div>
+                          <Label className="text-xs text-slate-500">Time</Label>
+                          <p className="text-sm font-medium text-slate-900">{interviewDateTime.time}</p>
                         </div>
                       </div>
                     </>
                   )}
                 </div>
                 {application.interviewRel.interviewDetails && (
-                  <div>
-                    <Label className="text-sm font-medium text-muted-foreground">
+                  <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+                    <Label className="text-sm font-semibold text-slate-700 mb-2 block">
                       Additional Details
                     </Label>
-                    <p className="text-sm mt-1">{application.interviewRel.interviewDetails}</p>
+                    <p className="text-sm text-slate-600 leading-relaxed">{application.interviewRel.interviewDetails}</p>
                   </div>
                 )}
                 {application.interviewRel.interviewLink && (
                   <div>
-                    <Label className="text-sm font-medium text-muted-foreground">
-                      Interview Link
-                    </Label>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Button
-                        variant={isUpcoming ? "default" : "outline"}
-                        className="w-full"
-                        asChild
+                    <Button
+                      className={`w-full rounded-full ${isUpcoming ? "bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 text-white shadow-md" : "border-slate-200 hover:bg-slate-50"}`}
+                      variant={isUpcoming ? "default" : "outline"}
+                      asChild
+                    >
+                      <a
+                        href={application.interviewRel.interviewLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
                       >
-                        <a
-                          href={application.interviewRel.interviewLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <ExternalLink className="mr-2 h-4 w-4" />
-                          {isUpcoming ? "Join Interview" : "View Interview Link"}
-                        </a>
-                      </Button>
-                    </div>
+                        <ExternalLink className="mr-2 h-4 w-4" />
+                        {isUpcoming ? "Join Interview" : "View Interview Link"}
+                      </a>
+                    </Button>
                   </div>
                 )}
                 {application.interviewRel.remark && (
-                  <div className="p-4 bg-muted rounded-lg">
-                    <Label className="text-sm font-medium text-muted-foreground">
+                  <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4">
+                    <Label className="text-sm font-semibold text-emerald-700 mb-2 block">
                       Feedback / Remarks
                     </Label>
-                    <p className="text-sm mt-2">{application.interviewRel.remark}</p>
+                    <p className="text-sm text-emerald-900 leading-relaxed">{application.interviewRel.remark}</p>
                   </div>
                 )}
               </CardContent>
@@ -146,63 +159,94 @@ export default function InterviewDetailsDialog({
           )}
 
           {/* Job Details */}
-          <Card>
+          <Card className="border-slate-200 rounded-3xl shadow-lg bg-white/90">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Building2 className="h-5 w-5" />
-                Job Details
+              <CardTitle className="flex items-center gap-2 text-slate-900">
+                <Briefcase className="h-5 w-5 text-sky-600" />
+                Opportunity Details
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <Label className="text-sm font-medium text-muted-foreground">Company</Label>
-                <p className="text-lg font-semibold">{application.opportunityRel.companyRel?.name}</p>
+              <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+                <Label className="text-sm font-semibold text-slate-700">Company</Label>
+                <p className="text-lg font-bold text-slate-900 mt-1">{application.opportunityRel.companyRel?.name}</p>
                 {application.opportunityRel.companyRel?.description && (
-                  <p className="text-sm text-muted-foreground mt-1">
+                  <p className="text-sm text-slate-600 mt-2 leading-relaxed">
                     {application.opportunityRel.companyRel.description}
                   </p>
                 )}
               </div>
-              <div>
-                <Label className="text-sm font-medium text-muted-foreground">Position</Label>
-                <p className="text-base">{application.opportunityRel.title}</p>
+              
+              <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+                <Label className="text-sm font-semibold text-slate-700">Position</Label>
+                <p className="text-base font-medium text-slate-900 mt-1">{application.opportunityRel.title}</p>
               </div>
-              <div>
-                <Label className="text-sm font-medium text-muted-foreground">Description</Label>
-                <p className="text-sm text-muted-foreground mt-1">
+              
+              <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+                <Label className="text-sm font-semibold text-slate-700">Description</Label>
+                <p className="text-sm text-slate-600 mt-2 leading-relaxed">
                   {application.opportunityRel.description}
                 </p>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Location</Label>
-                  <div className="flex items-center gap-2 mt-1">
-                    <MapPin className="h-4 w-4 text-muted-foreground" />
-                    <p className="text-base">{application.opportunityRel.location}</p>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+                  <div className="rounded-full bg-slate-100 p-2">
+                    <MapPin className="h-4 w-4 text-slate-600" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-slate-500">Location</Label>
+                    <p className="text-sm font-medium text-slate-900">{application.opportunityRel.location}</p>
                   </div>
                 </div>
-                <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Job Type</Label>
-                  <p className="text-base capitalize">{application.opportunityRel.type}</p>
+                
+                <div className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+                  <div className="rounded-full bg-slate-100 p-2">
+                    <Briefcase className="h-4 w-4 text-slate-600" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-slate-500">Job Type</Label>
+                    <p className="text-sm font-medium text-slate-900 capitalize">{application.opportunityRel.type}</p>
+                  </div>
                 </div>
-                <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Salary</Label>
-                  <p className="text-base">₹{application.opportunityRel.salary.toLocaleString()}</p>
+                
+                <div className="flex items-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50/60 p-4">
+                  <div className="rounded-full bg-emerald-100 p-2">
+                    <DollarSign className="h-4 w-4 text-emerald-600" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-emerald-600">Salary</Label>
+                    <p className="text-sm font-semibold text-emerald-900">₹{application.opportunityRel.salary.toLocaleString()}</p>
+                  </div>
                 </div>
-                <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Application Status</Label>
-                  <Badge className="mt-1 capitalize">{application.status}</Badge>
+                
+                <div className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+                  <div className="rounded-full bg-slate-100 p-2">
+                    <FileText className="h-4 w-4 text-slate-600" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-slate-500">Status</Label>
+                    <Badge className="mt-1 rounded-full bg-sky-100 text-sky-700 border-sky-200 capitalize">
+                      {application.status}
+                    </Badge>
+                  </div>
                 </div>
               </div>
+              
               {application.opportunityRel.skillsRequired &&
                 application.opportunityRel.skillsRequired.length > 0 && (
-                  <div>
-                    <Label className="text-sm font-medium text-muted-foreground">
+                  <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+                    <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-3">
+                      <Layers className="h-4 w-4 text-slate-500" />
                       Required Skills
                     </Label>
-                    <div className="flex flex-wrap gap-2 mt-2">
+                    <div className="flex flex-wrap gap-2">
                       {application.opportunityRel.skillsRequired.map((skill, index) => (
-                        <Badge key={index} variant="outline">
+                        <Badge 
+                          key={index} 
+                          variant="outline"
+                          className="rounded-full border-sky-200 bg-white text-sky-700 hover:bg-sky-50"
+                        >
                           {skill}
                         </Badge>
                       ))}
@@ -211,11 +255,11 @@ export default function InterviewDetailsDialog({
                 )}
               {application.opportunityRel.requirements &&
                 application.opportunityRel.requirements.length > 0 && (
-                  <div>
-                    <Label className="text-sm font-medium text-muted-foreground">
+                  <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+                    <Label className="text-sm font-semibold text-slate-700 mb-3 block">
                       Requirements
                     </Label>
-                    <ul className="list-disc list-inside text-sm text-muted-foreground mt-2 space-y-1">
+                    <ul className="list-disc list-inside text-sm text-slate-600 space-y-1">
                       {application.opportunityRel.requirements.map((req, index) => (
                         <li key={index}>{req}</li>
                       ))}
@@ -226,25 +270,40 @@ export default function InterviewDetailsDialog({
           </Card>
 
           {/* Application Information */}
-          <Card>
+          <Card className="border-slate-200 rounded-3xl shadow-lg bg-white/90">
             <CardHeader>
-              <CardTitle>Application Information</CardTitle>
+              <CardTitle className="flex items-center gap-2 text-slate-900">
+                <FileText className="h-5 w-5 text-sky-600" />
+                Application Information
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Applied On</Label>
-                  <p className="text-base">{new Date(application.appliedAt).toLocaleDateString()}</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+                  <div className="rounded-full bg-slate-100 p-2">
+                    <Calendar className="h-4 w-4 text-slate-600" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-slate-500">Applied On</Label>
+                    <p className="text-sm font-medium text-slate-900">{new Date(application.appliedAt).toLocaleDateString()}</p>
+                  </div>
                 </div>
-                <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Status</Label>
-                  <Badge className="mt-1 capitalize">{application.status}</Badge>
+                <div className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+                  <div className="rounded-full bg-slate-100 p-2">
+                    <FileText className="h-4 w-4 text-slate-600" />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-slate-500">Status</Label>
+                    <Badge className="mt-1 rounded-full bg-sky-100 text-sky-700 border-sky-200 capitalize">
+                      {application.status}
+                    </Badge>
+                  </div>
                 </div>
               </div>
               {application.coverLetter && (
-                <div>
-                  <Label className="text-sm font-medium text-muted-foreground">Cover Letter</Label>
-                  <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">
+                <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+                  <Label className="text-sm font-semibold text-slate-700 mb-2 block">Cover Letter</Label>
+                  <p className="text-sm text-slate-600 whitespace-pre-wrap leading-relaxed">
                     {application.coverLetter}
                   </p>
                 </div>
@@ -253,12 +312,19 @@ export default function InterviewDetailsDialog({
           </Card>
         </div>
 
-        <div className="flex justify-end gap-2 pt-4 border-t">
-          <Button variant="outline" onClick={onClose}>
+        <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
+          <Button 
+            variant="outline" 
+            onClick={onClose}
+            className="rounded-full border-slate-200 hover:bg-slate-50"
+          >
             Close
           </Button>
           {application.interviewRel?.interviewLink && isUpcoming && (
-            <Button asChild>
+            <Button 
+              className="rounded-full bg-gradient-to-r from-sky-600 to-blue-600 text-white hover:from-sky-700 hover:to-blue-700 shadow-md"
+              asChild
+            >
               <a
                 href={application.interviewRel.interviewLink}
                 target="_blank"

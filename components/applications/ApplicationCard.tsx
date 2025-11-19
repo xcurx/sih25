@@ -65,66 +65,64 @@ export default function ApplicationCard({
   }
 
   return (
-    <Card className="hover:shadow-lg transition-shadow">
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex items-start space-x-4">
-            <div className="p-3 bg-primary/10 rounded-lg">
-              <Building2 className="h-6 w-6 text-primary" />
+    <Card className="group relative overflow-hidden rounded-3xl border-slate-200 bg-white/90 shadow-lg transition-all hover:shadow-xl hover:border-sky-200">
+      {/* Subtle gradient overlay on hover */}
+      <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity group-hover:opacity-100 bg-gradient-to-br from-sky-50/50 to-transparent" />
+      
+      <CardHeader className="relative">
+        <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
+          <div className="flex items-start space-x-4 flex-1">
+            <div className="rounded-2xl bg-gradient-to-br from-sky-100 to-blue-100 p-4 shadow-sm flex-shrink-0">
+              <Building2 className="h-6 w-6 text-sky-600" />
             </div>
-            <div className="flex-1">
-              <div className="flex w-full items-center space-x-2 mb-1 justify-between">
-                <CardTitle className="text-xl">{application.opportunityRel.title}</CardTitle>
-                <div className="flex items-center space-x-1">
-                  <Status status={application.status}/>
-                  <Badge className={`flex items-center gap-1 ${getStatusColor(application.status)}`}>
-                    {getStatusIcon(application.status)}
-                    <span className="capitalize">{
-                      application.status === "mentor_approval_needed"?
-                      "Mentor Approval Needed" : application.status
-                    }</span>
-                  </Badge>
-                </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-col space-y-2 mb-2">
+                <CardTitle className="text-xl font-bold text-slate-900">{application.opportunityRel.title}</CardTitle>
+                <CardDescription className="text-base font-semibold text-slate-700">
+                  {application.opportunityRel.companyRel?.name}
+                </CardDescription>
               </div>
-              <CardDescription className="text-lg font-medium text-foreground">
-                {application.opportunityRel.companyRel?.name}
-              </CardDescription>
-              <div className="flex items-center space-x-4 mt-2 text-sm text-muted-foreground">
-                <div className="flex items-center space-x-1">
-                  <Calendar className="h-4 w-4" />
+              <div className="flex flex-wrap items-center gap-2 mb-3">
+                <div className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1.5 text-sm text-slate-700">
+                  <Calendar className="h-3.5 w-3.5 text-slate-500" />
                   <span>Applied: {new Date(application.appliedAt).toLocaleDateString()}</span>
                 </div>
-                <div className="flex items-center space-x-1">
-                  <FileText className="h-4 w-4" />
-                  <span>{application.opportunityRel.type}</span>
+                <div className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1.5 text-sm text-slate-700">
+                  <FileText className="h-3.5 w-3.5 text-slate-500" />
+                  <span className="capitalize">{application.opportunityRel.type}</span>
                 </div>
+              </div>
+              {/* Status Progress Indicator */}
+              <div className="mt-4">
+                <Status status={application.status}/>
               </div>
             </div>
           </div>
-          {userRole !== "student" && application.studentId && (
-            <div className="flex items-center space-x-3">
-              {/* <Avatar className="h-10 w-10">
-                <AvatarImage src={application.student.avatar || "/placeholder.svg"} alt={application.student.name} />
-                <AvatarFallback>
-                  {application.student.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")}
-                </AvatarFallback>
-              </Avatar> */}
-              {/* <div>
-                <p className="font-medium">{application.student.name}</p>
-                <p className="text-sm text-muted-foreground">CGPA: {application.student.cgpa}</p>
-              </div> */}
-            </div>
-          )}
+          <div className="flex flex-col items-end gap-2">
+            <Badge className={`flex items-center gap-2 rounded-full px-4 py-2 ${getStatusColor(application.status)} text-white border-none shadow-sm`}>
+              {getStatusIcon(application.status)}
+              <span className="capitalize font-medium">
+                {application.status === "mentor_approval_needed"
+                  ? "Mentor Approval Needed"
+                  : application.status}
+              </span>
+            </Badge>
+            {userRole !== "student" && application.studentId && (
+              <div className="flex items-center space-x-3">
+                {/* Student info can be added here */}
+              </div>
+            )}
+          </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="relative space-y-4">
         {application.coverLetter && (
-          <div>
-            <h4 className="font-medium mb-2">Cover Letter:</h4>
-            <p className="text-muted-foreground line-clamp-2">{application.coverLetter}</p>
+          <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+            <h4 className="text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
+              <FileText className="h-4 w-4 text-slate-500" />
+              Cover Letter
+            </h4>
+            <p className="text-slate-600 line-clamp-2 leading-relaxed">{application.coverLetter}</p>
           </div>
         )}
 
@@ -154,31 +152,50 @@ export default function ApplicationCard({
           </div>
         )} */}
 
-        <div className="flex items-center justify-between pt-4 border-t">
-          <div className="flex items-center space-x-2">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-slate-200">
+          <div className="flex flex-wrap items-center gap-2">
             {application.opportunityRel.skillsRequired.slice(0, 3).map((skill, index) => (
-              <Badge key={index} variant="outline" className="text-xs">
+              <Badge 
+                key={index} 
+                variant="outline" 
+                className="text-xs rounded-full border-sky-200 bg-white text-sky-700 hover:bg-sky-50"
+              >
                 {skill}
               </Badge>
             ))}
             {application.opportunityRel.skillsRequired.length > 3 && (
-              <Badge variant="outline" className="text-xs">
+              <Badge 
+                variant="outline" 
+                className="text-xs rounded-full border-slate-300 bg-slate-100 text-slate-700"
+              >
                 +{application.opportunityRel.skillsRequired.length - 3} more
               </Badge>
             )}
           </div>
-          <div className="flex space-x-2">
-            <Button variant="outline" size="sm" onClick={() => onViewDetails(application)}>
+          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => onViewDetails(application)}
+              className="rounded-full border-slate-200 hover:bg-slate-50"
+            >
               <Eye className="mr-2 h-4 w-4" />
               View Details
             </Button>
             {(userRole !== "student" && userRole !== "placement-cell") && application.status === "applied" && (
               <>
-                <Button variant="outline" size="sm">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="rounded-full border-red-200 text-red-700 hover:bg-red-50"
+                >
                   <XCircle className="mr-2 h-4 w-4" />
                   Reject
                 </Button>
-                <Button size="sm">
+                <Button 
+                  size="sm"
+                  className="rounded-full bg-gradient-to-r from-sky-600 to-blue-600 text-white hover:from-sky-700 hover:to-blue-700"
+                >
                   <CheckCircle className="mr-2 h-4 w-4" />
                   Approve
                 </Button>
