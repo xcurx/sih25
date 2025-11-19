@@ -24,6 +24,7 @@ import {
   Menu,
   Settings,
   ShieldCheck,
+  Sparkles,
   UserCheck,
   Users,
 } from "lucide-react"
@@ -32,6 +33,7 @@ const navigationItems = {
   student: [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { name: "Browse Jobs", href: "/jobs", icon: Briefcase },
+    { name: "Recommendations", href: "/recommendation", icon: Sparkles },
     { name: "My Applications", href: "/applications", icon: FileText },
     { name: "Internships", href: "/internships", icon: Briefcase },
     { name: "Recommendations", href: "/recommendation", icon: ShieldCheck },
