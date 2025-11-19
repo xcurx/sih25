@@ -64,6 +64,8 @@ async def add_job(job: JobPosting):
 
 @router.post("/add_bulk")
 async def add_jobs(request: BulkJobRequest):
+    import gc
+    
     store = get_store()
     
     # Check if store is initialized
@@ -74,6 +76,14 @@ async def add_jobs(request: BulkJobRequest):
     
     if not jobs:
         return {"status": "error", "message": "No jobs provided"}
+    
+    # Limit batch size to prevent memory overflow (512MB limit on Render free tier)
+    MAX_BATCH_SIZE = 50
+    if len(jobs) > MAX_BATCH_SIZE:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Batch size too large. Maximum {MAX_BATCH_SIZE} jobs per request. Split into smaller batches."
+        )
     
     # Get existing job IDs
     existing_ids = set(meta.get("id") for meta in store.metadatas)
@@ -150,6 +160,12 @@ async def add_jobs(request: BulkJobRequest):
             vectors_array = np.vstack(vectors_to_add)
             store.add(vectors_array, metadata_to_add)
             store.save()
+            
+            # Force garbage collection to free memory
+            del vectors_array
+            del vectors_to_add
+            gc.collect()
+            
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Failed to save jobs: {str(e)}")
     
