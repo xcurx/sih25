@@ -4,10 +4,9 @@ import gc
 
 # Use smaller, more memory-efficient model for 512MB limit
 # Options (smaller to larger):
-# - "all-MiniLM-L3-v2" (smallest, 45MB, fastest, 384 dim)
-# - "paraphrase-MiniLM-L3-v2" (61MB, fast, 384 dim) ← Current
-# - "all-MiniLM-L6-v2" (90MB, best quality but OOM on free tier, 384 dim)
-MODEL_NAME = "all-MiniLM-L3-v2"  # Best balance: 45MB, good quality, faster
+# - "paraphrase-MiniLM-L3-v2" (61MB, fast, 384 dim) ← Current (best for 512MB)
+# - "all-MiniLM-L6-v2" (90MB, best quality but may OOM on free tier, 384 dim)
+MODEL_NAME = "paraphrase-MiniLM-L3-v2"  # Best balance for Render free tier
 _model = None
 
 def get_model():
