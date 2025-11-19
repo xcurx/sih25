@@ -1,7 +1,13 @@
 from sentence_transformers import SentenceTransformer
 import numpy as np
+import gc
 
-MODEL_NAME = "all-MiniLM-L6-v2"
+# Use smaller, more memory-efficient model for 512MB limit
+# Options (smaller to larger):
+# - "all-MiniLM-L3-v2" (smallest, 45MB, fastest, 384 dim)
+# - "paraphrase-MiniLM-L3-v2" (61MB, fast, 384 dim) ← Current
+# - "all-MiniLM-L6-v2" (90MB, best quality but OOM on free tier, 384 dim)
+MODEL_NAME = "all-MiniLM-L3-v2"  # Best balance: 45MB, good quality, faster
 _model = None
 
 def get_model():
@@ -12,8 +18,12 @@ def get_model():
 
 def embed_text(text: str) -> np.ndarray:
     model = get_model()
-    v = model.encode(text, convert_to_numpy=True)
+    v = model.encode(text, convert_to_numpy=True, show_progress_bar=False)
     norm = np.linalg.norm(v)
     if norm > 0:
         v = v / norm
+    
+    # Force garbage collection to free memory
+    gc.collect()
+    
     return v.astype("float32")
