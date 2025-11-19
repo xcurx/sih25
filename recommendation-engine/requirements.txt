@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+sentence-transformers
+faiss-cpu
+pdfplumber
+python-docx
+rapidfuzz
+pydantic
+numpy
+typing-extensions
+python-multipart
