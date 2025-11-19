@@ -14,36 +14,44 @@ const Preferences = ({ isEditing }: { isEditing:boolean }) => {
 
   return (
      <TabsContent value="preferences" className="space-y-6">
-      <Card>
+      <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-lg">
         <CardHeader>
-          <CardTitle>Job Preferences</CardTitle>
-          <CardDescription>Set your preferences for job recommendations</CardDescription>
+          <CardTitle className="text-slate-900">Job Preferences</CardTitle>
+          <CardDescription className="text-slate-600">Set your preferences for job recommendations</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label>Preferred Job Types</Label>
-              <div className="flex flex-wrap gap-2">
+            <div className="space-y-3">
+              <Label className="text-slate-700 font-medium">Preferred Job Types</Label>
+              <div className="flex flex-wrap gap-2 rounded-2xl bg-slate-50 p-4 border border-slate-100">
                 {student.preferences.jobTypes.map((type, index) => (
-                  <Badge key={index} variant="secondary">
+                  <Badge 
+                    key={index} 
+                    variant="secondary"
+                    className="rounded-full border-sky-200 bg-sky-50 text-sky-700"
+                  >
                     {type}
                   </Badge>
                 ))}
               </div>
             </div>
-            <div className="space-y-2">
-              <Label>Preferred Locations</Label>
-              <div className="flex flex-wrap gap-2">
+            <div className="space-y-3">
+              <Label className="text-slate-700 font-medium">Preferred Locations</Label>
+              <div className="flex flex-wrap gap-2 rounded-2xl bg-slate-50 p-4 border border-slate-100">
                 {student.preferences.locations.map((location, index) => (
-                  <Badge key={index} variant="secondary">
+                  <Badge 
+                    key={index} 
+                    variant="secondary"
+                    className="rounded-full border-sky-200 bg-sky-50 text-sky-700"
+                  >
                     {location}
                   </Badge>
                 ))}
               </div>
             </div>
           </div>
-          <div className="space-y-2">
-            <Label>Salary Range (Annual)</Label>
+          <div className="space-y-3">
+            <Label className="text-slate-700 font-medium">Salary Range (Annual)</Label>
             <div className="flex items-center space-x-4">
               <Input
                 type="number"
@@ -51,22 +59,28 @@ const Preferences = ({ isEditing }: { isEditing:boolean }) => {
                 onChange={(e) => {}}
                 value={student.preferences.salaryRange.min}
                 disabled={!isEditing}
+                className="rounded-full border-slate-200 disabled:bg-slate-50"
               />
-              <span>to</span>
+              <span className="text-slate-600 font-medium">to</span>
               <Input
                 type="number"
                 placeholder="Max"
                 onChange={(e) => {}}
                 value={student.preferences.salaryRange.max}
                 disabled={!isEditing}
+                className="rounded-full border-slate-200 disabled:bg-slate-50"
               />
             </div>
           </div>
-          <div className="space-y-2">
-            <Label>Preferred Industries</Label>
-            <div className="flex flex-wrap gap-2">
+          <div className="space-y-3">
+            <Label className="text-slate-700 font-medium">Preferred Industries</Label>
+            <div className="flex flex-wrap gap-2 rounded-2xl bg-slate-50 p-4 border border-slate-100">
               {student.preferences.industries.map((industry, index) => (
-                <Badge key={index} variant="secondary">
+                <Badge 
+                  key={index} 
+                  variant="secondary"
+                  className="rounded-full border-sky-200 bg-sky-50 text-sky-700"
+                >
                   {industry}
                 </Badge>
               ))}

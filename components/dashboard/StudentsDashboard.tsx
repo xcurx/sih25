@@ -195,7 +195,7 @@ export default function StudentDashboard() {
                   </div>
                   <div className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1">
                     <Layers className="h-4 w-4 text-slate-400" aria-hidden="true" />
-                    {job.category ?? "Technology"}
+                    {"Technology"}
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
