@@ -41,3 +41,11 @@ yarn-error.log*
 next-env.d.ts
 
 /lib/generated/prisma
+
+
+# backend venv
+recommendation-engine/.venv/
+
+# python cache
+recommendation-engine/app/__pycache__/
+recommendation-engine/app/routes/__pycache__/
