@@ -223,11 +223,11 @@ export default function EmployerDashboard() {
         <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {students.slice(0, 6).map((student, index) => (
             <div key={`${student.id}-${index}`} className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
-              <p className="text-sm font-semibold text-slate-900">{student.institution ?? "Institute"}</p>
+              <p className="text-sm font-semibold text-slate-900">{"Institute"}</p>
               <p className="text-xs text-slate-500">{student.branch}</p>
               <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs text-slate-600">
                 <MapPin className="h-3.5 w-3.5 text-sky-500" aria-hidden="true" />
-                {student.city ?? "Across India"}
+                {"Across India"}
               </div>
             </div>
           ))}

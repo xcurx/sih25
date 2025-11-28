@@ -117,6 +117,7 @@ export interface Interview {
   applicationId: string
   scheduledAt: string
   interviewLink: string
+  status: InterviewStatus
   interviewDetails?: string
   remark?: string
 }
@@ -125,6 +126,7 @@ export interface InterviewApplication extends Application {
   interviewRel?: Interview
 }
 
+export type InterviewStatus = "scheduled" | "completed" | "canceled" | "rejected" | "accepted"
 export interface Faculty {
   id: string
   name: string

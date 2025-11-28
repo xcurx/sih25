@@ -107,6 +107,7 @@ model Application {
   mentorRemarks String?
   mentorApproved Boolean? @default(false)
   interviewRel Interview?
+  intership Internship?
 }
 
 model Interview {
@@ -115,8 +116,19 @@ model Interview {
   applicationRel Application @relation(fields: [applicationId], references: [id])
   scheduledAt DateTime
   interviewLink String
+  status InterviewStatus @default(scheduled)
   interviewerDetails String?
   remarks String?
+}
+
+model Internship {
+  id String @id @default(cuid())
+  applicationId String @unique
+  applicationRel Application @relation(fields: [applicationId], references: [id])
+  startDate DateTime
+  endDate DateTime
+  salary String?
+  performanceReview String?
 }
 
 enum Status {
@@ -132,4 +144,12 @@ enum ApplicationStatus {
   shortlisted
   rejected
   accepted
+}
+
+enum InterviewStatus {
+  scheduled
+  completed
+  accepted
+  rejected
+  canceled
 }
