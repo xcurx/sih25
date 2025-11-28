@@ -82,15 +82,15 @@ export default function EmployerDashboard() {
                 variant="secondary" 
                 className="rounded-full bg-white/20 text-white hover:bg-white/30"
              >
-                <a href="/jobs/post">
-                  Post New Job
-                </a>
+               <a href="/jobs/post">
+                 Post New Job
+               </a>
              </Button>
              <Button
                 asChild
                 className="rounded-full bg-white text-slate-900 hover:bg-slate-100"
              >
-                <a href="/applications">View All Applications</a>
+               <a href="/applications">View All Applications</a>
              </Button>
           </div>
         </div>
@@ -121,117 +121,141 @@ export default function EmployerDashboard() {
 
       {/* Recent Applications & Job Performance - Two column layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Applications Card */}
+        {/* Recent Applications Card - Updated UI */}
         <Card className="border-slate-200 bg-white/90 shadow-lg rounded-xl">
-          <CardHeader>
+          <CardHeader className="border-b border-slate-100 pb-4">
             <CardTitle className="text-xl text-slate-900">Recent Applications</CardTitle>
             <CardDescription>Latest candidate applications</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 p-6">
             {loadingStudents ? (
               <Loader/>
             ) : students.length === 0 ? (
-              <p className="text-sm text-center text-muted-foreground">No applications yet.</p>
+              <div className="py-6 text-center">
+                <FileText className="h-8 w-8 text-slate-300 mx-auto mb-2" />
+                <p className="text-sm text-slate-500">No applications received yet.</p>
+                <Button variant="link" asChild className="text-sky-600 px-0 mt-2">
+                  <a href="/jobs/post">Post your first job</a>
+                </Button>
+              </div>
             ) : (
-              students.slice(0, 3).map((student: any) => (
-                <div 
-                  key={student.id} 
-                  className="flex items-center justify-between gap-4 rounded-2xl border border-slate-100 bg-slate-50/60 p-4 transition hover:border-sky-200 hover:bg-white"
-                >
-                  <div className="flex items-center space-x-4">
-                    <Avatar>
-                      <AvatarImage src={student.avatar || "/placeholder.svg"} alt={student.name} />
-                      <AvatarFallback>
-                        {student.name.split(" ").map((n: string) => n[0]).join("")}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <h3 className="text-base font-semibold">{student.name}</h3>
-                      <p className="text-sm text-slate-500">
-                        {student.branch} • CGPA: {student.cgpa}
-                      </p>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {student.skills && student.skills.slice(0, 3).map((skill: string, index: number) => (
-                          <Badge key={index} variant="outline" className="text-xs border-slate-200 bg-white text-slate-700">
-                            {skill}
-                          </Badge>
-                        ))}
+              <div className="space-y-4">
+                {students.slice(0, 5).map((student: any) => (
+                  <div 
+                    key={student.id} 
+                    className="flex items-center justify-between gap-4 rounded-xl p-3 transition hover:bg-slate-50"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <Avatar className="h-10 w-10 border border-slate-200">
+                        <AvatarImage src={student.avatar || "/placeholder.svg"} alt={student.name} />
+                        <AvatarFallback className="bg-sky-50 text-sky-700 font-medium text-sm">
+                          {student.name.split(" ").map((n: string) => n[0]).join("")}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-base font-semibold text-slate-800 truncate">{student.name}</h3>
+                        <p className="text-xs text-slate-500 truncate">
+                          {student.branch} • CGPA: <span className="font-medium text-slate-700">{student.cgpa}</span>
+                        </p>
                       </div>
                     </div>
+                    
+                    <div className="flex space-x-2 shrink-0 items-center">
+                      <Badge 
+                        variant="secondary" 
+                        className={`text-xs font-medium uppercase ${
+                          student.applicationStatus === "PENDING" ? "bg-amber-100 text-amber-700" :
+                          student.applicationStatus === "REVIEWED" ? "bg-blue-100 text-blue-700" :
+                          student.applicationStatus === "INTERVIEW" ? "bg-purple-100 text-purple-700" :
+                          "bg-slate-100 text-slate-600"
+                        }`}
+                      >
+                        {student.applicationStatus}
+                      </Badge>
+                      <Button size="sm" variant="ghost" className="rounded-full text-slate-600 hover:bg-sky-50 hover:text-sky-700 p-2 h-8 w-8">
+                        <FileText className="h-4 w-4" aria-hidden="true" />
+                        <span className="sr-only">View Application</span>
+                      </Button>
+                    </div>
                   </div>
-                  
-                  <div className="flex space-x-2 shrink-0">
-                    <Button size="sm" variant="outline" className="rounded-full">
-                      View
-                    </Button>
-                    {/* Primary action uses the sky/blue accent color */}
-                    <Button size="sm" className="rounded-full bg-sky-600 text-white hover:bg-sky-500">
-                      Interview
-                    </Button>
-                  </div>
-                </div>
-              ))
+                ))}
+              </div>
             )}
             
-            {/* Action button to view all applications */}
+            {/* Action button to view all applications - Updated UI */}
             {students.length > 0 && (
-                <Button variant="ghost" className="w-full justify-between text-slate-600 hover:text-slate-900 rounded-full">
-                    View All Applications 
-                    <Users className="h-4 w-4" aria-hidden="true" />
+                <Button asChild variant="outline" className="w-full mt-4 justify-center rounded-full border-sky-300 text-sky-600 hover:bg-sky-50 hover:border-sky-400">
+                  <a href="/applications" className="flex items-center gap-2">
+                      View All Applications 
+                      <Users className="h-4 w-4" aria-hidden="true" />
+                  </a>
                 </Button>
             )}
           </CardContent>
         </Card>
 
-        {/* Job Performance Card */}
+        {/* Job Performance Card - Updated UI */}
         <Card className="border-slate-200 bg-white/90 shadow-lg rounded-xl">
-          <CardHeader>
+          <CardHeader className="border-b border-slate-100 pb-4">
             <CardTitle className="text-xl text-slate-900">Job Performance</CardTitle>
             <CardDescription>Application statistics for your job postings</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-5 p-6">
             {loadingOpportunities ? (
               <Loader/>
             ) : opportunities.length === 0 ? (
-              <p className="text-sm text-center text-muted-foreground">No job postings yet.</p>
+              <div className="py-6 text-center">
+                <Briefcase className="h-8 w-8 text-slate-300 mx-auto mb-2" />
+                <p className="text-sm text-slate-500">No active job postings.</p>
+                <Button variant="link" asChild className="text-sky-600 px-0 mt-2">
+                  <a href="/jobs/post">Start hiring now</a>
+                </Button>
+              </div>
             ) : (
-              opportunities.slice(0, 3).map((job: any) => (
-                <div key={job.id} className="p-4 border border-slate-100 bg-slate-50/60 rounded-2xl">
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="text-base font-semibold text-slate-900">{job.title}</h3>
-                    <Badge variant="secondary" className={`text-sm ${job.status === "active" ? "bg-sky-100 text-sky-700" : "bg-slate-200 text-slate-700"}`}>
-                      {job.status}
-                    </Badge>
+              <div className="space-y-4">
+                {opportunities.slice(0, 3).map((job: any) => (
+                  <div key={job.id} className="p-4 border border-slate-200 bg-slate-50/60 rounded-xl transition hover:border-sky-300">
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="text-lg font-semibold text-slate-900 truncate">{job.title}</h3>
+                      <Badge 
+                        variant="secondary" 
+                        className={`text-xs uppercase font-medium ml-4 shrink-0 ${job.status === "active" ? "bg-sky-100 text-sky-700" : "bg-slate-200 text-slate-700"}`}
+                      >
+                        {job.status}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-slate-500 mb-4 flex items-center gap-2">
+                      <Calendar className="h-3 w-3 text-slate-400" />
+                      {job.location} • {job.type}
+                    </p>
+                    <div className="grid grid-cols-3 divide-x divide-slate-200 border-t border-slate-200 pt-3">
+                      <div className="p-1 text-center">
+                        <div className="text-2xl font-bold text-sky-600">{job._count.applications}</div>
+                        <div className="text-xs text-slate-500">Applications</div>
+                      </div>
+                      <div className="p-1 text-center">
+                        <div className="text-2xl font-bold text-blue-600">0</div> 
+                        <div className="text-xs text-slate-500">Shortlisted</div>
+                      </div>
+                      <div className="p-1 text-center">
+                        <div className="text-2xl font-bold text-emerald-600">0</div>
+                        <div className="text-xs text-slate-500">Hired</div>
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-sm text-slate-500 mb-3">
-                    {job.location} • {job.type}
-                  </p>
-                  <div className="grid grid-cols-3 gap-4 text-center border-t border-slate-100 pt-3">
-                    <div className="p-1">
-                      <div className="text-xl font-bold text-slate-900">{job._count.applications}</div>
-                      <div className="text-xs text-slate-500">Applications</div>
-                    </div>
-                    <div className="p-1">
-                      <div className="text-xl font-bold text-slate-900">0</div> 
-                      <div className="text-xs text-slate-500">Shortlisted</div>
-                    </div>
-                    <div className="p-1">
-                      <div className="text-xl font-bold text-slate-900">0</div>
-                      <div className="text-xs text-slate-500">Hired</div>
-                    </div>
-                  </div>
-                </div>
-              ))
+                ))}
+              </div>
             )}
-             {/* Weekly Insights Card - Adopting a similar helper box from Student Dashboard */}
-             <div className="rounded-2xl border border-slate-100 bg-gradient-to-r from-slate-50 via-white to-slate-50 p-4 text-sm text-slate-600">
-                <p className="flex items-center gap-2 text-slate-700">
-                    <TrendingUp className="h-4 w-4 text-sky-600" aria-hidden="true" />
-                    Hiring Tip
-                </p>
-                <p className="mt-2 text-xs text-slate-500">
-                    Review and interview your first five candidates within 48 hours to boost candidate engagement and acceptance rate.
-                </p>
+            
+            {/* Weekly Insights Card - Adopting a similar helper box from Student Dashboard */}
+            <div className="rounded-xl border-2 border-sky-300/50 bg-sky-50/40 p-4 text-sm text-slate-600 shadow-inner">
+              <p className="flex items-center gap-2 text-sky-800 font-semibold">
+                <TrendingUp className="h-4 w-4 text-sky-600" aria-hidden="true" />
+                Quick Tip
+              </p>
+              <p className="mt-2 text-xs text-slate-600 leading-relaxed">
+                Review and interview your first five candidates within 48 hours to boost candidate engagement and acceptance rate. Active jobs attract better talent!
+              </p>
             </div>
           </CardContent>
         </Card>
