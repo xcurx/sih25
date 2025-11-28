@@ -65,7 +65,9 @@ export const POST = async (req: NextRequest) => {
                 skillsRequired,
                 additionalInfo,
                 employerId,
-                companyId
+                companyId,
+                startDate: "2026-06-28T15:52:12.803Z",
+                endDate: "2026-12-28T15:52:12.803Z",
             }
         })
     
