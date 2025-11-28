@@ -37,6 +37,7 @@ model Student {
   applications Application[]
   mentorId String?
   mentorRel Faculty? @relation(fields: [mentorId], references: [id])
+  internships Internship[]
 }
 
 model Faculty {
@@ -88,11 +89,14 @@ model Opportunity {
   eligibleDepartments String[]
   skillsRequired String[]
   additionalInfo String?
+  startDate DateTime
+  endDate DateTime
   employerId String
   employerRel Employer @relation(fields: [employerId], references: [id])
   companyId String
   companyRel Company @relation(fields: [companyId], references: [id])
   applications Application[]
+  internships Internship[]
 }
 
 model Application {
@@ -124,6 +128,10 @@ model Interview {
 model Internship {
   id String @id @default(cuid())
   applicationId String @unique
+  opportunityId String
+  studentId String
+  studentRel Student @relation(fields: [studentId], references: [id])
+  opportunityRel Opportunity @relation(fields: [opportunityId], references: [id])
   applicationRel Application @relation(fields: [applicationId], references: [id])
   startDate DateTime
   endDate DateTime

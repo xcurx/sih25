@@ -19,7 +19,7 @@ export const PATCH = async (req: NextRequest, context: { params: Promise<{ id:st
             return NextResponse.json({ message: 'Invalid action' }, { status: 400 });
         }
 
-        let interview = await prisma.interview.findUnique({
+        const interview = await prisma.interview.findUnique({
             where: { id },
         })
 
@@ -35,19 +35,39 @@ export const PATCH = async (req: NextRequest, context: { params: Promise<{ id:st
             return NextResponse.json({ message: `Cannot complete an interview before its scheduled time` }, { status: 400 });
         }
 
-        interview = await prisma.interview.update({
+        const updatedInterview = await prisma.interview.update({
             where: { id },
-            data: { status: action }
+            data: { status: action },
+            include: {
+                applicationRel: {
+                    include: {
+                        opportunityRel: true
+                    }
+                }
+            }
         })
 
         if (action === 'accepted' || action === 'rejected') {
             await prisma.application.update({
-                where: { id: interview.applicationId },
+                where: { id: updatedInterview.applicationId },
                 data: { status: action === 'accepted' ? action : action }
             })
+
+            if (action === 'accepted') {
+                const internship = await prisma.internship.create({
+                    data: {
+                        studentId: updatedInterview.applicationRel.studentId,
+                        opportunityId: updatedInterview.applicationRel.opportunityId,
+                        applicationId: updatedInterview.applicationId,
+                        endDate: updatedInterview.applicationRel.opportunityRel.endDate,
+                        startDate: updatedInterview.applicationRel.opportunityRel.startDate,
+                        salary: updatedInterview.applicationRel.opportunityRel.salary,
+                    }
+                })
+            }
         }
 
-        return NextResponse.json({ message: `Interview ${action} successfully`, interview }, { status: 200 });
+        return NextResponse.json({ message: `Interview ${action} successfully`, updatedInterview }, { status: 200 });
     } catch (error) {
         if (error instanceof Prisma.PrismaClientKnownRequestError &&  error.code == "P2025") {
             return NextResponse.json({ message: "Interview not found" }, { status: 404 });
