@@ -1,0 +1,402 @@
+"""
+PostgreSQL Database Module with pgvector support
+
+This module handles:
+1. Connection to Neon PostgreSQL
+2. Job persistence (save/load/delete)
+3. Embedding storage using pgvector
+"""
+
+import os
+import json
+import logging
+from typing import List, Optional, Dict, Any
+from contextlib import contextmanager
+
+import psycopg2
+from psycopg2.extras import RealDictCursor, execute_values
+import numpy as np
+from dotenv import load_dotenv
+
+from models.schemas import Opportunity
+
+# Load environment variables
+load_dotenv()
+
+logger = logging.getLogger(__name__)
+
+
+class DatabaseManager:
+    def __init__(self):
+        self.database_url = os.getenv("DATABASE_URL")
+        self._initialized = False
+        
+        if not self.database_url:
+            logger.warning(
+                "DATABASE_URL not set. Running in memory-only mode. "
+                "Set DATABASE_URL environment variable for persistence."
+            )
+    
+    @property
+    def is_configured(self) -> bool:
+        return self.database_url is not None
+    
+    @contextmanager
+    def get_connection(self):
+        if not self.database_url:
+            raise RuntimeError("Database not configured")
+        
+        conn = psycopg2.connect(self.database_url)
+        try:
+            yield conn
+            conn.commit()
+        except Exception as e:
+            conn.rollback()
+            raise e
+        finally:
+            conn.close()
+    
+    def initialize_tables(self) -> bool:
+        if not self.is_configured:
+            logger.warning("Database not configured, skipping initialization")
+            return False
+        
+        try:
+            with self.get_connection() as conn:
+                with conn.cursor() as cur:
+                    # Enable pgvector extension
+                    cur.execute("CREATE EXTENSION IF NOT EXISTS vector;")
+                    
+                    # Create jobs table
+                    cur.execute("""
+                        CREATE TABLE IF NOT EXISTS jobs (
+                            id VARCHAR(255) PRIMARY KEY,
+                            title VARCHAR(500) NOT NULL,
+                            description TEXT NOT NULL,
+                            type VARCHAR(50) NOT NULL,
+                            location VARCHAR(255) NOT NULL,
+                            skills_required JSONB DEFAULT '[]',
+                            requirements JSONB DEFAULT '[]',
+                            eligible_departments JSONB DEFAULT '[]',
+                            additional_info TEXT,
+                            status VARCHAR(50) DEFAULT 'active',
+                            embedding vector(384),
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                        );
+                    """)
+                    
+                    # Create index on status for faster filtering
+                    cur.execute("""
+                        CREATE INDEX IF NOT EXISTS idx_jobs_status 
+                        ON jobs(status);
+                    """)
+                    
+                    # Create vector index for similarity search (optional optimization)
+                    cur.execute("""
+                        CREATE INDEX IF NOT EXISTS idx_jobs_embedding 
+                        ON jobs USING ivfflat (embedding vector_cosine_ops)
+                        WITH (lists = 100);
+                    """)
+                    
+            self._initialized = True
+            logger.info("Database tables initialized successfully")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Failed to initialize database: {e}")
+            return False
+    
+    def save_job(
+        self, 
+        job: Opportunity, 
+        embedding: np.ndarray
+    ) -> bool:
+        if not self.is_configured:
+            return False
+        
+        try:
+            with self.get_connection() as conn:
+                with conn.cursor() as cur:
+                    # Convert embedding to list for pgvector (handle both numpy arrays and lists)
+                    embedding_list = embedding.tolist() if hasattr(embedding, 'tolist') else embedding
+                    
+                    cur.execute("""
+                        INSERT INTO jobs (
+                            id, title, description, type, location,
+                            skills_required, requirements, eligible_departments,
+                            additional_info, status, embedding
+                        ) VALUES (
+                            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+                        )
+                        ON CONFLICT (id) DO UPDATE SET
+                            title = EXCLUDED.title,
+                            description = EXCLUDED.description,
+                            type = EXCLUDED.type,
+                            location = EXCLUDED.location,
+                            skills_required = EXCLUDED.skills_required,
+                            requirements = EXCLUDED.requirements,
+                            eligible_departments = EXCLUDED.eligible_departments,
+                            additional_info = EXCLUDED.additional_info,
+                            status = EXCLUDED.status,
+                            embedding = EXCLUDED.embedding,
+                            updated_at = CURRENT_TIMESTAMP;
+                    """, (
+                        job.id,
+                        job.title,
+                        job.description,
+                        job.type,
+                        job.location,
+                        json.dumps(job.skillsRequired or []),
+                        json.dumps(job.requirements or []),
+                        json.dumps(job.eligibleDepartments or []),
+                        job.additionalInfo,
+                        job.status,
+                        embedding_list
+                    ))
+                    
+            logger.debug(f"Saved job to database: {job.id}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Failed to save job {job.id}: {e}")
+            return False
+    
+    def save_jobs_bulk(
+        self, 
+        jobs_with_embeddings: List[tuple]
+    ) -> int:
+        if not self.is_configured or not jobs_with_embeddings:
+            return 0
+        
+        try:
+            with self.get_connection() as conn:
+                with conn.cursor() as cur:
+                    values = []
+                    for job, embedding in jobs_with_embeddings:
+                        # Handle both numpy arrays and lists
+                        embedding_list = embedding.tolist() if hasattr(embedding, 'tolist') else embedding
+                        values.append((
+                            job.id,
+                            job.title,
+                            job.description,
+                            job.type,
+                            job.location,
+                            json.dumps(job.skillsRequired or []),
+                            json.dumps(job.requirements or []),
+                            json.dumps(job.eligibleDepartments or []),
+                            job.additionalInfo,
+                            job.status,
+                            embedding_list
+                        ))
+                    
+                    execute_values(
+                        cur,
+                        """
+                        INSERT INTO jobs (
+                            id, title, description, type, location,
+                            skills_required, requirements, eligible_departments,
+                            additional_info, status, embedding
+                        ) VALUES %s
+                        ON CONFLICT (id) DO UPDATE SET
+                            title = EXCLUDED.title,
+                            description = EXCLUDED.description,
+                            type = EXCLUDED.type,
+                            location = EXCLUDED.location,
+                            skills_required = EXCLUDED.skills_required,
+                            requirements = EXCLUDED.requirements,
+                            eligible_departments = EXCLUDED.eligible_departments,
+                            additional_info = EXCLUDED.additional_info,
+                            status = EXCLUDED.status,
+                            embedding = EXCLUDED.embedding,
+                            updated_at = CURRENT_TIMESTAMP;
+                        """,
+                        values
+                    )
+                    
+            logger.info(f"Bulk saved {len(jobs_with_embeddings)} jobs to database")
+            return len(jobs_with_embeddings)
+            
+        except Exception as e:
+            logger.error(f"Failed to bulk save jobs: {e}")
+            return 0
+    
+    def load_all_jobs(self) -> List[Dict[str, Any]]:
+        if not self.is_configured:
+            return []
+        
+        try:
+            with self.get_connection() as conn:
+                with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                    cur.execute("""
+                        SELECT 
+                            id, title, description, type, location,
+                            skills_required, requirements, eligible_departments,
+                            additional_info, status, embedding
+                        FROM jobs;
+                    """)
+                    
+                    rows = cur.fetchall()
+                    
+            jobs_data = []
+            for row in rows:
+                # Parse embedding string to numpy array
+                embedding = None
+                if row['embedding']:
+                    # pgvector returns embedding as string like "[0.1, 0.2, ...]"
+                    embedding_str = row['embedding']
+                    if isinstance(embedding_str, str):
+                        embedding = np.array(json.loads(embedding_str))
+                    else:
+                        embedding = np.array(embedding_str)
+                
+                jobs_data.append({
+                    'id': row['id'],
+                    'title': row['title'],
+                    'description': row['description'],
+                    'type': row['type'],
+                    'location': row['location'],
+                    'skillsRequired': row['skills_required'] or [],
+                    'requirements': row['requirements'] or [],
+                    'eligibleDepartments': row['eligible_departments'] or [],
+                    'additionalInfo': row['additional_info'],
+                    'status': row['status'],
+                    'embedding': embedding
+                })
+            
+            logger.info(f"Loaded {len(jobs_data)} jobs from database")
+            return jobs_data
+            
+        except Exception as e:
+            logger.error(f"Failed to load jobs from database: {e}")
+            return []
+    
+    def delete_job(self, job_id: str) -> bool:
+        if not self.is_configured:
+            return False
+        
+        try:
+            with self.get_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("DELETE FROM jobs WHERE id = %s;", (job_id,))
+                    
+            logger.debug(f"Deleted job from database: {job_id}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Failed to delete job {job_id}: {e}")
+            return False
+    
+    def clear_all_jobs(self) -> bool:
+        if not self.is_configured:
+            return False
+        
+        try:
+            with self.get_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("TRUNCATE TABLE jobs;")
+                    
+            logger.info("Cleared all jobs from database")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Failed to clear jobs: {e}")
+            return False
+    
+    def get_job_count(self) -> int:
+        if not self.is_configured:
+            return 0
+        
+        try:
+            with self.get_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("SELECT COUNT(*) FROM jobs;")
+                    return cur.fetchone()[0]
+        except Exception as e:
+            logger.error(f"Failed to get job count: {e}")
+            return 0
+    
+    def search_similar_jobs(
+        self,
+        query_embedding: List[float],
+        status_filter: Optional[str] = "active",
+        job_type_filter: Optional[str] = None,
+        limit: int = 50
+    ) -> List[Dict[str, Any]]:
+        if not self.is_configured:
+            return []
+        
+        try:
+            with self.get_connection() as conn:
+                with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                    # Build query with filters
+                    query = """
+                        SELECT 
+                            id, title, description, type, location,
+                            skills_required, requirements, eligible_departments,
+                            additional_info, status,
+                            1 - (embedding <=> %s::vector) as similarity
+                        FROM jobs
+                        WHERE 1=1
+                    """
+                    params = [query_embedding]
+                    
+                    if status_filter:
+                        query += " AND LOWER(status) = LOWER(%s)"
+                        params.append(status_filter)
+                    
+                    if job_type_filter:
+                        query += " AND LOWER(type) = LOWER(%s)"
+                        params.append(job_type_filter)
+                    
+                    query += " ORDER BY embedding <=> %s::vector LIMIT %s"
+                    params.extend([query_embedding, limit])
+                    
+                    cur.execute(query, params)
+                    rows = cur.fetchall()
+            
+            jobs_data = []
+            for row in rows:
+                jobs_data.append({
+                    'id': row['id'],
+                    'title': row['title'],
+                    'description': row['description'],
+                    'type': row['type'],
+                    'location': row['location'],
+                    'skillsRequired': row['skills_required'] or [],
+                    'requirements': row['requirements'] or [],
+                    'eligibleDepartments': row['eligible_departments'] or [],
+                    'additionalInfo': row['additional_info'],
+                    'status': row['status'],
+                    'similarity': float(row['similarity']) if row['similarity'] else 0.0
+                })
+            
+            return jobs_data
+            
+        except Exception as e:
+            logger.error(f"Failed to search similar jobs: {e}")
+            return []
+    
+    def get_active_job_count(self) -> int:
+        if not self.is_configured:
+            return 0
+        
+        try:
+            with self.get_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("SELECT COUNT(*) FROM jobs WHERE LOWER(status) = 'active';")
+                    return cur.fetchone()[0]
+        except Exception as e:
+            logger.error(f"Failed to get active job count: {e}")
+            return 0
+
+
+# Singleton instance
+_db_instance: Optional[DatabaseManager] = None
+
+
+def get_database() -> DatabaseManager:
+    global _db_instance
+    if _db_instance is None:
+        _db_instance = DatabaseManager()
+    return _db_instance

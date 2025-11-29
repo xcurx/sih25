@@ -116,9 +116,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         return token;
     },
   },
+  session: {
+    strategy: "jwt",
+    maxAge: 20 * 60, // 20 minutes
+  },
   pages: {
     signIn: '/sign-in',
     error: '/error'
   },
   secret: process.env.AUTH_SECRET,
+  jwt: {
+    maxAge: 20 * 60
+  }
 })

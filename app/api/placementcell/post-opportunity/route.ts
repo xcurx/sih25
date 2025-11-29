@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { PrismaClient } from "@/lib/generated/prisma";
 import { isStringArray } from "@/lib/utils";
+import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 
 const prisma = new PrismaClient
@@ -59,6 +60,7 @@ export const POST = async (req: NextRequest) => {
                 type,
                 location,
                 salary,
+                status: "active",
                 applicationDeadline: new Date(applicationDeadline),
                 requirements,
                 eligibleDepartments,
@@ -70,6 +72,25 @@ export const POST = async (req: NextRequest) => {
                 endDate: "2026-12-28T15:52:12.803Z",
             }
         })
+
+        try {
+            await axios.post(`${process.env.RECOMMENDATION_API_URL}/api/jobs`, {
+                id: opportunity.id,
+                title: opportunity.title,
+                description: opportunity.description,
+                type: opportunity.type,
+                location: opportunity.location,
+                status: opportunity.status,
+                salary: opportunity.salary,
+                requirements: opportunity.requirements,
+                eligibleDepartments: opportunity.eligibleDepartments,
+                skillsRequired: opportunity.skillsRequired,
+                additionalInfo: opportunity.additionalInfo
+            })
+        } catch (error) {
+            console.error('Failed to add job to recommendation engine:', error)
+            // Don't fail the whole request if recommendation engine is down
+        }
     
         return NextResponse.json({ message: "Opportunity created successfully", opportunity }, { status: 200 });
     } catch (error) {
