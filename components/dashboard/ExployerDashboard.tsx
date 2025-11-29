@@ -59,6 +59,12 @@ export default function EmployerDashboard() {
 
   const heroStats = quickStats
 
+    // Helper to calculate statistics
+    const totalApplications = students.length;
+    const totalInterviewsScheduled = 0; // Assuming this data needs to be fetched separately, defaulting to 0
+    const totalHired = 0; // Assuming this data needs to be fetched separately, defaulting to 0
+    const activeJobs = opportunities.filter(job => job.status === 'active').length; 
+
   return (
     <div className="relative space-y-8">
       <div
@@ -209,9 +215,9 @@ export default function EmployerDashboard() {
                     <p className="text-xs text-slate-500">Offers</p>
                   </div>
                 </div>
-              </div>
-            ))}
-          </CardContent>
+                </div>
+              ))}
+            </CardContent>
         </Card>
       </div>
 
