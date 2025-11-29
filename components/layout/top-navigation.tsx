@@ -33,6 +33,8 @@ const navigationItems = {
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { name: "Browse Jobs", href: "/jobs", icon: Briefcase },
     { name: "My Applications", href: "/applications", icon: FileText },
+    { name: "Internships", href: "/internships", icon: Briefcase },
+    { name: "Recommendations", href: "/recommendation", icon: ShieldCheck },
     { name: "Profile", href: "/profile", icon: Users },
     { name: "Interviews", href: "/interviews", icon: Calendar },
   ],
@@ -53,6 +55,7 @@ const navigationItems = {
   employer: [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { name: "Applications", href: "/company/applications", icon: FileText },
+    { name: "Internships", href: "/company/internships", icon: Briefcase },
     { name: "Interviews", href: "/interviews", icon: Calendar },
   ],
 }

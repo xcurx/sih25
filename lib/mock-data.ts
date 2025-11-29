@@ -70,6 +70,8 @@ export const mockJobs: Opportunity[] = [
     employerId: "1",
     status: "active",
     _count: { applications: 5 },
+    endDate: "2025-05-31",
+    startDate: "2025-01-01",
   },
 ]
 

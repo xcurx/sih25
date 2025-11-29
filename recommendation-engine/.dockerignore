@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.sqlite
+.env
+.venv/
+.git/
+.gitignore
+migrations/
+README.md
+sample_jobs.json
+render.yaml
+RENDER_*.md
+run.sh
