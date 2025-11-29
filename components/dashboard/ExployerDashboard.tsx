@@ -6,7 +6,6 @@ import { ArrowUpRight, BarChart3, Briefcase, Calendar, CheckCircle, FileText, Ma
 import { useEffect, useMemo, useState } from "react"
 import { Opportunity, Student } from "@/lib/types"
 import axios from "axios"
-import { useEffect, useState } from "react"
 import Loader from "../loader/Loader"
 
 export default function EmployerDashboard() {
@@ -215,10 +214,10 @@ export default function EmployerDashboard() {
                     <p className="text-lg font-semibold text-slate-900">0</p>
                     <p className="text-xs text-slate-500">Offers</p>
                   </div>
-                ))}
-              </div>
-            ))}
-          </CardContent>
+                </div>
+                </div>
+              ))}
+            </CardContent>
         </Card>
       </div>
 
