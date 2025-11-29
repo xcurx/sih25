@@ -74,7 +74,7 @@ export const POST = async (req: NextRequest) => {
         })
 
         try {
-            await axios.post(`${process.env.RECOMMENDATION_API_URL}/jobs/add`, {
+            await axios.post(`${process.env.RECOMMENDATION_API_URL}/api/jobs`, {
                 id: opportunity.id,
                 title: opportunity.title,
                 description: opportunity.description,

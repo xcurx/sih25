@@ -118,8 +118,8 @@ class DatabaseManager:
         try:
             with self.get_connection() as conn:
                 with conn.cursor() as cur:
-                    # Convert embedding to list for pgvector
-                    embedding_list = embedding.tolist()
+                    # Convert embedding to list for pgvector (handle both numpy arrays and lists)
+                    embedding_list = embedding.tolist() if hasattr(embedding, 'tolist') else embedding
                     
                     cur.execute("""
                         INSERT INTO jobs (
