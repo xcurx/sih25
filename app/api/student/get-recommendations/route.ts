@@ -53,13 +53,15 @@ export const GET = async () => {
             }
         })
 
-        const res = await axios.post(`${process.env.RECOMMENDATION_API_URL}/recommend/`, {
+        const res = await axios.post(`${process.env.RECOMMENDATION_API_URL}/api/recommendations`, {
             department: student?.branch,
             batch: student?.batch?.toString(),
             skills: student?.skills,
         })
 
-        const recommendations: RecommendationResponse[] = res.data;
+        console.log("Recommendations response:", res.data);
+
+        const recommendations: RecommendationResponse[] = res.data.recommendations;
 
         const opportunities = await prisma.opportunity.findMany({
             where: {

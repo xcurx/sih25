@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "dev:engine": "cd recommendation-engine && source .venv/bin/activate && uvicorn app.main:app --reload --port 8000",
+    "dev:engine": "cd recommendation-engine && source venv/bin/activate && python main.py --reload --port 8000",
     "dev:all": "concurrently \"npm run dev\" \"npm run dev:engine\" --names \"NEXT,ENGINE\" --prefix-colors \"cyan,magenta\"",
     "build": "next build --turbopack",
     "start": "next start"

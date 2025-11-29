@@ -22,7 +22,6 @@ export const POST = async () => {
             }
         })
 
-        // split into batches of 50 to avoid memory overflow on Render free tier (512MB)
         const BATCH_SIZE = 50
         const batches = []
         for (let i = 0; i < opportunities.length; i += BATCH_SIZE) {
@@ -43,8 +42,8 @@ export const POST = async () => {
             console.log(`Processing batch ${i + 1}/${batches.length} (${batch.length} jobs)`)
             
             const response = await axios.post(
-                `${process.env.RECOMMENDATION_API_URL}/jobs/add_bulk`,
-                { jobs: batch },
+                `${process.env.RECOMMENDATION_API_URL}/api/jobs/bulk`,
+                batch,
                 { 
                     timeout: 60000,
                     headers: {

@@ -1,11 +1,6 @@
-fastapi
-uvicorn[standard]
-sentence-transformers
-faiss-cpu
-pdfplumber
-python-docx
-rapidfuzz
-pydantic
-numpy
-typing-extensions
-python-multipart
+fastapi>=0.104.0
+uvicorn>=0.24.0
+pydantic>=2.5.0
+python-dotenv>=1.0.0
+psycopg2-binary>=2.9.9
+requests>=2.31.0
