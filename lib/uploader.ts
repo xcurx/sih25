@@ -1,25 +1,21 @@
 import axios from 'axios';
 
-export const uploader = async (file: File | undefined) => {
-    if (!file) return;
+export const uploader = async (file: File | undefined, folder: string = 'uploads'): Promise<{ url: string; publicId: string } | null> => {
+    if (!file) return null;
 
-    const res = await axios.post('/api/upload', {
-      fileName: file.name,
-      contentType: file.type,
-    });
-    const { signedUrl, objectUrl, objectKey } = res.data;
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('folder', folder);
 
-    if (!signedUrl) { console.error('no signed url'); return; }
-
-    // PUT file directly to S3
-    const upload = await axios.put(signedUrl, file, {
-      headers: { 'Content-Type': file.type },
+    const res = await axios.post('/api/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
     });
 
-    if (upload.status !== 200) {
-      console.error('upload failed', upload.statusText);
-      return;
+    if (res.status !== 200 || !res.data.url) {
+        console.error('upload failed', res.statusText);
+        return null;
     }
 
-    console.log('upload done', objectUrl);
+    console.log('upload done', res.data.url);
+    return { url: res.data.url, publicId: res.data.publicId };
 }

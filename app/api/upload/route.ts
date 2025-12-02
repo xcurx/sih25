@@ -1,79 +1,85 @@
-import { S3Client, PutObjectCommand, DeleteObjectsCommand } from "@aws-sdk/client-s3"
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner" 
+import { v2 as cloudinary } from 'cloudinary'
 import { NextRequest, NextResponse } from "next/server"
 
-const s3 = new S3Client({
-    region: process.env.AWS_REGION,
-    credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-    },
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
 })
 
 export const POST = async (req: NextRequest) => {
     try {
-    const { fileName, contentType } = await req.json();
-    if (!fileName || !contentType) return NextResponse.json({ error: 'missing' }, { status: 400 });
+        const formData = await req.formData()
+        const file = formData.get('file') as File
+        const folder = formData.get('folder') as string || 'uploads'
 
-    const bucket = process.env.S3_BUCKET_NAME!;
-    const key = `uploads/${Date.now()}-${fileName}`;
+        if (!file) {
+            return NextResponse.json({ error: 'No file provided' }, { status: 400 })
+        }
 
-    const cmd = new PutObjectCommand({
-      Bucket: bucket,
-      Key: key,
-      ContentType: contentType,
-      ACL: 'private', // or 'public-read' if you intend public objects
-    });
+        // convert file to base64
+        const bytes = await file.arrayBuffer()
+        const buffer = Buffer.from(bytes)
+        const base64 = `data:${file.type};base64,${buffer.toString('base64')}`
 
-    // short expiry (e.g. 60s)
-    const signedUrl = await getSignedUrl(s3, cmd, { expiresIn: 60 });
+        const isPdf = file.type === 'application/pdf'
+        const resourceType = isPdf ? 'raw' : 'auto'
 
-    return NextResponse.json({ signedUrl, objectKey: key, objectUrl: `https://${bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}` });
+        const result = await cloudinary.uploader.upload(base64, {
+            folder: folder,
+            resource_type: resourceType,
+        })
+
+        return NextResponse.json({
+            url: result.secure_url,
+            publicId: result.public_id,
+        })
     } catch (err) {
-      console.error(err);
-      return NextResponse.json({ error: 'server error' }, { status: 500 });
+        console.error('Cloudinary upload error:', err)
+        return NextResponse.json({ error: 'Upload failed' }, { status: 500 })
     }
 }
 
-export const DELETE = async (req: NextRequest) => {
+export const deleteFromCloudinary = async (publicIds: string | string[], resourceType: 'image' | 'raw' | 'video' = 'raw'): Promise<{
+    success: boolean;
+    deleted?: string[];
+    error?: string;
+}> => {
     try {
-    const body = await req.json().catch(() => ({}));
-    const keys = normalizeKeys(body.keys ?? body.key ?? body); // flexible: { key } | { keys } | raw body === ["a","b"]
+        const ids = typeof publicIds === 'string' ? [publicIds] : publicIds
 
-    if (keys.length === 0) {
-      return NextResponse.json({ error: 'No object keys provided' }, { status: 400 });
+        if (ids.length === 0) {
+            return { success: true, deleted: [] }
+        }
+
+        const results = await Promise.all(
+            ids.map(id => cloudinary.uploader.destroy(id, { resource_type: resourceType }))
+        )
+
+        const deleted = ids.filter((_, index) => results[index].result === 'ok')
+
+        return { success: true, deleted }
+    } catch (err: any) {
+        console.error('Cloudinary delete error:', err)
+        return { success: false, error: err.message || 'Unknown error during delete' }
     }
-
-    if (keys.length > 1000) {
-      return NextResponse.json({ error: 'Can delete up to 1000 objects per request' }, { status: 400 });
-    }
-
-    const Bucket = process.env.S3_BUCKET_NAME!;
-    const command = new DeleteObjectsCommand({
-      Bucket,
-      Delete: {
-        Objects: keys.map(Key => ({ Key })),
-        Quiet: false, // false so AWS returns which ones deleted
-      },
-    });
-
-    const resp = await s3.send(command);
-
-    // resp.Deleted => list of successfully deleted objects
-    // resp.Errors => list of errors for specific keys
-    const deleted = (resp.Deleted ?? []).map(d => d.Key);
-    const errors = (resp.Errors ?? []).map(e => ({ key: e.Key, code: e.Code, message: e.Message }));
-
-    return NextResponse.json({ success: true, deleted, errors });
-  } catch (err: any) {
-    console.error('s3-multi-delete-error', err);
-    return NextResponse.json({ success: false, message: 'Server error deleting objects' }, { status: 500 });
-  }
 }
 
-function normalizeKeys(input: unknown): string[] {
-  if (!input) return [];
-  if (typeof input === 'string') return [input];
-  if (Array.isArray(input)) return input.filter(k => typeof k === 'string' && k.length > 0);
-  return [];
+// helper to extract public_id from Cloudinary URL
+export const getPublicIdFromUrl = (url: string): string | null => {
+    try {
+        // Cloudinary URLs look like: 
+        // https://res.cloudinary.com/{cloud_name}/image/upload/v{version}/{folder}/{public_id}.{ext}
+        const regex = /\/(?:image|raw|video)\/upload\/(?:v\d+\/)?(.+)$/
+        const match = url.match(regex)
+        if (match) {
+            // remove the file extension for the public_id
+            const pathWithExt = match[1]
+            const lastDotIndex = pathWithExt.lastIndexOf('.')
+            return lastDotIndex > 0 ? pathWithExt.substring(0, lastDotIndex) : pathWithExt
+        }
+        return null
+    } catch {
+        return null
+    }
 }
