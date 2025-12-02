@@ -38,6 +38,7 @@ model Student {
   mentorId String?
   mentorRel Faculty? @relation(fields: [mentorId], references: [id])
   internships Internship[]
+  certificates Certificate[]
 }
 
 model Faculty {
@@ -137,6 +138,16 @@ model Internship {
   endDate DateTime
   salary String?
   performanceReview String?
+}
+
+model Certificate {
+  id String @id @default(cuid())
+  studentId String
+  studentRel Student @relation(fields: [studentId], references: [id])
+  title String
+  issuer String
+  issueDate DateTime
+  certificateUrl String
 }
 
 enum Status {
