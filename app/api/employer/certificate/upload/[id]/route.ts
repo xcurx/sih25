@@ -1,0 +1,48 @@
+import { auth } from "@/auth";
+import { PrismaClient } from "@/lib/generated/prisma";
+import { NextRequest, NextResponse } from "next/server";
+
+const prisma = new PrismaClient()
+
+export const POST = async (req: NextRequest, context: { params: Promise<{ id:string }> }) => {
+    const session = await auth()
+
+    if (!session || session.user.role !== "employer") {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    try {
+        const { id } = await context.params;
+
+        const internship = await prisma.internship.findUnique({
+            where: { id: id },
+            include: { opportunityRel: true },
+        })
+
+        const employer = await prisma.employer.findUnique({
+            where: { id: session.user.id },
+            include: { companyRel: true },
+        })
+
+        const { url } = await req.json();
+
+        if (!url) {
+            return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+        }
+
+        const certificate = await prisma.certificate.create({
+            data: {
+                studentId: session.user.id,
+                title: internship?.opportunityRel.title as string,
+                issuer: employer?.companyRel.name as string,
+                issueDate: new Date().toISOString(),
+                certificateUrl: url.toString(),
+                internshipId: internship?.id,
+            }
+        })
+
+        return NextResponse.json({ message: "Certificate uploaded successfully", certificate })
+    } catch (error) {
+        return NextResponse.json({ error: "Failed to upload certificate" }, { status: 500 })
+    }
+}

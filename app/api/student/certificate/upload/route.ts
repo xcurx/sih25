@@ -12,12 +12,7 @@ export const POST = async (req: NextRequest) => {
     }
 
     try {
-        const formData = await req.formData();
-
-        const title = formData.get("title")?.toString();
-        const issuer = formData.get("issuer")?.toString();
-        const issueDate = formData.get("issueDate")?.toString();
-        const url = formData.get("url");
+        const { title, issuer, issueDate, url } = await req.json();
 
         if (!title || !issuer || !issueDate || !url) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 })

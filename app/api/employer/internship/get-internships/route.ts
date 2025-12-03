@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const prisma = new PrismaClient()
 
-export const GET = async (req: NextRequest, context: { params: Promise<{ id:string }> }) => {
+export const GET = async (req: NextRequest) => {
     const session = await auth()
 
     if (!session || session.user.role !== 'employer') {
@@ -12,10 +12,12 @@ export const GET = async (req: NextRequest, context: { params: Promise<{ id:stri
     }
 
     try {
-        const { id } = await context.params;
+        const employer = await prisma.employer.findUnique({
+            where: { id: session.user.id },
+        })
 
         const internships = await prisma.internship.findMany({
-            where: { opportunityId: id },
+            where: { opportunityRel: { companyId: employer?.companyId } },
             include: {
                 studentRel: true,
                 opportunityRel: {

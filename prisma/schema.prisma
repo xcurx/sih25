@@ -138,6 +138,7 @@ model Internship {
   endDate DateTime
   salary String?
   performanceReview String?
+  certificateRel Certificate?
 }
 
 model Certificate {
@@ -148,6 +149,8 @@ model Certificate {
   issuer String
   issueDate DateTime
   certificateUrl String
+  internshipId String? @unique
+  internshipRel Internship? @relation(fields: [internshipId], references: [id])
 }
 
 enum Status {
