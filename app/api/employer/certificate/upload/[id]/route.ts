@@ -30,14 +30,18 @@ export const POST = async (req: NextRequest, context: { params: Promise<{ id:str
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
         }
 
+        if (!internship) {
+            return NextResponse.json({ error: "Internship not found" }, { status: 404 })
+        }
+
         const certificate = await prisma.certificate.create({
             data: {
-                studentId: session.user.id,
-                title: internship?.opportunityRel.title as string,
+                studentId: internship.studentId,
+                title: internship.opportunityRel.title,
                 issuer: employer?.companyRel.name as string,
-                issueDate: new Date().toISOString(),
+                issueDate: new Date(),
                 certificateUrl: url.toString(),
-                internshipId: internship?.id,
+                internshipId: internship.id,
             }
         })
 

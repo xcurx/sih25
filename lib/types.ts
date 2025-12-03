@@ -164,6 +164,15 @@ export interface Internship {
   studentRel: InternshipStudent
   opportunityRel: InternshipOpportunity
   applicationRel?: { id: string }
+  certificateRel?: InternshipCertificate | null
+}
+
+export interface InternshipCertificate {
+  id: string
+  title: string
+  issuer: string
+  issueDate: string
+  certificateUrl: string
 }
 
 export interface InternshipStudent {

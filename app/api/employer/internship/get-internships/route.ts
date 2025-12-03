@@ -25,6 +25,7 @@ export const GET = async (req: NextRequest) => {
                         companyRel: true
                     }
                 },
+                certificateRel: true,
             }
         })
 

@@ -1,13 +1,16 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useSession } from "next-auth/react"
 import { redirect } from "next/navigation"
+import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Briefcase, Calendar, Users, CheckCircle, MapPin, GraduationCap, Mail, Phone } from "lucide-react"
+import { Briefcase, Calendar, Users, CheckCircle, MapPin, GraduationCap, Mail, Phone, Upload, Award, Loader2, ExternalLink, FileText } from "lucide-react"
 import { Internship } from "@/lib/types"
+import { uploader } from "@/lib/uploader"
 import axios from "axios"
 import Loader from "@/components/loader/Loader"
 
@@ -15,23 +18,92 @@ export default function EmployerInternshipsPage() {
   const { data: session, status } = useSession()
   const [internships, setInternships] = useState<Internship[]>([])
   const [loading, setLoading] = useState(true)
+  const [uploadingId, setUploadingId] = useState<string | null>(null)
+  const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({})
+
+  const fetchInternships = async () => {
+    try {
+      const res = await axios.get("/api/employer/internship/get-internships", { withCredentials: true })
+      if (res.status === 200) {
+        setInternships(res.data.internships)
+      }
+    } catch (error) {
+      console.error("Error fetching internships:", error)
+    }
+  }
 
   useEffect(() => {
     async function load() {
       setLoading(true)
-      try {
-        const res = await axios.get("/api/employer/internship/get-internships", { withCredentials: true })
-        if (res.status === 200) {
-          setInternships(res.data.internships)
-        }
-      } catch (error) {
-        console.error("Error fetching internships:", error)
-      } finally {
-        setLoading(false)
-      }
+      await fetchInternships()
+      setLoading(false)
     }
     load()
   }, [])
+
+  const handleCertificateUpload = async (internshipId: string, file: File) => {
+    // Validate file type (PDF or image)
+    const validTypes = ["application/pdf", "image/jpeg", "image/jpg", "image/png", "image/webp"]
+    if (!validTypes.includes(file.type)) {
+      toast.error("Please upload a PDF or image file (JPEG, PNG, WebP)")
+      return
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File size must be less than 5MB")
+      return
+    }
+
+    setUploadingId(internshipId)
+    try {
+      // Upload file to Cloudinary
+      const result = await uploader(file, 'internship-certificates')
+
+      if (!result) {
+        throw new Error("Upload failed")
+      }
+
+      // Save certificate to database
+      await axios.post(`/api/employer/certificate/upload/${internshipId}`, {
+        url: result.url
+      })
+
+      toast.success("Certificate uploaded successfully!")
+      
+      // Refresh internships list
+      await fetchInternships()
+    } catch (error) {
+      console.error("Upload error:", error)
+      toast.error("Failed to upload certificate")
+    } finally {
+      setUploadingId(null)
+      // Clear the file input
+      if (fileInputRefs.current[internshipId]) {
+        fileInputRefs.current[internshipId]!.value = ""
+      }
+    }
+  }
+
+  const handleFileChange = (internshipId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      handleCertificateUpload(internshipId, file)
+    }
+  }
+
+  const isPdfUrl = (url: string) => {
+    return url.toLowerCase().includes('.pdf') || url.includes('/raw/')
+  }
+
+  const handleViewCertificate = (url: string) => {
+    if (isPdfUrl(url)) {
+      const viewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`
+      window.open(viewerUrl, "_blank")
+    } else {
+      window.open(url, "_blank")
+    }
+  }
 
   if (status === "loading" || loading) {
     return <Loader />
@@ -222,6 +294,78 @@ export default function EmployerInternshipsPage() {
                         <div className="mt-3 rounded-lg bg-white/80 border border-slate-100 p-3">
                           <p className="text-xs font-medium text-slate-600 mb-1">Performance Review:</p>
                           <p className="text-sm text-slate-700">{intern.performanceReview}</p>
+                        </div>
+                      )}
+
+                      {/* Certificate Section - Show for completed internships */}
+                      {isActive(intern.startDate, intern.endDate) === "Completed" && (
+                        <div className="mt-4 pt-4 border-t border-slate-200">
+                          {intern.certificateRel ? (
+                            <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-emerald-50/70 border border-emerald-100">
+                              <div className="flex items-center gap-3">
+                                <div className="p-2 bg-emerald-100 rounded-lg">
+                                  <Award className="h-4 w-4 text-emerald-600" />
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium text-slate-900">Certificate Issued</p>
+                                  <p className="text-xs text-slate-500">{intern.certificateRel.title}</p>
+                                </div>
+                              </div>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="rounded-full border-emerald-200 hover:bg-emerald-50"
+                                onClick={() => handleViewCertificate(intern.certificateRel!.certificateUrl)}
+                              >
+                                <ExternalLink className="h-4 w-4 mr-1" />
+                                View
+                              </Button>
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-sky-50/70 border border-sky-100">
+                              <div className="flex items-center gap-3">
+                                <div className="p-2 bg-sky-100 rounded-lg">
+                                  {isPdfUrl("") ? (
+                                    <FileText className="h-4 w-4 text-sky-600" />
+                                  ) : (
+                                    <Award className="h-4 w-4 text-sky-600" />
+                                  )}
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium text-slate-900">Issue Certificate</p>
+                                  <p className="text-xs text-slate-500">Upload PDF or image (max 5MB)</p>
+                                </div>
+                              </div>
+                              <div>
+                                <input
+                                  type="file"
+                                  accept="application/pdf,image/jpeg,image/jpg,image/png,image/webp"
+                                  className="hidden"
+                                  ref={(el) => { fileInputRefs.current[intern.id] = el }}
+                                  onChange={(e) => handleFileChange(intern.id, e)}
+                                />
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="rounded-full bg-gradient-to-r from-sky-600 to-blue-600 text-white hover:from-sky-700 hover:to-blue-700 border-0"
+                                  onClick={() => fileInputRefs.current[intern.id]?.click()}
+                                  disabled={uploadingId === intern.id}
+                                >
+                                  {uploadingId === intern.id ? (
+                                    <>
+                                      <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                                      Uploading...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Upload className="h-4 w-4 mr-1" />
+                                      Upload
+                                    </>
+                                  )}
+                                </Button>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
