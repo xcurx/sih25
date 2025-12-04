@@ -86,6 +86,8 @@ export interface Opportunity {
   _count: {
     applications: number
   }
+  startDate: string
+  endDate: string
   applied?: boolean
   companyRel?: Company
 }
@@ -117,6 +119,7 @@ export interface Interview {
   applicationId: string
   scheduledAt: string
   interviewLink: string
+  status: InterviewStatus
   interviewDetails?: string
   remark?: string
 }
@@ -125,6 +128,7 @@ export interface InterviewApplication extends Application {
   interviewRel?: Interview
 }
 
+export type InterviewStatus = "scheduled" | "completed" | "canceled" | "rejected" | "accepted"
 export interface Faculty {
   id: string
   name: string
@@ -145,4 +149,47 @@ export interface ApprovalApplication extends Application {
     avatar?: string
     skills: string[]
   }
+}
+
+// Internship types
+export interface Internship {
+  id: string
+  applicationId: string
+  opportunityId: string
+  studentId: string
+  startDate: string
+  endDate: string
+  salary?: string | null
+  performanceReview?: string | null
+  studentRel: InternshipStudent
+  opportunityRel: InternshipOpportunity
+  applicationRel?: { id: string }
+}
+
+export interface InternshipStudent {
+  id: string
+  name: string
+  email: string
+  phone?: string | null
+  branch?: string | null
+  batch?: number | null
+  cgpa?: number | null
+}
+
+export interface InternshipOpportunity {
+  id: string
+  title: string
+  type: string
+  location: string
+  salary?: string | null
+  startDate: string
+  endDate: string
+  companyRel: InternshipCompany
+}
+
+export interface InternshipCompany {
+  id: string
+  name: string
+  location?: string | null
+  industry?: string | null
 }
