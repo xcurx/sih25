@@ -64,6 +64,27 @@ export const PATCH = async (req: NextRequest, context: { params: Promise<{ id:st
                         salary: updatedInterview.applicationRel.opportunityRel.salary,
                     }
                 })
+
+
+                const notification = await prisma.notification.create({
+                    data: {
+                        studentId: updatedInterview.applicationRel.studentId,
+                        title: "Interview Accepted",
+                        message: `Congratulations! Your interview for the position of ${updatedInterview.applicationRel.opportunityRel.title} has been accepted. An intership offer has been given to you.`,
+                        redirectUrl: `/internships`,
+                        type: "internship_offer",
+                    }
+                })
+            } else {
+                const notification = await prisma.notification.create({
+                    data: {
+                        studentId: updatedInterview.applicationRel.studentId,
+                        title: "Interview Rejected",
+                        message: `We regret to inform you that your interview for the position of ${updatedInterview.applicationRel.opportunityRel.title} has been rejected. We encourage you to apply for other opportunities.`,
+                        redirectUrl: `/jobs`,
+                        type: "application_update",
+                    }
+                })
             }
         }
 

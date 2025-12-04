@@ -48,6 +48,18 @@ export const PATCH = async (req: NextRequest) => {
             }
         })
 
+        console.log("Application updated to shortlisted:", ap);
+
+        const notification = await prisma.notification.create({
+            data: {
+                studentId: ap.studentId,
+                title: "Interview Scheduled",
+                message: `Your application has been shortlisted. An interview is scheduled on ${scheduled.toLocaleString()}.`,
+                redirectUrl: `/interviews`,
+                type: "interview_scheduled"
+            }
+        })
+
         return NextResponse.json({ application: ap, interview }, { status: 200 });
     } catch (error) {
         console.error("Shortlist API Error:", error);
