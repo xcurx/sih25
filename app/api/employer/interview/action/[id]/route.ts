@@ -82,7 +82,7 @@ export const PATCH = async (req: NextRequest, context: { params: Promise<{ id:st
                         title: "Interview Rejected",
                         message: `We regret to inform you that your interview for the position of ${updatedInterview.applicationRel.opportunityRel.title} has been rejected. We encourage you to apply for other opportunities.`,
                         redirectUrl: `/jobs`,
-                        type: "application_update",
+                        type: "application_rejected",
                     }
                 })
             }

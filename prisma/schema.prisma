@@ -216,6 +216,7 @@ enum NotificationType {
   internship_offer
   new_opportunity
   new_application
+  application_rejected
   new_approval
   approval_rejected
   approval_accepted
