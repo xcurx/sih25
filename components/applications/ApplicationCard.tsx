@@ -11,10 +11,12 @@ import {
     Calendar,
     CheckCircle,
     Clock,
+    ExternalLink,
     Eye,
     FileText,
     XCircle
 } from "lucide-react"
+import Link from "next/link"
 import Status from "./Status"
 
 export default function ApplicationCard({
@@ -180,8 +182,18 @@ export default function ApplicationCard({
               className="rounded-full border-slate-200 hover:bg-slate-50"
             >
               <Eye className="mr-2 h-4 w-4" />
-              View Details
+              Quick View
             </Button>
+            <Link href={`/applications/${application.id}`}>
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="rounded-full border-sky-200 text-sky-700 hover:bg-sky-50"
+              >
+                <ExternalLink className="mr-2 h-4 w-4" />
+                Full Details
+              </Button>
+            </Link>
             {(userRole !== "student" && userRole !== "placement-cell") && application.status === "applied" && (
               <>
                 <Button 
