@@ -43,7 +43,7 @@ const PUBLIC_PATHS = [
   "/",              // landing
   "/mission",       // mission info page
   "/resources",
-  "/institutes",
+  "/institute",
   "/employers",
   "/sign-in",
   "/sign-up",
