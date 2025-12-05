@@ -28,6 +28,7 @@ import {
   UserCheck,
   Users,
 } from "lucide-react"
+import { Notifications } from "./notifications"
 
 const navigationItems = {
   student: [
@@ -105,6 +106,11 @@ export function TopNavigation() {
         </nav>
 
         <div className="ml-auto flex items-center gap-3">
+          {/* Notifications for student, employer, and faculty */}
+          {(session.user.role === "student" || session.user.role === "employer" || session.user.role === "faculty") && (
+            <Notifications />
+          )}
+          
           <div className="hidden text-right sm:flex sm:flex-col">
             <span className="text-sm font-semibold text-slate-900">{session.user.name}</span>
             <span className="text-xs uppercase tracking-[0.2em] text-slate-500">

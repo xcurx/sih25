@@ -73,8 +73,23 @@ export const POST = async (req: NextRequest) => {
             }
         })
 
+        const students = await prisma.student.findMany({
+            select: { id: true }
+        });
+
+        if (students.length > 0) {
+            await prisma.notification.createMany({
+            data: students.map(student => ({
+                studentId: student.id,
+                title: "New Opportunity",
+                message: `New opportunity has been arrived: ${title}`,
+                type: "new_opportunity"
+            }))
+            });
+        }
+
         try {
-            await axios.post(`${process.env.RECOMMENDATION_API_URL}/api/jobs`, {
+            axios.post(`${process.env.RECOMMENDATION_API_URL}/api/jobs`, {
                 id: opportunity.id,
                 title: opportunity.title,
                 description: opportunity.description,

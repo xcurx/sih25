@@ -1,7 +1,6 @@
 "use client"
 
 import { ApplicationApprovalCard } from "@/components/faculty/ApplicationApprovalCard"
-import { ApplicationDetailsDialog } from "@/components/faculty/ApplicationDetailsDialog"
 import Loader from "@/components/loader/Loader"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -34,7 +33,6 @@ export default function ApprovalPage() {
   const [departmentFilter, setDepartmentFilter] = useState("all")
   const [applications, setApplications] = useState<ApprovalApplication[]>([])
   const [selectedApplication, setSelectedApplication] = useState<ApprovalApplication | null>(null)
-  const [showDetailsDialog, setShowDetailsDialog] = useState(false)
   const [showActionDialog, setShowActionDialog] = useState(false)
   const [actionType, setActionType] = useState<"approve" | "reject" | null>(null)
   const [remarks, setRemarks] = useState("")
@@ -93,7 +91,6 @@ export default function ApprovalPage() {
     setSelectedApplication(app)
     setActionType(action)
     setShowActionDialog(true)
-    setShowDetailsDialog(false)
   }
 
   const filteredApplications = applications.filter((app) => {
@@ -130,80 +127,89 @@ export default function ApprovalPage() {
   }
 
   return (
-    <div className="p-6 max-w-7xl w-full mx-auto">
+    <div className="p-6 max-w-7xl w-full mx-auto space-y-8">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-primary">Application Approvals</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-3xl font-bold text-slate-900">Application Approvals</h1>
+        <p className="text-slate-500">
           Review and approve student applications before they reach employers
         </p>
       </div>
 
-      {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-        <Card>
+        <Card className="border-slate-200 bg-white shadow-md rounded-xl transition hover:shadow-lg">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Pending</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-slate-500">Total Pending</CardTitle>
+            <div className="rounded-full p-2 bg-red-50 text-red-700">
+                <Clock className="h-4 w-4" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{pendingApplications.length}</div>
-            <p className="text-xs text-muted-foreground">Awaiting review</p>
+            <div className="text-3xl font-bold text-slate-900">{pendingApplications.length}</div>
+            <p className="text-xs text-red-600 font-medium">Awaiting review</p>
           </CardContent>
         </Card>
-        <Card>
+        
+        <Card className="border-slate-200 bg-white shadow-md rounded-xl transition hover:shadow-lg">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Under Review</CardTitle>
-            <AlertCircle className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-slate-500">Reviewed</CardTitle>
+            <div className="rounded-full p-2 bg-blue-100 text-blue-700">
+                <CheckCircle className="h-4 w-4" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{reviewedApplications.length}</div>
-            <p className="text-xs text-muted-foreground">In progress</p>
+            <div className="text-3xl font-bold text-slate-900">{reviewedApplications.length}</div>
+            <p className="text-xs text-slate-500">Mentors approved</p>
           </CardContent>
         </Card>
-        <Card>
+        
+        <Card className="border-slate-200 bg-white shadow-md rounded-xl transition hover:shadow-lg">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">All Applications</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-slate-500">All Applications</CardTitle>
+            <div className="rounded-full p-2 bg-indigo-50 text-indigo-700">
+                <FileText className="h-4 w-4" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{applications.length}</div>
-            <p className="text-xs text-muted-foreground">Total received</p>
+            <div className="text-3xl font-bold text-slate-900">{applications.length}</div>
+            <p className="text-xs text-slate-500">Total received</p>
           </CardContent>
         </Card>
-        <Card>
+        
+        <Card className="border-slate-200 bg-white shadow-md rounded-xl transition hover:shadow-lg">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">This Week</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-slate-500">Recent</CardTitle>
+            <div className="rounded-full p-2 bg-emerald-50 text-emerald-700">
+                <Calendar className="h-4 w-4" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-3xl font-bold text-slate-900">
               {applications.filter(app => {
                 const weekAgo = new Date()
                 weekAgo.setDate(weekAgo.getDate() - 7)
                 return new Date(app.appliedAt) > weekAgo
               }).length}
             </div>
-            <p className="text-xs text-muted-foreground">Recent submissions</p>
+            <p className="text-xs text-slate-500">Last 7 days</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Search and Filter */}
-      <Card className="mb-6">
+      <Card className="mb-6 border-slate-200 bg-white shadow-lg rounded-xl">
         <CardContent className="p-6">
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
               <Input
                 placeholder="Search by student, company, or job title..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-10 border-slate-300 focus:border-blue-600 focus:ring-blue-600 rounded-lg"
               />
             </div>
             <div className="flex gap-2">
               <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-                <SelectTrigger className="w-48">
+                <SelectTrigger className="w-48 border-slate-300 focus:ring-blue-600 rounded-lg">
                   <SelectValue placeholder="All Departments" />
                 </SelectTrigger>
                 <SelectContent>
@@ -216,7 +222,7 @@ export default function ApprovalPage() {
                 </SelectContent>
               </Select>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-40">
+                <SelectTrigger className="w-40 border-slate-300 focus:ring-blue-600 rounded-lg">
                   <SelectValue placeholder="All Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -230,12 +236,11 @@ export default function ApprovalPage() {
         </CardContent>
       </Card>
 
-      {/* Applications Tabs */}
       <Tabs defaultValue="all" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="all">All ({filteredApplications.length})</TabsTrigger>
-          <TabsTrigger value="pending">Pending ({pendingApplications.length})</TabsTrigger>
-          <TabsTrigger value="reviewed">Reviewed ({reviewedApplications.length})</TabsTrigger>
+        <TabsList className="bg-blue-100/50 border border-slate-200">
+          <TabsTrigger value="all" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md">All ({filteredApplications.length})</TabsTrigger>
+          <TabsTrigger value="pending" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md">Pending ({pendingApplications.length})</TabsTrigger>
+          <TabsTrigger value="reviewed" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md">Reviewed ({reviewedApplications.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="all" className="space-y-4">
@@ -244,19 +249,15 @@ export default function ApprovalPage() {
               <ApplicationApprovalCard
                 key={app.id}
                 application={app}
-                onViewDetails={() => {
-                  setSelectedApplication(app)
-                  setShowDetailsDialog(true)
-                }}
                 onApprove={() => openActionDialog(app, "approve")}
                 onReject={() => openActionDialog(app, "reject")}
               />
             ))
           ) : (
-            <Card>
+            <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
               <CardContent className="p-12 text-center">
-                <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">No applications found</p>
+                <FileText className="h-12 w-12 mx-auto text-slate-400 mb-4" />
+                <p className="text-slate-500">No applications found matching the filters</p>
               </CardContent>
             </Card>
           )}
@@ -268,19 +269,15 @@ export default function ApprovalPage() {
               <ApplicationApprovalCard
                 key={app.id}
                 application={app}
-                onViewDetails={() => {
-                  setSelectedApplication(app)
-                  setShowDetailsDialog(true)
-                }}
                 onApprove={() => openActionDialog(app, "approve")}
                 onReject={() => openActionDialog(app, "reject")}
               />
             ))
           ) : (
-            <Card>
+            <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
               <CardContent className="p-12 text-center">
-                <CheckCircle className="h-12 w-12 mx-auto text-green-500 mb-4" />
-                <p className="text-muted-foreground">No pending applications</p>
+                <CheckCircle className="h-12 w-12 mx-auto text-emerald-500 mb-4" />
+                <p className="text-slate-500">No pending applications right now!</p>
               </CardContent>
             </Card>
           )}
@@ -292,45 +289,28 @@ export default function ApprovalPage() {
               <ApplicationApprovalCard
                 key={app.id}
                 application={app}
-                onViewDetails={() => {
-                  setSelectedApplication(app)
-                  setShowDetailsDialog(true)
-                }}
                 onApprove={() => openActionDialog(app, "approve")}
                 onReject={() => openActionDialog(app, "reject")}
               />
             ))
           ) : (
-            <Card>
+            <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
               <CardContent className="p-12 text-center">
-                <AlertCircle className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">No reviewed applications</p>
+                <AlertCircle className="h-12 w-12 mx-auto text-amber-500 mb-4" />
+                <p className="text-slate-500">No applications have been reviewed yet.</p>
               </CardContent>
             </Card>
           )}
         </TabsContent>
       </Tabs>
 
-      {/* Application Details Dialog */}
-      <ApplicationDetailsDialog
-        application={selectedApplication}
-        open={showDetailsDialog}
-        onClose={() => {
-          setShowDetailsDialog(false)
-          setSelectedApplication(null)
-        }}
-        onApprove={() => openActionDialog(selectedApplication!, "approve")}
-        onReject={() => openActionDialog(selectedApplication!, "reject")}
-      />
-
-      {/* Action Confirmation Dialog */}
       <Dialog open={showActionDialog} onOpenChange={setShowActionDialog}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-2 text-slate-900">
               {actionType === "approve" ? (
                 <>
-                  <CheckCircle className="h-5 w-5 text-green-500" />
+                  <CheckCircle className="h-5 w-5 text-blue-600" />
                   Approve Application
                 </>
               ) : (
@@ -340,7 +320,7 @@ export default function ApprovalPage() {
                 </>
               )}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-slate-500">
               {actionType === "approve"
                 ? "This application will be forwarded to the employer for further review."
                 : "The student will be notified about the rejection."}
@@ -349,15 +329,20 @@ export default function ApprovalPage() {
 
           {selectedApplication && (
             <div className="space-y-4">
-              <div className="p-4 bg-muted rounded-lg">
-                <p className="text-sm font-medium">{selectedApplication.studentRel?.name}</p>
-                <p className="text-sm text-muted-foreground">
-                  {selectedApplication.opportunityRel.title} at {selectedApplication.opportunityRel.companyRel?.name}
-                </p>
+              <div 
+                className={`p-4 rounded-lg border ${
+                    actionType === "approve" 
+                        ? "bg-blue-100 border-blue-200"
+                        : "bg-red-50 border-red-100" 
+                }`}
+              >
+                <p className="text-sm font-medium text-slate-800">{selectedApplication.studentRel?.name}</p>
+                <p className="text-sm text-slate-600">
+                  {selectedApplication.opportunityRel.title} at **{selectedApplication.opportunityRel.companyRel?.name}** </p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="remarks">
+                <Label htmlFor="remarks" className="text-slate-700">
                   Remarks {actionType === "reject" ? "(Required)" : "(Optional)"}
                 </Label>
                 <Textarea
@@ -370,6 +355,7 @@ export default function ApprovalPage() {
                   value={remarks}
                   onChange={(e) => setRemarks(e.target.value)}
                   rows={4}
+                  className="border-slate-300 focus:border-blue-600 focus:ring-blue-600 rounded-lg"
                 />
               </div>
             </div>
@@ -384,11 +370,13 @@ export default function ApprovalPage() {
                 setActionType(null)
               }}
               disabled={actionLoading}
+              className="border-slate-300 text-slate-700 hover:bg-blue-50 hover:text-blue-700"
             >
               Cancel
             </Button>
             <Button
-              variant={actionType === "approve" ? "default" : "destructive"}
+              // Approve button updated to strong blue (bg-blue-600)
+              className={actionType === "approve" ? "bg-blue-600 hover:bg-blue-700 text-white" : "bg-red-500 hover:bg-red-600 text-white"}
               onClick={handleAction}
               disabled={actionLoading || (actionType === "reject" && !remarks.trim())}
             >

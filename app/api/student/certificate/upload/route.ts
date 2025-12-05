@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { PrismaClient } from "@/lib/generated/prisma";
+import { PrismaClientValidationError } from "@/lib/generated/prisma/runtime/library";
 import { NextRequest, NextResponse } from "next/server";
 
 const prisma = new PrismaClient()
@@ -12,12 +13,7 @@ export const POST = async (req: NextRequest) => {
     }
 
     try {
-        const formData = await req.formData();
-
-        const title = formData.get("title")?.toString();
-        const issuer = formData.get("issuer")?.toString();
-        const issueDate = formData.get("issueDate")?.toString();
-        const url = formData.get("url");
+        const { title, issuer, issueDate, url } = await req.json();
 
         if (!title || !issuer || !issueDate || !url) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
@@ -32,18 +28,26 @@ export const POST = async (req: NextRequest) => {
             return NextResponse.json({ error: "Invalid date format. Use ISO format (YYYY-MM-DD)" }, { status: 400 })
         }
 
+        const issueDateParsed = new Date(issueDate)
+
+        console.log("Creating certificate for student:", session.user.id);
+
         const certificate = await prisma.certificate.create({
             data: {
                 studentId: session.user.id,
                 title: title,
                 issuer: issuer,
-                issueDate: issueDate,
+                issueDate: issueDateParsed,
                 certificateUrl: url.toString(),
             }
         })
 
+        console.log("Certificate created:", certificate);
+
         return NextResponse.json({ message: "Certificate uploaded successfully", certificate })
     } catch (error) {
-        return NextResponse.json({ error: "Failed to upload certificate" }, { status: 500 })
+        return error instanceof PrismaClientValidationError ?
+        NextResponse.json({ error: error.message }, { status: 500 }) : 
+        NextResponse.json({ error: "Failed to upload certificate" }, { status: 500 })
     }
 }

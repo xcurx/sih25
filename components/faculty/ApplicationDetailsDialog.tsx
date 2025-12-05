@@ -200,7 +200,7 @@ export function ApplicationDetailsDialog({
             <XCircle className="mr-2 h-4 w-4" />
             Reject
           </Button>
-          <Button onClick={onApprove}>
+          <Button onClick={onApprove}  className="bg-blue-500 hover:bg-blue-700 text-white">
             <CheckCircle className="mr-2 h-4 w-4" />
             Approve
           </Button>
