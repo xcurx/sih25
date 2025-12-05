@@ -209,9 +209,8 @@ export function LoginScreen() {
               Institutes
             </Link> */}
             <a href="/institute" className="hover:text-slate-900">Institutes</a>
-            <Link href="/employers" className="hover:text-slate-900">
-              Employers
-            </Link>
+            <a href="/l_employers" className="hover:text-slate-900">Employers</a>
+            
             <a href="/resources" className="hover:text-slate-900">Resources</a>
             
           </nav>
