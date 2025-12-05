@@ -218,7 +218,7 @@ export function LoginScreen() {
             <Button variant="outline" className="rounded-full border-sky-200 text-sky-700 hover:bg-sky-50">
               Sign in
             </Button>
-            <Button className="rounded-full bg-sky-600 text-white hover:bg-sky-500">Sign up</Button>
+            <Button className="rounded-full bg-sky-600 text-white hover:bg-sky-500">Register</Button>
           </div>
         </div>
       </header>
