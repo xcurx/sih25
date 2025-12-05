@@ -1,6 +1,5 @@
 "use client"
 
-import EmployerCard from "@/components/employer/EmployerCard"
 import EmployerDetailsDialog from "@/components/employer/EmployerDetailsDialog"
 import Loader from "@/components/loader/Loader"
 import { Button } from "@/components/ui/button"
@@ -12,6 +11,7 @@ import axios from "axios"
 import {
   Briefcase,
   Building2,
+  ExternalLink,
   Plus,
   Search,
   Star,
@@ -24,10 +24,10 @@ import {
   MessageSquare
 } from "lucide-react"
 import { useSession } from "next-auth/react"
+import Link from "next/link"
 import { useEffect, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 
-// Extended company information (Logic/Data kept untouched)
 const companyDetails = {
   "TechCorp Inc.": {
     industry: "Technology",
@@ -79,39 +79,31 @@ const companyDetails = {
   },
 }
 
-// --- START: NEW LIST CARD COMPONENT ---
 interface CustomEmployerCardProps {
     company: Company;
     onViewDetails: (company: Company) => void;
-    // Assuming you'd pass industry/rating info for consistent look
     companyInfo: typeof companyDetails[keyof typeof companyDetails] | undefined;
 }
 
 const CustomEmployerCard = ({ company, onViewDetails, companyInfo }: CustomEmployerCardProps) => {
-    // Fallback data for required fields
     const contactPerson = company.employees?.[0]?.name || "N/A";
     const contactEmail = company.employees?.[0]?.email || "contact@email.com";
     const companyLocation = companyInfo?.location || "N/A";
     const industry = companyInfo?.industry || "Software";
     const rating = companyInfo?.rating || 4.0;
-    
-    // Placeholder for last interaction (not available in Company type, using a static value)
     const lastInteraction = "2 days ago"; 
 
     return (
         <Card className="border-slate-200 shadow-md rounded-xl transition hover:shadow-lg hover:border-sky-300">
             <CardContent className="p-5 space-y-4">
-                {/* Header Section */}
                 <div className="flex justify-between items-center">
                     <div className="flex items-center space-x-4">
-                        {/* Placeholder for Logo/Icon */}
                         <div className="p-3 bg-sky-50 rounded-lg text-sky-700">
                             <Building2 className="h-6 w-6" />
                         </div>
                         <div className="space-y-0.5">
                             <div className="flex items-center gap-2">
                                 <h3 className="text-xl font-bold text-slate-800">{company.name}</h3>
-                                {/* Rating Star */}
                                 <span className="flex items-center text-sm text-amber-500 font-medium">
                                     <Star className="h-4 w-4 fill-amber-500 mr-1" />
                                     {rating.toFixed(1)}
@@ -127,13 +119,11 @@ const CustomEmployerCard = ({ company, onViewDetails, companyInfo }: CustomEmplo
                                     <MapPin className="h-4 w-4" />
                                     {companyLocation}
                                 </span>
-                                {/* Placeholder for employee icon */}
                                 <Users className="h-4 w-4" /> 
                             </div>
                         </div>
                     </div>
 
-                    {/* Industry Badge */}
                     <Badge variant="secondary" className="bg-slate-100 text-slate-700 rounded-full font-medium">
                         {industry}
                     </Badge>
@@ -141,7 +131,6 @@ const CustomEmployerCard = ({ company, onViewDetails, companyInfo }: CustomEmplo
                 
                 <hr className="border-slate-100" />
 
-                {/* Footer Section: Last Interaction and Actions */}
                 <div className="flex justify-between items-center">
                     <div className="flex items-center text-sm text-slate-500">
                         <Clock className="h-4 w-4 mr-2" />
@@ -151,17 +140,22 @@ const CustomEmployerCard = ({ company, onViewDetails, companyInfo }: CustomEmplo
                         <Button variant="outline" size="sm" className="rounded-full text-slate-700 border-slate-300 hover:bg-slate-100">
                             Contact
                         </Button>
-                        <Button variant="default" size="sm" onClick={() => onViewDetails(company)} className="rounded-full bg-sky-600 hover:bg-sky-700">
+                        <Button variant="outline" size="sm" onClick={() => onViewDetails(company)} className="rounded-full text-sky-600 border-sky-300 hover:bg-sky-50">
                             <Eye className="h-4 w-4 mr-2" />
-                            View Details
+                            Quick View
                         </Button>
+                        <Link href={`/employers/${company.id}`}>
+                            <Button variant="default" size="sm" className="rounded-full bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700">
+                                <ExternalLink className="h-4 w-4 mr-2" />
+                                View Full Profile
+                            </Button>
+                        </Link>
                     </div>
                 </div>
             </CardContent>
         </Card>
     );
 };
-// --- END: NEW LIST CARD COMPONENT ---
 
 
 export default function EmployersPage() {
@@ -197,7 +191,6 @@ export default function EmployersPage() {
     return matchesSearch && matchesIndustry
   })
 
-  // Data helpers (kept logic untouched)
   const industries = Array.from(new Set(Object.values(companyDetails).map((c) => c.industry)))
   const totalCompanies = Object.keys(companyDetails).length
   const totalActiveJobs = Object.values(companyDetails).reduce((sum, company) => sum + company.activeJobs, 0)
@@ -226,7 +219,6 @@ export default function EmployersPage() {
   return (
     <div className="p-6 max-w-7xl w-full mx-auto space-y-8">
       
-      {/* Header and CTA */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-slate-800">Employer Management</h1>
@@ -238,10 +230,8 @@ export default function EmployersPage() {
         </Button>
       </div>
 
-      {/* Stats Cards - Updated UI with Blue Theme */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         
-        {/* Partner Companies */}
         <Card className="border-slate-200 bg-white shadow-sm rounded-xl">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-slate-500">Partner Companies</CardTitle>
@@ -255,7 +245,6 @@ export default function EmployersPage() {
           </CardContent>
         </Card>
 
-        {/* Active Jobs */}
         <Card className="border-slate-200 bg-white shadow-sm rounded-xl">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-slate-500">Active Jobs</CardTitle>
@@ -269,7 +258,6 @@ export default function EmployersPage() {
           </CardContent>
         </Card>
 
-        {/* Total Hires */}
         <Card className="border-slate-200 bg-white shadow-sm rounded-xl">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-slate-500">Total Hires</CardTitle>
@@ -283,7 +271,6 @@ export default function EmployersPage() {
           </CardContent>
         </Card>
 
-        {/* Avg. Package */}
         <Card className="border-slate-200 bg-white shadow-sm rounded-xl">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-slate-500">Avg. Package</CardTitle>
@@ -298,7 +285,6 @@ export default function EmployersPage() {
         </Card>
       </div>
 
-      {/* Search and Filter - Updated UI */}
       <Card className="shadow-lg border-slate-100 rounded-xl">
         <CardContent className="p-4 sm:p-6">
           <div className="flex flex-col md:flex-row gap-4 items-center">
@@ -328,18 +314,15 @@ export default function EmployersPage() {
         </CardContent>
       </Card>
 
-      {/* Employer Cards - Using Custom List Structure */}
       <div className="grid gap-6">
         {filteredEmployers.map((company) => (
           <CustomEmployerCard
             key={company.id}
             company={company}
-            // Passing the mock data to simulate the required fields for the new card design
             companyInfo={companyDetails[company.name as keyof typeof companyDetails]}
             onViewDetails={setSelectedEmployer}
           />
         ))}
-        {/* Fallback for no results */}
         {filteredEmployers.length === 0 && (
           <div className="text-center py-10 border border-slate-200 rounded-xl bg-slate-50">
             <Building2 className="h-8 w-8 text-slate-400 mx-auto mb-3" />
@@ -348,10 +331,8 @@ export default function EmployersPage() {
         )}
       </div>
 
-      {/* Employer Details Dialog */}
       <EmployerDetailsDialog
         company={selectedEmployer}
-        // companyInfo={selectedEmployer ? companyDetails[selectedEmployer.name as keyof typeof companyDetails] : null}
         onClose={() => setSelectedEmployer(null)}
       />
     </div>

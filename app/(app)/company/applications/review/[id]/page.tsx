@@ -4,7 +4,7 @@ import Loader from "@/components/loader/Loader"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { Student } from "@/lib/generated/prisma"
 import {
@@ -15,7 +15,10 @@ import {
   Mail,
   MessageSquare,
   Phone,
-  User
+  User,
+  GraduationCap,
+  Star,
+  Briefcase
 } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { useParams, useRouter } from "next/navigation"
@@ -60,52 +63,121 @@ export default function StudentReviewPage() {
 
   if (!student) {
     return (
-      <div className="p-6 max-w-6xl w-full mx-auto">
+      <div className="relative p-6 max-w-6xl w-full mx-auto">
+        <div
+          className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_10%_20%,rgba(56,189,248,0.15),transparent_45%),radial-gradient(circle_at_90%_0%,rgba(59,130,246,0.18),transparent_45%)]"
+          aria-hidden="true"
+        />
         <div className="flex items-center justify-center h-64">
-          <p className="text-muted-foreground">Student not found</p>
+          <p className="text-slate-500">Student not found</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="p-6 max-w-6xl w-full mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => router.back()}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-primary">Student Profile</h1>
-            <p className="text-muted-foreground">Review candidate information</p>
+    <div className="relative space-y-8">
+      <div
+        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_10%_20%,rgba(56,189,248,0.15),transparent_45%),radial-gradient(circle_at_90%_0%,rgba(59,130,246,0.18),transparent_45%),linear-gradient(180deg,rgba(255,255,255,0.85),transparent)]"
+        aria-hidden="true"
+      />
+
+      {/* Hero Section */}
+      <section className="relative overflow-hidden rounded-[32px] border border-sky-100 bg-gradient-to-br from-sky-500 via-blue-500 to-blue-600 p-8 shadow-lg">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.2),transparent_50%)]" />
+        
+        {/* Back Button */}
+        <Button 
+          variant="ghost" 
+          size="sm"
+          className="absolute top-4 left-4 text-white/80 hover:text-white hover:bg-white/20 rounded-full"
+          onClick={() => router.back()}
+        >
+          <ArrowLeft className="h-4 w-4 mr-1" />
+          Back
+        </Button>
+
+        <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between pt-8">
+          <div className="flex items-center gap-6">
+            <Avatar className="h-24 w-24 ring-4 ring-white/30 ring-offset-2 ring-offset-sky-500">
+              <AvatarImage src={"/placeholder.svg"} alt={student.name} />
+              <AvatarFallback className="bg-white/20 text-white text-3xl font-semibold backdrop-blur-sm">
+                {student.name
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-white/70 mb-1">Candidate Profile</p>
+              <h1 className="text-3xl font-semibold text-white">{student.name}</h1>
+              <div className="mt-2 flex items-center gap-2 text-white/80">
+                <GraduationCap className="h-4 w-4" />
+                <span>{student.branch}</span>
+                <span className="text-white/50">•</span>
+                <span>Year {(student.batch as number) - new Date().getFullYear() + 5}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 px-5 py-4">
+              <Star className="h-6 w-6 text-yellow-300 fill-yellow-300" />
+              <div>
+                <p className="text-2xl font-bold text-white">{student.cgpa}</p>
+                <p className="text-xs text-white/70">CGPA</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 px-5 py-4">
+              <Briefcase className="h-6 w-6 text-white" />
+              <div>
+                <p className="text-2xl font-bold text-white">{student.skills?.length || 0}</p>
+                <p className="text-xs text-white/70">Skills</p>
+              </div>
+            </div>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline">
+
+        {/* Action Buttons */}
+        <div className="relative mt-6 flex gap-3">
+          <Button 
+            variant="outline" 
+            className="rounded-full bg-white/20 border-white/30 text-white hover:bg-white/30 hover:border-white/40 backdrop-blur-sm"
+          >
             <MessageSquare className="mr-2 h-4 w-4" />
             Contact
           </Button>
           {student.resume && (
-            <Button>
+            <Button className="rounded-full bg-white text-sky-600 hover:bg-white/90">
               <Download className="mr-2 h-4 w-4" />
               Download Resume
             </Button>
           )}
         </div>
-      </div>
+      </section>
 
+      {/* Tabs */}
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="overview" className="flex items-center gap-2">
-            <User className="h-4 w-4" />
+        <TabsList className="inline-flex h-12 items-center justify-center rounded-2xl bg-white/90 border border-slate-200 p-1.5 shadow-sm">
+          <TabsTrigger 
+            value="overview" 
+            className="rounded-xl px-5 py-2 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-blue-500 data-[state=active]:text-white data-[state=active]:shadow-sm transition-all"
+          >
+            <User className="mr-2 h-4 w-4" />
             Overview
           </TabsTrigger>
-          <TabsTrigger value="projects" className="flex items-center gap-2">
-            <Code className="h-4 w-4" />
+          <TabsTrigger 
+            value="projects"
+            className="rounded-xl px-5 py-2 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-blue-500 data-[state=active]:text-white data-[state=active]:shadow-sm transition-all"
+          >
+            <Code className="mr-2 h-4 w-4" />
             Projects
           </TabsTrigger>
-          <TabsTrigger value="certifications" className="flex items-center gap-2">
-            <Award className="h-4 w-4" />
+          <TabsTrigger 
+            value="certifications"
+            className="rounded-xl px-5 py-2 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-blue-500 data-[state=active]:text-white data-[state=active]:shadow-sm transition-all"
+          >
+            <Award className="mr-2 h-4 w-4" />
             Certificates
           </TabsTrigger>
         </TabsList>
@@ -113,91 +185,83 @@ export default function StudentReviewPage() {
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card className="lg:col-span-1">
-              <CardHeader className="text-center">
-                <Avatar className="h-24 w-24 mx-auto mb-4">
-                  <AvatarImage src={"/placeholder.svg"} alt={student.name} />
-                  <AvatarFallback className="text-2xl">
-                    {student.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
-                <CardTitle>{student.name}</CardTitle>
-                <CardDescription>
-                  {student.branch} • Year {(student.batch as number) - new Date().getFullYear() + 5}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-primary">{student.cgpa}</div>
-                  <div className="text-sm text-muted-foreground">CGPA</div>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Mail className="h-4 w-4 text-muted-foreground" />
-                    <span className="break-all">{student.email}</span>
+            {/* Contact Card */}
+            <Card className="lg:col-span-1 rounded-3xl border-slate-200 bg-white/90 shadow-sm">
+              <CardContent className="p-6">
+                <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-4">Contact Information</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                    <div className="p-2 rounded-full bg-sky-50">
+                      <Mail className="h-4 w-4 text-sky-600" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs text-slate-400">Email</p>
+                      <p className="text-sm font-medium text-slate-700 truncate">{student.email}</p>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Phone className="h-4 w-4 text-muted-foreground" />
-                    <span>{student.phone}</span>
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                    <div className="p-2 rounded-full bg-sky-50">
+                      <Phone className="h-4 w-4 text-sky-600" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs text-slate-400">Phone</p>
+                      <p className="text-sm font-medium text-slate-700">{student.phone}</p>
+                    </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="lg:col-span-2">
-              <CardHeader>
-                <CardTitle>Academic Information</CardTitle>
-                <CardDescription>Educational background and performance</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-foreground">Full Name</label>
-                    <p className="text-base">{student.name}</p>
+            {/* Academic Info Card */}
+            <Card className="lg:col-span-2 rounded-3xl border-slate-200 bg-white/90 shadow-sm">
+              <CardContent className="p-6">
+                <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-4">Academic Information</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                    <p className="text-xs text-slate-400 mb-1">Full Name</p>
+                    <p className="text-sm font-medium text-slate-700">{student.name}</p>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-foreground">Email</label>
-                    <p className="text-base break-all">{student.email}</p>
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                    <p className="text-xs text-slate-400 mb-1">Department</p>
+                    <p className="text-sm font-medium text-slate-700">{student.branch}</p>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-foreground">Phone</label>
-                    <p className="text-base">{student.phone}</p>
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                    <p className="text-xs text-slate-400 mb-1">Batch Year</p>
+                    <p className="text-sm font-medium text-slate-700">{student.batch}</p>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-foreground">CGPA</label>
-                    <p className="text-base font-semibold">{student.cgpa}</p>
+                  <div className="p-4 rounded-2xl bg-gradient-to-br from-sky-50 to-blue-50 border border-sky-100">
+                    <p className="text-xs text-sky-600 mb-1">CGPA</p>
+                    <p className="text-lg font-semibold text-sky-700">{student.cgpa}</p>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-foreground">Department</label>
-                    <p className="text-base">{student.branch}</p>
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                    <p className="text-xs text-slate-400 mb-1">Email</p>
+                    <p className="text-sm font-medium text-slate-700 truncate">{student.email}</p>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-foreground">Batch Year</label>
-                    <p className="text-base">{student.batch}</p>
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                    <p className="text-xs text-slate-400 mb-1">Phone</p>
+                    <p className="text-sm font-medium text-slate-700">{student.phone}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Technical Skills</CardTitle>
-              <CardDescription>Programming languages and technologies</CardDescription>
-            </CardHeader>
-            <CardContent>
+          {/* Skills Card */}
+          <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-sm">
+            <CardContent className="p-6">
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-4">Technical Skills</h3>
               <div className="flex flex-wrap gap-2">
                 {student.skills && student.skills.length > 0 ? (
                   student.skills.map((skill, index) => (
-                    <Badge key={index} variant="secondary">
+                    <Badge 
+                      key={index} 
+                      className="bg-gradient-to-r from-sky-50 to-blue-50 text-sky-700 border-sky-200 rounded-full px-4 py-1.5 text-sm font-medium hover:from-sky-100 hover:to-blue-100 transition-colors"
+                    >
                       {skill}
                     </Badge>
                   ))
                 ) : (
-                  <p className="text-sm text-muted-foreground">No skills listed</p>
+                  <p className="text-sm text-slate-500">No skills listed</p>
                 )}
               </div>
             </CardContent>
@@ -206,20 +270,15 @@ export default function StudentReviewPage() {
 
         {/* Projects Tab */}
         <TabsContent value="projects" className="space-y-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-2xl font-bold">Projects</h2>
-              <p className="text-muted-foreground">Student's work and achievements</p>
-            </div>
-          </div>
-
-          <Card>
-            <CardContent className="p-6">
+          <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-sm">
+            <CardContent className="p-8">
               <div className="text-center py-8">
-                <Code className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">Project information is not available in this view</p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Contact the student for more details about their projects
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 mb-4">
+                  <Code className="h-8 w-8 text-slate-400" />
+                </div>
+                <h3 className="text-lg font-medium text-slate-700 mb-2">Projects Coming Soon</h3>
+                <p className="text-sm text-slate-500 max-w-md mx-auto">
+                  Project information is not available in this view. Contact the student for more details about their projects.
                 </p>
               </div>
             </CardContent>
@@ -228,20 +287,15 @@ export default function StudentReviewPage() {
 
         {/* Certifications Tab */}
         <TabsContent value="certifications" className="space-y-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-2xl font-bold">Certifications</h2>
-              <p className="text-muted-foreground">Professional certifications and achievements</p>
-            </div>
-          </div>
-
-          <Card>
-            <CardContent className="p-6">
+          <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-sm">
+            <CardContent className="p-8">
               <div className="text-center py-8">
-                <Award className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">Certification information is not available in this view</p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Contact the student for more details about their certifications
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 mb-4">
+                  <Award className="h-8 w-8 text-slate-400" />
+                </div>
+                <h3 className="text-lg font-medium text-slate-700 mb-2">Certifications Coming Soon</h3>
+                <p className="text-sm text-slate-500 max-w-md mx-auto">
+                  Certification information is not available in this view. Contact the student for more details about their certifications.
                 </p>
               </div>
             </CardContent>

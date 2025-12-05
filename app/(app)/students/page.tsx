@@ -1,7 +1,6 @@
 "use client"
 
 import Loader from "@/components/loader/Loader"
-import StudentCard from "@/components/students/StudentCard"
 import StudentDetailsDialog from "@/components/students/StudentDetailsDialog"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -16,6 +15,7 @@ import {
   Award,
   Briefcase,
   Download,
+  ExternalLink,
   Eye,
   GraduationCap,
   Mail,
@@ -29,14 +29,9 @@ import {
   FileText
 } from "lucide-react"
 import { useSession } from "next-auth/react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-
-// --- START: NEW LIST CARD COMPONENT ---
-// NOTE: I am creating a custom component here to simulate the requested UI structure
-// since the original code used an external <StudentCard /> component.
-// This new component will ensure the card appearance matches the user's image request
-// while adopting the blue-themed styles.
 
 interface CustomStudentCardProps {
     student: Student;
@@ -44,7 +39,6 @@ interface CustomStudentCardProps {
 }
 
 const CustomStudentCard = ({ student, onViewDetails }: CustomStudentCardProps) => {
-    // Helper to determine placement status for the badge
     const isPlaced = student.applications.some((app) => app.status === "accepted");
     const isInProcess = student.applications.some((app) => ["applied", "shortlisted"].includes(app.status)) && !isPlaced;
     const isUnplaced = !isPlaced && !isInProcess;
@@ -56,11 +50,9 @@ const CustomStudentCard = ({ student, onViewDetails }: CustomStudentCardProps) =
     };
 
     const getYear = (batch: number) => {
-        // Assuming 2025 is the graduating year (Year 4). This mirrors the logic in the parent component.
         return 4 - (batch - 2025);
     };
 
-    // Placeholder data for skills and applications count since Student type definition is not fully visible
     const skills = student.skills || ["JS", "Python", "SQL"]; 
     const applicationsCount = student.applications?.length || 0;
 
@@ -68,7 +60,6 @@ const CustomStudentCard = ({ student, onViewDetails }: CustomStudentCardProps) =
         <Card className="border-slate-200 shadow-md rounded-xl transition hover:shadow-lg hover:border-sky-300">
             <CardContent className="p-5 space-y-4">
                 <div className="flex justify-between items-start">
-                    {/* Left Section: Avatar, Name, Info */}
                     <div className="flex space-x-4 items-start">
                         <Avatar className="h-12 w-12 border border-slate-200">
                             <AvatarImage src={student.avatar || "/placeholder.svg"} alt={student.name} />
@@ -97,7 +88,6 @@ const CustomStudentCard = ({ student, onViewDetails }: CustomStudentCardProps) =
                         </div>
                     </div>
 
-                    {/* Right Section: CGPA */}
                     <div className="text-right shrink-0">
                         <p className="text-3xl font-bold">{student.cgpa.toFixed(2)}</p>
                         <p className="text-xs text-slate-500">CGPA</p>
@@ -106,7 +96,6 @@ const CustomStudentCard = ({ student, onViewDetails }: CustomStudentCardProps) =
                 
                 <hr className="border-slate-100" />
 
-                {/* Skills and Applications */}
                 <div className="space-y-2">
                     <p className="text-sm font-semibold text-slate-700">Skills:</p>
                     <div className="flex flex-wrap gap-2">
@@ -122,7 +111,6 @@ const CustomStudentCard = ({ student, onViewDetails }: CustomStudentCardProps) =
                     </p>
                 </div>
 
-                {/* Action Buttons */}
                 <div className="flex flex-wrap gap-3 pt-2 border-t border-slate-100 mt-4">
                     <Button variant="outline" size="sm" className="rounded-full text-slate-700 border-slate-300 hover:bg-slate-100">
                         <Mail className="h-4 w-4 mr-2" />
@@ -130,18 +118,19 @@ const CustomStudentCard = ({ student, onViewDetails }: CustomStudentCardProps) =
                     </Button>
                     <Button variant="outline" size="sm" onClick={() => onViewDetails(student)} className="rounded-full text-sky-600 border-sky-300 hover:bg-sky-50">
                         <Eye className="h-4 w-4 mr-2" />
-                        View Profile
+                        Quick View
                     </Button>
-                    <Button variant="default" size="sm" onClick={() => onViewDetails(student)} className="rounded-full bg-blue-500 hover:bg-blue-600">
-                        <MessageSquare className="h-4 w-4 mr-2" />
-                        View Full Profile
-                    </Button>
+                    <Link href={`/students/${student.id}`}>
+                        <Button variant="default" size="sm" className="rounded-full bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700">
+                            <ExternalLink className="h-4 w-4 mr-2" />
+                            View Full Profile
+                        </Button>
+                    </Link>
                 </div>
             </CardContent>
         </Card>
     );
 };
-// --- END: NEW LIST CARD COMPONENT ---
 
 
 export default function StudentsPage() {
@@ -207,7 +196,6 @@ export default function StudentsPage() {
 
     return (
       <div className="p-6 max-w-7xl w-full mx-auto space-y-8">
-        {/* Header and CTA */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-slate-800">Student Talent Pool</h1>
@@ -219,10 +207,8 @@ export default function StudentsPage() {
           </Button>
         </div>
 
-        {/* Stats Cards - Updated UI with Blue Theme */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           
-          {/* Total Students */}
           <Card className="border-slate-200 bg-white shadow-sm rounded-xl">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-slate-500">Total Students</CardTitle>
@@ -236,7 +222,6 @@ export default function StudentsPage() {
             </CardContent>
           </Card>
 
-          {/* Placed */}
           <Card className="border-slate-200 bg-white shadow-sm rounded-xl">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-slate-500">Placed</CardTitle>
@@ -250,7 +235,6 @@ export default function StudentsPage() {
             </CardContent>
           </Card>
 
-          {/* In Process */}
           <Card className="border-slate-200 bg-white shadow-sm rounded-xl">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-slate-500">In Process</CardTitle>
@@ -264,7 +248,6 @@ export default function StudentsPage() {
             </CardContent>
           </Card>
 
-          {/* Unplaced */}
           <Card className="border-slate-200 bg-white shadow-sm rounded-xl">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-slate-500">Unplaced</CardTitle>
@@ -279,7 +262,6 @@ export default function StudentsPage() {
           </Card>
         </div>
 
-        {/* Search and Filter - Updated UI */}
         <Card className="shadow-lg border-slate-100 rounded-xl">
           <CardContent className="p-4 sm:p-6">
             <div className="flex flex-col lg:flex-row gap-4 items-center">
@@ -293,7 +275,6 @@ export default function StudentsPage() {
                 />
               </div>
               <div className="flex gap-4 w-full lg:w-auto">
-                {/* Department Filter */}
                 <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
                   <SelectTrigger className="w-full lg:w-48 h-10 border-slate-300 focus:ring-sky-500 rounded-lg">
                     <SelectValue placeholder="All Departments" />
@@ -307,7 +288,6 @@ export default function StudentsPage() {
                     ))}
                   </SelectContent>
                 </Select>
-                {/* Year Filter */}
                 <Select value={yearFilter} onValueChange={setYearFilter}>
                   <SelectTrigger className="w-full lg:w-32 h-10 border-slate-300 focus:ring-sky-500 rounded-lg">
                     <SelectValue placeholder="All Years" />
@@ -326,7 +306,6 @@ export default function StudentsPage() {
           </CardContent>
         </Card>
 
-        {/* Student Tabs - Updated Tabs UI and Content Structure */}
         <Tabs defaultValue="all" className="space-y-6">
           <TabsList className="bg-slate-100 p-1 h-auto rounded-full">
             <TabsTrigger 
@@ -355,7 +334,6 @@ export default function StudentsPage() {
             </TabsTrigger>
           </TabsList>
 
-          {/* List View for Students (Single Column) */}
           <TabsContent value="all" className="space-y-4">
             <div className="grid gap-4">
               {filteredStudents.map((student) => (
@@ -389,7 +367,6 @@ export default function StudentsPage() {
           </TabsContent>
         </Tabs>
 
-        {/* Student Details Dialog */}
         <StudentDetailsDialog student={selectedStudent} onClose={() => setSelectedStudent(null)} />
       </div>
     )

@@ -3,7 +3,7 @@ import { TopNavigation } from "@/components/layout/top-navigation"
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative min-h-screen bg-slate-50 text-slate-900">
+    <div className="relative w-full min-h-screen bg-slate-50 text-slate-900">
       <div
         className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.15),transparent_50%),radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.1),transparent_40%),linear-gradient(180deg,rgba(226,241,255,0.7),transparent)]"
         aria-hidden="true"
