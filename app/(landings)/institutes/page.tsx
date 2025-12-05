@@ -1,4 +1,3 @@
-// app/(landings)/institute/page.tsx
 import InstituteSection from "@/components/institute/InstituteSection";
 import type { Metadata } from "next";
 

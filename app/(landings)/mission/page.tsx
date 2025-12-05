@@ -1,6 +1,3 @@
-
-
-// app/(landings)/mission/page.tsx
 import MissionSection from "@/components/mission/MissionSection";
 import type { Metadata } from "next";
 

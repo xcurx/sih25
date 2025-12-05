@@ -1,15 +1,9 @@
-// components/layout/Header.tsx
 "use client";
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Shield, GraduationCap, Globe, Sparkles, Type } from "lucide-react";
 import React, { useState, useEffect } from "react";
-
-/**
- * Shared Header (thin blue toolbar + main header)
- * Use this in all app layouts so header is identical across pages.
- */
 
 export default function Header() {
   const [fontScale, setFontScale] = useState(1);
@@ -105,7 +99,6 @@ export default function Header() {
         </div>
       </div>
 
-      {/* main header */}
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4">
           <div className="flex items-center gap-4">
@@ -127,7 +120,7 @@ export default function Header() {
           <nav className="flex flex-wrap items-center gap-4 text-sm text-slate-600">
             <Link href="/mission" className="hover:text-slate-900">Mission</Link>
             <Link href="/institutes" className="hover:text-slate-900">Institutes</Link>
-            <Link href="/employers" className="hover:text-slate-900">Employers</Link>
+            <Link href="/l_employers" className="hover:text-slate-900">Employers</Link>
             <Link href="/resources" className="hover:text-slate-900">Resources</Link>
           </nav>
 

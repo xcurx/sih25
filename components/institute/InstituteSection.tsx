@@ -1,4 +1,3 @@
-// components/institute/InstituteSection.tsx
 "use client";
 
 import React, { useState } from "react";
@@ -20,12 +19,6 @@ import {
   Phone,
   Clock,
 } from "lucide-react";
-
-/**
- * InstituteSection
- * Client component with polish similar to MissionSection.
- * Drop under components/institute/InstituteSection.tsx
- */
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
@@ -84,7 +77,6 @@ export default function InstituteSection() {
   return (
     <section id="institutes" className="py-6">
       <div className="mx-auto max-w-6xl px-4">
-        {/* HERO */}
         <div className="mb-10 grid gap-6 lg:grid-cols-3 lg:items-start">
           <div className="lg:col-span-2 rounded-3xl bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 shadow-2xl">
             <div className="flex items-start gap-6">
@@ -122,7 +114,6 @@ export default function InstituteSection() {
             </div>
           </div>
 
-          {/* RIGHT PANEL */}
           <aside className="rounded-2xl border border-white/60 bg-white/95 p-6 shadow-md">
             <p className="text-xs font-semibold uppercase tracking-widest text-sky-600">Why institutes choose us</p>
             <div className="mt-4 space-y-3 text-sm text-slate-700">
@@ -153,7 +144,6 @@ export default function InstituteSection() {
           </aside>
         </div>
 
-        {/* BENEFITS */}
         <div className="mb-10">
           <h3 className="text-2xl font-semibold text-slate-900">Benefits for institutes</h3>
           <p className="mt-2 text-sm text-slate-600">Designed for governance, speed and measurable outcomes.</p>
@@ -177,7 +167,6 @@ export default function InstituteSection() {
           </div>
         </div>
 
-        {/* CASE STUDIES & RATINGS */}
         <div className="mb-10 grid gap-6 lg:grid-cols-3">
           <article className="lg:col-span-2 space-y-6">
             <Card className="rounded-2xl border border-white/60 bg-white/95 shadow-sm">
@@ -255,7 +244,6 @@ export default function InstituteSection() {
           </aside>
         </div>
 
-        {/* FAQ */}
         <div className="mb-10">
           <h3 className="text-2xl font-semibold text-slate-900">Frequently asked questions</h3>
           <p className="mt-2 text-sm text-slate-600">Questions institutes commonly ask about onboarding, data and employer engagement.</p>
@@ -268,7 +256,6 @@ export default function InstituteSection() {
           </div>
         </div>
 
-        {/* CTA */}
         <div className="mb-16 rounded-2xl border border-white/60 bg-white/95 p-8 text-center shadow-sm">
           <h4 className="text-xl font-semibold text-slate-900">Ready to onboard your institute?</h4>
           <p className="mt-2 text-sm text-slate-600">Request an onboarding call and a tailored integration plan for rosters & reports.</p>
@@ -278,7 +265,6 @@ export default function InstituteSection() {
           </div>
         </div>
 
-        {/* Subscribe */}
         <div className="mb-6 rounded-2xl border border-white/60 bg-white/95 p-6 text-center shadow-sm">
           <p className="text-sm text-slate-700">Get monthly institute operations updates</p>
           <form onSubmit={handleSubscribe} className="mt-4 flex max-w-md items-center mx-auto gap-2">

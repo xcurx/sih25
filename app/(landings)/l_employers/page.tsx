@@ -1,4 +1,3 @@
-
 import EmployerSection from "@/components/l_employers/EmployerSection";
 
 export const metadata = {
@@ -7,8 +6,6 @@ export const metadata = {
 
 export default function EmployersPage() {
   return (
-    <main className="pt-10 pb-20">
-      <EmployerSection />
-    </main>
+    <EmployerSection />
   );
 }

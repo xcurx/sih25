@@ -55,7 +55,6 @@ export default function ResourcesSection() {
   return (
     <section className="py-16 bg-gradient-to-b from-white to-slate-50">
       <div className="mx-auto max-w-6xl px-4">
-        {/* HERO */}
         <div className="rounded-3xl bg-gradient-to-br from-white via-sky-50 to-blue-50 p-10 shadow-2xl">
           <Badge className="bg-sky-100 text-sky-700" variant="outline">
             Resources hub
@@ -78,7 +77,6 @@ export default function ResourcesSection() {
           </div>
         </div>
 
-        {/* RESOURCE GRID */}
         <div className="mt-14 grid gap-6 md:grid-cols-3">
           <ResourceCard
             icon={GraduationCap}
@@ -123,7 +121,6 @@ export default function ResourcesSection() {
           />
         </div>
 
-        {/* FAQ */}
         <div className="mt-14">
           <h2 className="text-2xl font-semibold text-slate-900">Frequently asked questions</h2>
           <p className="text-sm text-slate-600 max-w-xl mt-2">
@@ -150,7 +147,6 @@ export default function ResourcesSection() {
           </div>
         </div>
 
-        {/* CTA */}
         <div className="mt-16 rounded-2xl bg-white border border-slate-200 p-8 text-center shadow-sm">
           <h3 className="text-xl font-semibold text-slate-900">
             Need help finding the right resource?

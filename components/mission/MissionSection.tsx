@@ -1,4 +1,3 @@
-// components/mission/MissionSection.tsx
 "use client";
 
 import React, { useState } from "react";
@@ -9,11 +8,6 @@ import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Users, Sparkles, ShieldCheck, BookOpen } from "lucide-react";
-
-/**
- * Final MissionSection: grid-based hero + sticky right panel for perfect alignment
- * Paste/overwrite components/mission/MissionSection.tsx with this file.
- */
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
@@ -70,10 +64,8 @@ export default function MissionSection() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* HERO area - use grid to align left (2 cols) + right (1 col) */}
       <main className="mx-auto min-h-[calc(100vh-140px)] max-w-6xl px-4 py-12">
         <div className="grid gap-8 lg:grid-cols-3 lg:items-start">
-          {/* LEFT (spans 2 columns on lg) */}
           <section className="lg:col-span-2">
             <div className="relative overflow-visible rounded-3xl border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 text-slate-900 shadow-2xl">
               <div
@@ -123,7 +115,6 @@ export default function MissionSection() {
             </div>
           </section>
 
-          {/* RIGHT - sticky panel so it visually anchors; prevents whitespace feel */}
           <aside className="w-full">
             <div className="sticky top-24">
               <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white/95 px-6 py-6 shadow-lg">
@@ -177,7 +168,6 @@ export default function MissionSection() {
                 </div>
               </div>
 
-              {/* small quick resources card below the sticky panel (keeps visual weight) */}
               <div className="mt-6 hidden lg:block">
                 <div className="rounded-2xl border border-white/60 bg-white/95 p-4 shadow-sm">
                   <p className="text-xs font-semibold uppercase tracking-widest text-sky-600">Quick resources</p>
@@ -193,7 +183,6 @@ export default function MissionSection() {
         </div>
       </main>
 
-      {/* SECONDARY CONTENT: pillars, programs, roadmap, faq */}
       <section className="mx-auto max-w-6xl px-4 pb-16">
         <div className="mb-12">
           <h2 className="text-2xl font-semibold text-slate-900">Core pillars</h2>

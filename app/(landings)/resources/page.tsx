@@ -6,8 +6,6 @@ export const metadata = {
 
 export default function ResourcesPage() {
   return (
-    <main className="pt-10 pb-20">
-      <ResourcesSection />
-    </main>
+    <ResourcesSection />
   );
 }

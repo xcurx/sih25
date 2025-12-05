@@ -22,10 +22,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
-// --------------------------------------
-// Reusable Components
-// --------------------------------------
-
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl border border-white/70 bg-white/90 p-5 text-center shadow-sm">
@@ -76,19 +72,10 @@ function FAQRow({ q, a }: { q: string; a: React.ReactNode }) {
   );
 }
 
-// --------------------------------------
-// Main Section
-// --------------------------------------
-
 export default function EmployerSection() {
   return (
     <section id="employers" className="mx-auto max-w-6xl px-4">
-      {/* -------------------------------------- */}
-      {/* HERO SECTION */}
-      {/* -------------------------------------- */}
-
       <div className="mb-12 grid gap-6 lg:grid-cols-3">
-        {/* LEFT MAIN HERO */}
         <div className="lg:col-span-2 rounded-3xl bg-gradient-to-br from-white via-sky-50 to-blue-50 p-10 shadow-2xl">
           <div className="flex items-start gap-6">
             <div className="rounded-full bg-sky-100 p-3">
@@ -112,7 +99,6 @@ export default function EmployerSection() {
                 and large-scale talent acquisition.
               </p>
 
-              {/* CTA */}
               <div className="mt-6 flex flex-wrap gap-3">
                 <Link href="/employers/register">
                   <Button className="rounded-full bg-sky-600 text-white hover:bg-sky-500">
@@ -127,7 +113,6 @@ export default function EmployerSection() {
                 </Link>
               </div>
 
-              {/* Stats */}
               <div className="mt-6 grid gap-4 sm:grid-cols-3">
                 <Stat label="Verified Institutes" value="280+" />
                 <Stat label="Active Employer Partners" value="950+" />
@@ -137,7 +122,6 @@ export default function EmployerSection() {
           </div>
         </div>
 
-        {/* RIGHT CARD */}
         <aside className="rounded-2xl border border-white/60 bg-white/95 p-6 shadow-md">
           <p className="text-xs uppercase tracking-widest text-sky-600 font-semibold">
             Why Employers Choose Us
@@ -173,10 +157,6 @@ export default function EmployerSection() {
         </aside>
       </div>
 
-      {/* -------------------------------------- */}
-      {/* EMPLOYER BENEFITS */}
-      {/* -------------------------------------- */}
-
       <div className="mb-12">
         <h2 className="text-2xl font-semibold text-slate-900">Built for modern hiring teams</h2>
         <p className="mt-2 text-sm text-slate-600 max-w-2xl">
@@ -205,10 +185,6 @@ export default function EmployerSection() {
         </div>
       </div>
 
-      {/* -------------------------------------- */}
-      {/* HIRING WORKFLOW */}
-      {/* -------------------------------------- */}
-
       <div className="mb-12 grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">
           <Card className="rounded-2xl border border-white/60 bg-white/90 shadow-sm">
@@ -230,7 +206,6 @@ export default function EmployerSection() {
             </CardContent>
           </Card>
 
-          {/* PROGRAMS */}
           <Card className="rounded-2xl border border-white/60 bg-white/90 shadow-sm">
             <CardHeader>
               <CardTitle className="text-lg font-semibold text-slate-900">Employer programs</CardTitle>
@@ -247,7 +222,6 @@ export default function EmployerSection() {
           </Card>
         </div>
 
-        {/* QUICK CONTACT */}
         <aside className="space-y-6">
           <Card className="rounded-2xl border border-white/60 bg-white/90 p-5 shadow-sm">
             <p className="text-xs uppercase tracking-widest text-sky-600 font-semibold">
@@ -265,10 +239,6 @@ export default function EmployerSection() {
           </Card>
         </aside>
       </div>
-
-      {/* -------------------------------------- */}
-      {/* FAQ */}
-      {/* -------------------------------------- */}
 
       <div className="mb-16">
         <h3 className="text-2xl font-semibold text-slate-900">Frequently asked questions</h3>
@@ -298,10 +268,6 @@ export default function EmployerSection() {
           />
         </div>
       </div>
-
-      {/* -------------------------------------- */}
-      {/* CTA */}
-      {/* -------------------------------------- */}
 
       <div className="mb-12 rounded-2xl border border-white/60 bg-white/90 p-10 text-center shadow-sm">
         <h4 className="text-xl font-semibold text-slate-900">
