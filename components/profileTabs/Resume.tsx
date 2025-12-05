@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useRef, useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import axios from "axios"
 import { toast } from "sonner"
@@ -27,6 +27,10 @@ const Resume = ({ resume, onResumeUpdate }: ResumeProps) => {
   const [uploading, setUploading] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [currentResume, setCurrentResume] = useState<string | null>(resume || null)
+
+  useEffect(() => {
+    setCurrentResume(resume || null)
+  }, [resume])
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
