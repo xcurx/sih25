@@ -102,7 +102,12 @@ export default function ApplicationDetailPage() {
 
   const fetchApplication = async () => {
     try {
-      const res = await axios.get(`/api/student/application/${params.id}`, {
+      // Use different API based on user role
+      const apiUrl = session?.user?.role === "student" 
+        ? `/api/student/application/${params.id}`
+        : `/api/placementcell/application/${params.id}`
+      
+      const res = await axios.get(apiUrl, {
         withCredentials: true,
       })
       if (res.status === 200) {
@@ -119,7 +124,7 @@ export default function ApplicationDetailPage() {
   useEffect(() => {
     if (status === "loading" || status === "unauthenticated") return
     fetchApplication()
-  }, [status, params.id])
+  }, [status, params.id, session?.user?.role])
 
   if (status === "loading" || loading) {
     return <Loader />

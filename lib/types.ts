@@ -202,3 +202,143 @@ export interface InternshipCompany {
   location?: string | null
   industry?: string | null
 }
+
+export interface StudentProfileProject {
+  id: string
+  title: string
+  description: string
+  technologies: string[]
+  githubUrl?: string
+  liveUrl?: string
+  startDate: string
+  endDate?: string
+}
+
+export interface StudentProfileCertificate {
+  id: string
+  title: string
+  issuer: string
+  issueDate: string
+  certificateUrl?: string
+}
+
+export interface StudentProfileApplication {
+  id: string
+  status: string
+  appliedAt: string
+  opportunityRel: {
+    id: string
+    title: string
+    type: string
+    companyRel?: {
+      name: string
+    }
+  }
+  interviewRel?: {
+    id: string
+    status: string
+    scheduledAt: string
+  }
+}
+
+export interface StudentProfileInternship {
+  id: string
+  startDate: string
+  endDate: string
+  salary?: string
+  performanceReview?: string
+  opportunityRel: {
+    title: string
+    companyRel?: {
+      name: string
+    }
+  }
+  certificateRel?: {
+    id: string
+    title: string
+    certificateUrl: string
+  }
+}
+
+export interface StudentProfile {
+  id: string
+  name: string
+  email: string
+  phone?: string
+  branch?: string
+  batch?: number
+  cgpa?: number
+  resume?: string
+  skills: string[]
+  github?: string
+  linkedin?: string
+  applications: StudentProfileApplication[]
+  internships: StudentProfileInternship[]
+  projects: StudentProfileProject[]
+  certificates: StudentProfileCertificate[]
+}
+
+export interface StudentProfileStats {
+  totalApplications: number
+  accepted: number
+  rejected: number
+  pending: number
+  interviews: number
+  internships: number
+}
+
+export interface CompanyEmployee {
+  id: string
+  name: string
+  email: string
+  position?: string
+  linkedin?: string
+  avatar?: string
+}
+
+export interface CompanyApplication {
+  id: string
+  status: string
+  appliedAt: string
+  studentRel: {
+    id: string
+    name: string
+    email: string
+    branch?: string
+    batch?: number
+    cgpa?: number
+  }
+}
+
+export interface CompanyOpportunity {
+  id: string
+  title: string
+  description: string
+  type: string
+  location: string
+  status: string
+  salary: number
+  postedAt: string
+  applicationDeadline: string
+  applications: CompanyApplication[]
+}
+
+export interface CompanyProfile {
+  id: string
+  name: string
+  description?: string
+  website?: string
+  industry?: string
+  location?: string
+  employees: CompanyEmployee[]
+  opportunities: CompanyOpportunity[]
+}
+
+export interface CompanyProfileStats {
+  totalOpportunities: number
+  activeOpportunities: number
+  totalApplications: number
+  acceptedApplications: number
+  pendingApplications: number
+  recruiters: number
+}
