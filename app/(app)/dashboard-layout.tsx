@@ -1,5 +1,7 @@
 import type React from "react"
 import { TopNavigation } from "@/components/layout/top-navigation"
+import Header from "@/components/layout/Header";
+
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -9,6 +11,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         aria-hidden="true"
       />
       <TopNavigation />
+      {/* <Header /> */}
       <main className="relative mx-auto w-full max-w-6xl px-4 py-8">
         <div className="rounded-[32px] bg-white/80 p-6 shadow-[0_30px_120px_rgba(15,23,42,0.08)] ring-1 ring-white/60 backdrop-blur">
           {children}

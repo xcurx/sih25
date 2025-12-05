@@ -201,13 +201,14 @@ export function LoginScreen() {
             </div>
           </div>
           <nav className="flex flex-wrap items-center gap-4 text-sm text-slate-600">
-            <Link href="/#students" className="hover:text-slate-900">
+            {/* <Link href="/mission" className="hover:text-slate-900">
               Mission
-            </Link>
-            <Link href="/#placements" className="hover:text-slate-900">
+            </Link> */}
+            <a href="/mission" className="hover:text-slate-900">Mission</a>
+            <Link href="/placements" className="hover:text-slate-900">
               Institutes
             </Link>
-            <Link href="/#employers" className="hover:text-slate-900">
+            <Link href="/employers" className="hover:text-slate-900">
               Employers
             </Link>
             <Link href="/resources" className="hover:text-slate-900">
