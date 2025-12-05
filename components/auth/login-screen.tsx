@@ -212,9 +212,8 @@ export function LoginScreen() {
             <Link href="/employers" className="hover:text-slate-900">
               Employers
             </Link>
-            <Link href="/resources" className="hover:text-slate-900">
-              Resources
-            </Link>
+            <a href="/resources" className="hover:text-slate-900">Resources</a>
+            
           </nav>
           <div className="flex items-center gap-3">
             <Button variant="outline" className="rounded-full border-sky-200 text-sky-700 hover:bg-sky-50">
