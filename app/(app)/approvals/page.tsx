@@ -1,7 +1,6 @@
 "use client"
 
 import { ApplicationApprovalCard } from "@/components/faculty/ApplicationApprovalCard"
-import { ApplicationDetailsDialog } from "@/components/faculty/ApplicationDetailsDialog"
 import Loader from "@/components/loader/Loader"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -34,7 +33,6 @@ export default function ApprovalPage() {
   const [departmentFilter, setDepartmentFilter] = useState("all")
   const [applications, setApplications] = useState<ApprovalApplication[]>([])
   const [selectedApplication, setSelectedApplication] = useState<ApprovalApplication | null>(null)
-  const [showDetailsDialog, setShowDetailsDialog] = useState(false)
   const [showActionDialog, setShowActionDialog] = useState(false)
   const [actionType, setActionType] = useState<"approve" | "reject" | null>(null)
   const [remarks, setRemarks] = useState("")
@@ -93,7 +91,6 @@ export default function ApprovalPage() {
     setSelectedApplication(app)
     setActionType(action)
     setShowActionDialog(true)
-    setShowDetailsDialog(false)
   }
 
   const filteredApplications = applications.filter((app) => {
@@ -138,9 +135,7 @@ export default function ApprovalPage() {
         </p>
       </div>
 
-      {/* Stats Cards - Dusty Blue/Slate Theme */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-        {/* Card 1: Total Pending (Red for attention) */}
         <Card className="border-slate-200 bg-white shadow-md rounded-xl transition hover:shadow-lg">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-slate-500">Total Pending</CardTitle>
@@ -154,11 +149,10 @@ export default function ApprovalPage() {
           </CardContent>
         </Card>
         
-        {/* Card 2: Reviewed Applications (Dusty Blue accent) */}
         <Card className="border-slate-200 bg-white shadow-md rounded-xl transition hover:shadow-lg">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-slate-500">Reviewed</CardTitle>
-            <div className="rounded-full p-2 bg-blue-100 text-blue-700"> {/* Dusty Blue */}
+            <div className="rounded-full p-2 bg-blue-100 text-blue-700">
                 <CheckCircle className="h-4 w-4" />
             </div>
           </CardHeader>
@@ -168,7 +162,6 @@ export default function ApprovalPage() {
           </CardContent>
         </Card>
         
-        {/* Card 3: All Applications (Indigo accent) */}
         <Card className="border-slate-200 bg-white shadow-md rounded-xl transition hover:shadow-lg">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-slate-500">All Applications</CardTitle>
@@ -182,7 +175,6 @@ export default function ApprovalPage() {
           </CardContent>
         </Card>
         
-        {/* Card 4: Recent Submissions (Emerald accent) */}
         <Card className="border-slate-200 bg-white shadow-md rounded-xl transition hover:shadow-lg">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-slate-500">Recent</CardTitle>
@@ -203,7 +195,6 @@ export default function ApprovalPage() {
         </Card>
       </div>
 
-      {/* Search and Filter */}
       <Card className="mb-6 border-slate-200 bg-white shadow-lg rounded-xl">
         <CardContent className="p-6">
           <div className="flex flex-col lg:flex-row gap-4">
@@ -245,9 +236,8 @@ export default function ApprovalPage() {
         </CardContent>
       </Card>
 
-      {/* Applications Tabs */}
       <Tabs defaultValue="all" className="space-y-6">
-        <TabsList className="bg-blue-100/50 border border-slate-200"> {/* Slight blue background */}
+        <TabsList className="bg-blue-100/50 border border-slate-200">
           <TabsTrigger value="all" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md">All ({filteredApplications.length})</TabsTrigger>
           <TabsTrigger value="pending" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md">Pending ({pendingApplications.length})</TabsTrigger>
           <TabsTrigger value="reviewed" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md">Reviewed ({reviewedApplications.length})</TabsTrigger>
@@ -259,10 +249,6 @@ export default function ApprovalPage() {
               <ApplicationApprovalCard
                 key={app.id}
                 application={app}
-                onViewDetails={() => {
-                  setSelectedApplication(app)
-                  setShowDetailsDialog(true)
-                }}
                 onApprove={() => openActionDialog(app, "approve")}
                 onReject={() => openActionDialog(app, "reject")}
               />
@@ -283,10 +269,6 @@ export default function ApprovalPage() {
               <ApplicationApprovalCard
                 key={app.id}
                 application={app}
-                onViewDetails={() => {
-                  setSelectedApplication(app)
-                  setShowDetailsDialog(true)
-                }}
                 onApprove={() => openActionDialog(app, "approve")}
                 onReject={() => openActionDialog(app, "reject")}
               />
@@ -307,10 +289,6 @@ export default function ApprovalPage() {
               <ApplicationApprovalCard
                 key={app.id}
                 application={app}
-                onViewDetails={() => {
-                  setSelectedApplication(app)
-                  setShowDetailsDialog(true)
-                }}
                 onApprove={() => openActionDialog(app, "approve")}
                 onReject={() => openActionDialog(app, "reject")}
               />
@@ -326,26 +304,13 @@ export default function ApprovalPage() {
         </TabsContent>
       </Tabs>
 
-      {/* Application Details Dialog (Assumes ApplicationDetailsDialog handles its own content styling) */}
-      <ApplicationDetailsDialog
-        application={selectedApplication}
-        open={showDetailsDialog}
-        onClose={() => {
-          setShowDetailsDialog(false)
-          setSelectedApplication(null)
-        }}
-        onApprove={() => openActionDialog(selectedApplication!, "approve")}
-        onReject={() => openActionDialog(selectedApplication!, "reject")}
-      />
-
-      {/* Action Confirmation Dialog - UI Updated as requested */}
       <Dialog open={showActionDialog} onOpenChange={setShowActionDialog}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-slate-900">
               {actionType === "approve" ? (
                 <>
-                  <CheckCircle className="h-5 w-5 text-blue-600" /> {/* Blue for Approval Icon */}
+                  <CheckCircle className="h-5 w-5 text-blue-600" />
                   Approve Application
                 </>
               ) : (
@@ -364,11 +329,10 @@ export default function ApprovalPage() {
 
           {selectedApplication && (
             <div className="space-y-4">
-              {/* Target area updated to slight/dusty blue (bg-blue-100) */}
               <div 
                 className={`p-4 rounded-lg border ${
                     actionType === "approve" 
-                        ? "bg-blue-100 border-blue-200" // Dusty blue background for approval
+                        ? "bg-blue-100 border-blue-200"
                         : "bg-red-50 border-red-100" 
                 }`}
               >

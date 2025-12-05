@@ -342,3 +342,108 @@ export interface CompanyProfileStats {
   pendingApplications: number
   recruiters: number
 }
+
+export interface OpportunityDetail {
+  id: string
+  title: string
+  description: string
+  type: string
+  location: string
+  status: string
+  salary: number
+  postedAt: string
+  applicationDeadline: string
+  requirements: string[]
+  eligibleDepartments: string[]
+  skillsRequired: string[]
+  additionalInfo?: string
+  startDate: string
+  endDate: string
+  applied?: boolean
+  userApplication?: {
+    id: string
+    status: string
+    appliedAt: string
+  }
+  companyRel?: {
+    id: string
+    name: string
+    description?: string
+    website?: string
+    industry?: string
+    location?: string
+  }
+  employerRel?: {
+    id: string
+    name: string
+    position?: string
+    email: string
+    linkedin?: string
+  }
+  _count?: {
+    applications: number
+  }
+}
+
+export interface ApplicationDetail {
+  id: string
+  opportunityId: string
+  studentId: string
+  status: string
+  appliedAt: string
+  coverLetter?: string
+  mentorApproved?: boolean
+  opportunityRel: {
+    id: string
+    title: string
+    description: string
+    type: string
+    location: string
+    salary: number
+    postedAt: string
+    applicationDeadline: string
+    requirements: string[]
+    eligibleDepartments: string[]
+    skillsRequired: string[]
+    additionalInfo?: string
+    startDate: string
+    endDate: string
+    companyRel?: {
+      id: string
+      name: string
+      description?: string
+      website?: string
+      industry?: string
+      location?: string
+    }
+    employerRel?: {
+      id: string
+      name: string
+      position?: string
+      email: string
+      linkedin?: string
+    }
+  }
+  interviewRel?: {
+    id: string
+    scheduledAt: string
+    interviewLink?: string
+    status: string
+    interviewDetails?: string
+    remark?: string
+  }
+  internshipRel?: {
+    id: string
+    startDate: string
+    endDate: string
+    salary?: string
+    performanceReview?: string
+    certificateRel?: {
+      id: string
+      title: string
+      issuer: string
+      issueDate: string
+      certificateUrl: string
+    }
+  }
+}

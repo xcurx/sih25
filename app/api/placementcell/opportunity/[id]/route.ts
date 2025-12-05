@@ -1,4 +1,4 @@
-import { auth } from "@/auth";
+                    import { auth } from "@/auth";
 import { PrismaClient } from "@/lib/generated/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -11,7 +11,7 @@ export const GET = async (
   const session = await auth();
   const { id } = await params;
 
-  if (!session?.user || session.user.role !== "placement-cell") {
+  if (!session?.user || (session.user.role !== "placement-cell" && session.user.role !== "faculty")) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 

@@ -5,6 +5,7 @@ import Status from "@/components/applications/Status"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { ApplicationDetail } from "@/lib/types"
 import axios from "axios"
 import {
   ArrowLeft,
@@ -30,74 +31,11 @@ import { useParams, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
-interface Application {
-  id: string
-  opportunityId: string
-  studentId: string
-  status: string
-  appliedAt: string
-  coverLetter?: string
-  mentorApproved?: boolean
-  opportunityRel: {
-    id: string
-    title: string
-    description: string
-    type: string
-    location: string
-    salary: number
-    postedAt: string
-    applicationDeadline: string
-    requirements: string[]
-    eligibleDepartments: string[]
-    skillsRequired: string[]
-    additionalInfo?: string
-    startDate: string
-    endDate: string
-    companyRel?: {
-      id: string
-      name: string
-      description?: string
-      website?: string
-      industry?: string
-      location?: string
-    }
-    employerRel?: {
-      id: string
-      name: string
-      position?: string
-      email: string
-      linkedin?: string
-    }
-  }
-  interviewRel?: {
-    id: string
-    scheduledAt: string
-    interviewLink?: string
-    status: string
-    interviewDetails?: string
-    remark?: string
-  }
-  internshipRel?: {
-    id: string
-    startDate: string
-    endDate: string
-    salary?: string
-    performanceReview?: string
-    certificateRel?: {
-      id: string
-      title: string
-      issuer: string
-      issueDate: string
-      certificateUrl: string
-    }
-  }
-}
-
 export default function ApplicationDetailPage() {
   const { data: session, status } = useSession()
   const params = useParams()
   const router = useRouter()
-  const [application, setApplication] = useState<Application | null>(null)
+  const [application, setApplication] = useState<ApplicationDetail | null>(null)
   const [loading, setLoading] = useState(true)
 
   const fetchApplication = async () => {
@@ -199,12 +137,10 @@ export default function ApplicationDetailPage() {
 
   return (
     <div className="relative p-6 max-w-5xl w-full mx-auto space-y-6">
-      {/* Background gradient effect */}
       <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]" />
       <div className="absolute top-0 left-1/4 -z-10 h-64 w-64 rounded-full bg-sky-100 opacity-50 blur-3xl" />
       <div className="absolute bottom-0 right-1/4 -z-10 h-64 w-64 rounded-full bg-blue-100 opacity-50 blur-3xl" />
 
-      {/* Back Button */}
       <Button
         variant="ghost"
         onClick={() => router.back()}
@@ -214,11 +150,8 @@ export default function ApplicationDetailPage() {
         Back
       </Button>
 
-      {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - Main Details */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Header Card */}
           <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-lg overflow-hidden">
             <CardHeader className="pb-4">
               <div className="flex items-start justify-between gap-4">
@@ -247,7 +180,6 @@ export default function ApplicationDetailPage() {
                 </Badge>
               </div>
 
-              {/* Quick Info Badges */}
               <div className="flex flex-wrap items-center gap-3 mt-4">
                 <div className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-4 py-2 text-sm text-slate-700">
                   <MapPin className="h-4 w-4 text-slate-500" />
@@ -265,13 +197,11 @@ export default function ApplicationDetailPage() {
             </CardHeader>
 
             <CardContent className="space-y-6">
-              {/* Status Progress */}
               <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-5">
                 <h4 className="text-sm font-semibold text-slate-700 mb-4">Application Progress</h4>
                 <Status status={application.status as any} />
               </div>
 
-              {/* Cover Letter */}
               {application.coverLetter && (
                 <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-5">
                   <h4 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
@@ -284,7 +214,6 @@ export default function ApplicationDetailPage() {
                 </div>
               )}
 
-              {/* Job Description */}
               <div>
                 <h3 className="text-lg font-semibold text-slate-900 mb-3">About the Role</h3>
                 <p className="text-slate-600 leading-relaxed whitespace-pre-line">
@@ -292,7 +221,6 @@ export default function ApplicationDetailPage() {
                 </p>
               </div>
 
-              {/* Skills Required */}
               <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-5">
                 <h4 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
                   <Briefcase className="h-4 w-4 text-slate-500" />
@@ -313,7 +241,6 @@ export default function ApplicationDetailPage() {
             </CardContent>
           </Card>
 
-          {/* Interview Card */}
           {application.interviewRel && (
             <Card className="rounded-3xl border-slate-200 bg-gradient-to-br from-sky-50 to-blue-50 shadow-lg">
               <CardHeader>
@@ -358,7 +285,10 @@ export default function ApplicationDetailPage() {
                   </div>
                 )}
 
-                {application.interviewRel.interviewLink && (
+                {application.interviewRel.interviewLink && 
+                 application.status !== "rejected" && 
+                 application.interviewRel.status === "scheduled" &&
+                 new Date(application.interviewRel.scheduledAt) > new Date() && (
                   <a
                     href={application.interviewRel.interviewLink}
                     target="_blank"
@@ -369,6 +299,21 @@ export default function ApplicationDetailPage() {
                       Join Interview
                     </Button>
                   </a>
+                )}
+
+                {application.interviewRel.interviewLink && 
+                 (application.status === "rejected" || 
+                  application.interviewRel.status !== "scheduled" ||
+                  new Date(application.interviewRel.scheduledAt) <= new Date()) && (
+                  <div className="rounded-2xl bg-slate-100 p-4 text-center">
+                    <p className="text-sm text-slate-500">
+                      {application.status === "rejected" 
+                        ? "Interview cancelled - Application rejected"
+                        : new Date(application.interviewRel.scheduledAt) <= new Date()
+                          ? "Interview time has passed"
+                          : `Interview ${application.interviewRel.status}`}
+                    </p>
+                  </div>
                 )}
 
                 {application.interviewRel.remark && (
@@ -387,7 +332,6 @@ export default function ApplicationDetailPage() {
             </Card>
           )}
 
-          {/* Internship Card */}
           {application.internshipRel && (
             <Card className="rounded-3xl border-slate-200 bg-gradient-to-br from-emerald-50 to-green-50 shadow-lg">
               <CardHeader>
@@ -452,9 +396,7 @@ export default function ApplicationDetailPage() {
           )}
         </div>
 
-        {/* Right Column - Sidebar */}
         <div className="space-y-6">
-          {/* Application Summary */}
           <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-lg">
             <CardHeader>
               <CardTitle className="text-lg font-semibold text-slate-900">Application Summary</CardTitle>
@@ -496,7 +438,6 @@ export default function ApplicationDetailPage() {
             </CardContent>
           </Card>
 
-          {/* Company Card */}
           {application.opportunityRel.companyRel && (
             <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-lg">
               <CardHeader>
@@ -534,7 +475,6 @@ export default function ApplicationDetailPage() {
             </Card>
           )}
 
-          {/* Recruiter Card */}
           {application.opportunityRel.employerRel && (
             <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-lg">
               <CardHeader>

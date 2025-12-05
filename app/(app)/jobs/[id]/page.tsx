@@ -4,6 +4,7 @@ import Loader from "@/components/loader/Loader"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { OpportunityDetail } from "@/lib/types"
 import axios from "axios"
 import {
   ArrowLeft,
@@ -18,7 +19,6 @@ import {
   Mail,
   MapPin,
   Send,
-  Star,
   User,
   Users,
 } from "lucide-react"
@@ -28,61 +28,22 @@ import { useParams, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
-interface Opportunity {
-  id: string
-  title: string
-  description: string
-  type: string
-  location: string
-  status: string
-  salary: number
-  postedAt: string
-  applicationDeadline: string
-  requirements: string[]
-  eligibleDepartments: string[]
-  skillsRequired: string[]
-  additionalInfo?: string
-  startDate: string
-  endDate: string
-  applied: boolean
-  userApplication?: {
-    id: string
-    status: string
-    appliedAt: string
-  }
-  companyRel?: {
-    id: string
-    name: string
-    description?: string
-    website?: string
-    industry?: string
-    location?: string
-  }
-  employerRel?: {
-    id: string
-    name: string
-    position?: string
-    email: string
-    linkedin?: string
-  }
-  _count: {
-    applications: number
-  }
-}
-
 export default function OpportunityDetailPage() {
   const { data: session, status } = useSession()
   const params = useParams()
   const router = useRouter()
-  const [opportunity, setOpportunity] = useState<Opportunity | null>(null)
+  const [opportunity, setOpportunity] = useState<OpportunityDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [applying, setApplying] = useState(false)
   const [sendingApproval, setSendingApproval] = useState(false)
-  const [isBookmarked, setIsBookmarked] = useState(false)
 
   const fetchOpportunity = async () => {
     try {
-      const res = await axios.get(`/api/student/opportunity/${params.id}`, {
+      const apiUrl = session?.user?.role === "faculty" || session?.user?.role === "placement-cell"
+        ? `/api/placementcell/opportunity/${params.id}`
+        : `/api/student/opportunity/${params.id}`
+      
+      const res = await axios.get(apiUrl, {
         withCredentials: true,
       })
       if (res.status === 200) {
@@ -104,7 +65,7 @@ export default function OpportunityDetailPage() {
         withCredentials: true,
       })
       setOpportunity((prev) =>
-        prev ? { ...prev, applied: true, _count: { applications: prev._count.applications + 1 } } : null
+        prev ? { ...prev, applied: true, _count: { applications: (prev._count?.applications || 0) + 1 } } : null
       )
       toast.success("Application submitted successfully")
     } catch (error) {
@@ -156,15 +117,15 @@ export default function OpportunityDetailPage() {
   )
   const isExpired = daysUntilDeadline <= 0
   const isUrgent = daysUntilDeadline <= 7 && daysUntilDeadline > 0
+  const isStudent = session?.user?.role === "student"
+  const isStaff = session?.user?.role === "faculty" || session?.user?.role === "placement-cell"
 
   return (
     <div className="relative p-6 max-w-5xl w-full mx-auto space-y-6">
-      {/* Background gradient effect */}
       <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]" />
       <div className="absolute top-0 left-1/4 -z-10 h-64 w-64 rounded-full bg-sky-100 opacity-50 blur-3xl" />
       <div className="absolute bottom-0 right-1/4 -z-10 h-64 w-64 rounded-full bg-blue-100 opacity-50 blur-3xl" />
 
-      {/* Back Button */}
       <Button
         variant="ghost"
         onClick={() => router.back()}
@@ -174,11 +135,8 @@ export default function OpportunityDetailPage() {
         Back
       </Button>
 
-      {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - Main Details */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Header Card */}
           <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-lg overflow-hidden">
             <CardHeader className="pb-4">
               <div className="flex items-start justify-between gap-4">
@@ -195,19 +153,8 @@ export default function OpportunityDetailPage() {
                     </CardDescription>
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsBookmarked(!isBookmarked)}
-                  className="rounded-full h-10 w-10 p-0 hover:bg-yellow-50"
-                >
-                  <Star
-                    className={`h-5 w-5 ${isBookmarked ? "fill-yellow-500 text-yellow-500" : "text-slate-400"}`}
-                  />
-                </Button>
               </div>
 
-              {/* Quick Info Badges */}
               <div className="flex flex-wrap items-center gap-3 mt-4">
                 <div className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-4 py-2 text-sm text-slate-700">
                   <MapPin className="h-4 w-4 text-slate-500" />
@@ -236,13 +183,11 @@ export default function OpportunityDetailPage() {
               </div>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Description */}
               <div>
                 <h3 className="text-lg font-semibold text-slate-900 mb-3">About the Role</h3>
                 <p className="text-slate-600 leading-relaxed whitespace-pre-line">{opportunity.description}</p>
               </div>
 
-              {/* Requirements */}
               {opportunity.requirements && opportunity.requirements.length > 0 && (
                 <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-5">
                   <h4 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
@@ -260,7 +205,6 @@ export default function OpportunityDetailPage() {
                 </div>
               )}
 
-              {/* Skills Required */}
               <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-5">
                 <h4 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
                   <Layers className="h-4 w-4 text-slate-500" />
@@ -279,7 +223,6 @@ export default function OpportunityDetailPage() {
                 </div>
               </div>
 
-              {/* Eligible Departments */}
               <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-5">
                 <h4 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
                   <Briefcase className="h-4 w-4 text-slate-500" />
@@ -297,7 +240,6 @@ export default function OpportunityDetailPage() {
                 </div>
               </div>
 
-              {/* Additional Info */}
               {opportunity.additionalInfo && (
                 <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-5">
                   <h4 className="text-sm font-semibold text-slate-700 mb-3">Additional Information</h4>
@@ -308,10 +250,8 @@ export default function OpportunityDetailPage() {
           </Card>
         </div>
 
-        {/* Right Column - Sidebar */}
         <div className="space-y-6">
-          {/* Application Status Card */}
-          {opportunity.userApplication && (
+          {isStudent && opportunity.userApplication && (
             <Card className="rounded-3xl border-slate-200 bg-gradient-to-br from-sky-50 to-blue-50 shadow-lg">
               <CardHeader>
                 <CardTitle className="text-lg font-semibold text-slate-900">Application Status</CardTitle>
@@ -342,60 +282,101 @@ export default function OpportunityDetailPage() {
             </Card>
           )}
 
-          {/* Apply Card */}
-          <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-lg">
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold text-slate-900">Apply Now</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-2 rounded-2xl border border-slate-100 bg-slate-50/60 px-4 py-3">
-                <Users className="h-4 w-4 text-slate-500" />
-                <span className="text-sm font-medium text-slate-700">
-                  {opportunity._count.applications}{" "}
-                  {opportunity._count.applications === 1 ? "applicant" : "applicants"}
-                </span>
-              </div>
-
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm text-slate-600">
-                  <Calendar className="h-4 w-4 text-slate-500" />
-                  <span>Posted: {new Date(opportunity.postedAt).toLocaleDateString()}</span>
+          {isStaff && (
+            <Card className="rounded-3xl border-slate-200 bg-gradient-to-br from-sky-50 to-blue-50 shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold text-slate-900">Opportunity Stats</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center gap-2 rounded-2xl border border-slate-100 bg-white/80 px-4 py-3">
+                  <Users className="h-4 w-4 text-sky-600" />
+                  <span className="text-sm font-medium text-slate-700">
+                    {opportunity._count?.applications || 0}{" "}
+                    {(opportunity._count?.applications || 0) === 1 ? "applicant" : "applicants"}
+                  </span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-slate-600">
-                  <Clock className="h-4 w-4 text-slate-500" />
-                  <span>Deadline: {new Date(opportunity.applicationDeadline).toLocaleDateString()}</span>
-                </div>
-              </div>
 
-              <div className="space-y-2 pt-2">
-                {!opportunity.applied && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-sm text-slate-600">
+                    <Calendar className="h-4 w-4 text-slate-500" />
+                    <span>Posted: {new Date(opportunity.postedAt).toLocaleDateString()}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-slate-600">
+                    <Clock className="h-4 w-4 text-slate-500" />
+                    <span>Deadline: {new Date(opportunity.applicationDeadline).toLocaleDateString()}</span>
+                  </div>
+                  {isExpired ? (
+                    <Badge className="rounded-full bg-red-100 text-red-700 border-red-200">
+                      Expired
+                    </Badge>
+                  ) : isUrgent ? (
+                    <Badge className="rounded-full bg-amber-100 text-amber-700 border-amber-200">
+                      {daysUntilDeadline} days left
+                    </Badge>
+                  ) : (
+                    <Badge className="rounded-full bg-emerald-100 text-emerald-700 border-emerald-200">
+                      Active
+                    </Badge>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {isStudent && (
+            <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold text-slate-900">Apply Now</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center gap-2 rounded-2xl border border-slate-100 bg-slate-50/60 px-4 py-3">
+                  <Users className="h-4 w-4 text-slate-500" />
+                  <span className="text-sm font-medium text-slate-700">
+                    {opportunity._count?.applications || 0}{" "}
+                    {(opportunity._count?.applications || 0) === 1 ? "applicant" : "applicants"}
+                  </span>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-sm text-slate-600">
+                    <Calendar className="h-4 w-4 text-slate-500" />
+                    <span>Posted: {new Date(opportunity.postedAt).toLocaleDateString()}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-slate-600">
+                    <Clock className="h-4 w-4 text-slate-500" />
+                    <span>Deadline: {new Date(opportunity.applicationDeadline).toLocaleDateString()}</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2 pt-2">
+                  {!opportunity.applied && (
+                    <Button
+                      disabled={isExpired || sendingApproval}
+                      className="w-full rounded-full bg-sky-100 text-sky-700 hover:bg-sky-200 border border-sky-200"
+                      variant="outline"
+                      onClick={handleApproval}
+                    >
+                      <Send className="h-4 w-4 mr-2" />
+                      {sendingApproval ? "Sending..." : "Send Mentor Approval"}
+                    </Button>
+                  )}
                   <Button
-                    disabled={isExpired || sendingApproval}
-                    className="w-full rounded-full bg-sky-100 text-sky-700 hover:bg-sky-200 border border-sky-200"
-                    variant="outline"
-                    onClick={handleApproval}
+                    disabled={isExpired || opportunity.applied || applying}
+                    className={`w-full rounded-full ${
+                      opportunity.applied
+                        ? "bg-emerald-100 text-emerald-700 border-emerald-200"
+                        : "bg-gradient-to-r from-sky-600 to-blue-600 text-white hover:from-sky-700 hover:to-blue-700"
+                    }`}
+                    variant={opportunity.applied ? "outline" : "default"}
+                    onClick={handleApply}
                   >
-                    <Send className="h-4 w-4 mr-2" />
-                    {sendingApproval ? "Sending..." : "Send Mentor Approval"}
+                    {applying ? "Applying..." : opportunity.applied ? "✓ Applied" : "Apply Now"}
                   </Button>
-                )}
-                <Button
-                  disabled={isExpired || opportunity.applied || applying}
-                  className={`w-full rounded-full ${
-                    opportunity.applied
-                      ? "bg-emerald-100 text-emerald-700 border-emerald-200"
-                      : "bg-gradient-to-r from-sky-600 to-blue-600 text-white hover:from-sky-700 hover:to-blue-700"
-                  }`}
-                  variant={opportunity.applied ? "outline" : "default"}
-                  onClick={handleApply}
-                >
-                  {applying ? "Applying..." : opportunity.applied ? "✓ Applied" : "Apply Now"}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
-          {/* Company Card */}
           {opportunity.companyRel && (
             <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-lg">
               <CardHeader>
@@ -432,7 +413,6 @@ export default function OpportunityDetailPage() {
             </Card>
           )}
 
-          {/* Recruiter Card */}
           {opportunity.employerRel && (
             <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-lg">
               <CardHeader>
