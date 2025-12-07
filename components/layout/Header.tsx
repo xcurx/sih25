@@ -101,7 +101,7 @@ export default function Header() {
 
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4">
-          <div className="flex items-center gap-4">
+          <Link href="/" aria-label="Go to main landing page" className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <div className="rounded-full border border-slate-200 p-3">
                 <Shield className="h-6 w-6 text-slate-600" />
@@ -111,11 +111,12 @@ export default function Header() {
               </div>
             </div>
 
-            <div>
+            <div className="text-left">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-500">Government of India</p>
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Gov Placement Portal</p>
               <p className="text-base font-semibold text-slate-900">National Internship & Placement Mission</p>
             </div>
-          </div>
+          </Link>
 
           <nav className="flex flex-wrap items-center gap-4 text-sm text-slate-600">
             <Link href="/mission" className="hover:text-slate-900">Mission</Link>
@@ -125,8 +126,9 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center gap-3">
-            <Link href="/sign-in"><Button variant="outline" className="rounded-full border-sky-200 text-sky-700 hover:bg-sky-50">Sign in</Button></Link>
-            <Link href="/sign-up"><Button className="rounded-full bg-sky-600 text-white hover:bg-sky-500">Register</Button></Link>
+            <Link href="/sign-in">
+              <Button className="rounded-full bg-sky-600 text-white hover:bg-sky-500" variant="default">Sign in</Button>
+            </Link>
           </div>
         </div>
       </header>
