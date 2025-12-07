@@ -137,8 +137,8 @@ export function LoginScreen() {
       
       <LandingHeader />
 
-      <main className="mx-auto flex min-h-[calc(100vh-140px)] max-w-6xl flex-col px-4 py-12 lg:flex-row lg:items-center lg:gap-10">
-        <section className="relative mb-10 flex-1 overflow-hidden rounded-3xl border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 text-slate-900 shadow-2xl" id="main-content">
+      <main className="mx-auto flex min-h-[calc(100vh-140px)] max-w-6xl flex-col px-4 py-12 lg:flex-row lg:items-start lg:gap-10">
+        <section className="relative mb-10 flex-1 overflow-hidden rounded-3xl border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 text-slate-900 shadow-2xl lg:mb-0" id="main-content">
           <div
             className="pointer-events-none absolute inset-0 opacity-40"
             style={{ backgroundImage: "radial-gradient(circle at 1px 1px, rgba(14,165,233,0.25) 1px, transparent 0)", backgroundSize: "40px 40px" }}
@@ -222,11 +222,11 @@ export function LoginScreen() {
           </div>
         </section>
 
-        <section className="w-full max-w-lg">
-          <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white/95 px-8 py-10 shadow-[0_30px_90px_rgba(15,23,42,0.15)]">
+        <section className="w-full max-w-lg lg:self-stretch">
+          <div className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white/95 px-8 py-10 shadow-[0_30px_90px_rgba(15,23,42,0.15)]">
             <div className="pointer-events-none absolute -top-14 -right-16 h-48 w-48 rounded-full bg-sky-200/30 blur-3xl" />
             <div className="pointer-events-none absolute bottom-0 left-6 h-24 w-24 rounded-full bg-cyan-100/60 blur-2xl" />
-            <div className="relative space-y-8">
+            <div className="relative flex h-full flex-col space-y-8">
               <div className="space-y-3">
                 <Badge variant="outline" className="border-sky-200 bg-sky-50 text-sky-700">
                   Secure single sign-on

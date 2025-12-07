@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { signOut, useSession } from "next-auth/react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -130,12 +131,18 @@ export function TopNavigation() {
     <header className="sticky w-full flex justify-center top-0 z-50 border-b border-slate-200 bg-gradient-to-r from-white via-sky-50 to-white/80 shadow-sm backdrop-blur">
       <div className="mx-auto flex w-full items-center gap-4 px-4 py-3">
         <Link href="/dashboard" className="flex items-center gap-2 text-slate-900">
-          <div className="rounded-full bg-sky-100 p-2 shadow-inner shadow-white/60">
-            <ShieldCheck className="h-5 w-5 text-sky-600" aria-hidden="true" />
-          </div>
+          <Image
+            src="./Logo_Saksham.png"
+            alt="Saksham"
+            width={36}
+            height={36}
+            priority
+            className="rounded-full object-cover shadow-inner shadow-white/60"
+          />
+
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-sky-700">Placement Mission</p>
-            <p className="text-sm font-semibold text-slate-900">Unified Operations</p>
+            <p className="text-sm font-semibold text-slate-900">Saksham</p>
+            <p className="text-xs font-medium text-slate-500">National Internship & Placement Mission</p>
           </div>
         </Link>
 
