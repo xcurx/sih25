@@ -93,23 +93,23 @@ export default async function MarketingHome() {
 
 function PublicLanding() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-sky-50 to-white text-slate-900">
-      <header className="border-b border-slate-200 bg-white/80 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <div className="flex items-center gap-3">
-            <div className="rounded-full bg-sky-100 p-3">
-              <ShieldCheck className="h-6 w-6 text-sky-600" aria-hidden="true" />
+    <div className="min-h-screen bg-slate-50 text-slate-900">
+      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur">
+        <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4 lg:px-6">
+          <Link href="/" aria-label="Go to main landing" className="flex items-center gap-3">
+            <div className="rounded-full bg-sky-100 p-3 ring-2 ring-sky-200">
+              <ShieldCheck className="h-6 w-6 text-sky-700" aria-hidden="true" />
             </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-sky-700">Gov Placement Portal</p>
-              <p className="text-base font-semibold">National Internship & Placement Mission</p>
+            <div className="text-left">
+              <p className="text-lg font-semibold leading-tight text-slate-900">Opportunet</p>
+              <p className="text-xs font-medium text-slate-500">National internship & Placement Mission</p>
             </div>
-          </div>
+          </Link>
           <div className="flex items-center gap-3">
             <Button variant="ghost" asChild>
               <Link href="/resources/policy">Policy Desk</Link>
             </Button>
-            <Button asChild>
+            <Button className="bg-sky-600 text-white hover:bg-sky-500" asChild>
               <Link href="/sign-in">
                 Launch Portal
                 <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
@@ -119,93 +119,147 @@ function PublicLanding() {
         </div>
       </header>
 
-      <main>
-        <section className="border-b border-slate-200 bg-gradient-to-br from-white via-sky-50 to-blue-50">
-          <div className="mx-auto flex max-w-6xl flex-col gap-12 px-4 py-16 lg:flex-row lg:items-center">
-            <div className="space-y-6 lg:w-3/5">
+      <main className="space-y-0">
+        <section className="relative overflow-hidden bg-gradient-to-br from-white via-sky-50 to-blue-50 text-slate-900">
+          <div
+            className="absolute right-0 top-0 h-full w-[48%] min-w-[320px] bg-[url('https://images.unsplash.com/photo-1528744598421-b7b93e12df0b?auto=format&fit=crop&w=1600&q=80')] bg-cover bg-center opacity-45"
+            aria-hidden="true"
+          />
+          <div className="absolute inset-0 opacity-35" aria-hidden="true" style={{
+            backgroundImage:
+              "radial-gradient(circle at 20% 20%, rgba(59,130,246,0.14) 0, rgba(255,255,255,0) 32%), radial-gradient(circle at 80% 0%, rgba(14,165,233,0.12) 0, rgba(255,255,255,0) 30%)",
+          }} />
+          <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 lg:grid-cols-[1.1fr,0.9fr] lg:px-6">
+            <div className="relative space-y-6">
               <Badge className="bg-sky-100 text-sky-800" variant="outline">
-                Transparent · Secure · Student-first
+                Official · Secure · Student-first
               </Badge>
-              <h1 className="text-4xl font-bold leading-tight tracking-tight text-slate-900 lg:text-5xl">
+              <h1 className="text-4xl font-bold leading-tight tracking-tight lg:text-5xl">
                 One official gateway for internships and placements across India.
               </h1>
-              <p className="text-lg text-slate-600">
-                The mission digitises every workflow—from employer onboarding to final offer—so institutes can deliver
-                equitable opportunities with speed and accountability.
+              <p className="max-w-3xl text-lg text-slate-700">
+                Digitised workflows, verified records, and transparent employer engagement keep institutes compliant
+                and students protected from first application to final offer.
               </p>
               <div className="flex flex-col gap-4 text-sm sm:flex-row">
-                <Button size="lg" asChild>
+                <Button size="lg" className="bg-sky-600 text-white hover:bg-sky-500" asChild>
                   <Link href="/sign-in">
                     Access Portal
                     <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
                   </Link>
                 </Button>
-                <Button size="lg" variant="outline" asChild>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-sky-200 text-sky-700 hover:bg-sky-50"
+                  asChild
+                >
                   <Link href="/#updates">View Latest Advisory</Link>
                 </Button>
               </div>
+              <div className="flex flex-wrap gap-3 text-sm text-slate-700">
+                <div className="flex items-center gap-2 rounded-full bg-white px-4 py-2 ring-1 ring-slate-200">
+                  <Sparkles className="h-4 w-4 text-sky-600" aria-hidden="true" />
+                  Central + state institutes onboarded
+                </div>
+                <div className="flex items-center gap-2 rounded-full bg-white px-4 py-2 ring-1 ring-slate-200">
+                  <ShieldCheck className="h-4 w-4 text-sky-600" aria-hidden="true" />
+                  Verified employers & secure offers
+                </div>
+              </div>
             </div>
-            <div className="grid flex-1 gap-4 rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-lg backdrop-blur">
-              <p className="text-xs font-semibold uppercase tracking-[0.4em] text-slate-500">Mission metrics</p>
-              <div className="grid gap-4 sm:grid-cols-3">
-                {heroStats.map((stat) => (
-                  <div key={stat.label} className="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-center">
-                    <p className="text-sm text-slate-500">{stat.label}</p>
-                    <p className="text-3xl font-semibold text-slate-900">{stat.value}</p>
-                    <p className="text-xs uppercase tracking-[0.3em] text-slate-400">{stat.detail}</p>
+
+            <div className="relative">
+              <div className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-xl backdrop-blur">
+                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Mission metrics</p>
+                <div className="mt-4 grid gap-4 sm:grid-cols-3">
+                  {heroStats.map((stat) => (
+                    <div key={stat.label} className="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-center">
+                      <p className="text-sm text-slate-600">{stat.label}</p>
+                      <p className="text-3xl font-semibold text-slate-900">{stat.value}</p>
+                      <p className="text-[11px] uppercase tracking-[0.25em] text-slate-400">{stat.detail}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-5 grid gap-3 border-t border-slate-100 pt-4 text-sm text-slate-600 sm:grid-cols-3">
+                  <div className="flex items-center gap-2">
+                    <LineChart className="h-4 w-4 text-sky-600" aria-hidden="true" />
+                    Real-time dashboards
                   </div>
-                ))}
+                  <div className="flex items-center gap-2">
+                    <Briefcase className="h-4 w-4 text-sky-600" aria-hidden="true" />
+                    PSU + private drives
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4 text-sky-600" aria-hidden="true" />
+                    Inclusive outreach
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center gap-3 text-sm text-slate-600">
-                <Sparkles className="h-4 w-4 text-sky-500" aria-hidden="true" />
-                Trusted by central, state, and autonomous institutes nationwide.
-              </div>
+              <div className="pointer-events-none absolute -left-8 -top-8 h-24 w-24 rounded-full bg-sky-200/40 blur-3xl" aria-hidden />
+              <div className="pointer-events-none absolute -right-6 bottom-6 h-20 w-20 rounded-full bg-white/70 blur-2xl" aria-hidden />
             </div>
           </div>
         </section>
 
-        <section className="mx-auto max-w-6xl px-4 py-16">
-          <div className="mb-10 text-center">
-            <h2 className="text-3xl font-bold text-slate-900">Purpose-built for every stakeholder</h2>
-            <p className="mt-3 text-base text-slate-600">
-              Consistent blue-white experience keeps students, placement teams, and employers aligned.
-            </p>
-          </div>
-          <div className="grid gap-6 lg:grid-cols-3">
-            {journeys.map((journey) => (
-              <Card key={journey.title} className="border-slate-200 shadow-sm">
-                <CardHeader className="space-y-4">
-                  <div className="rounded-2xl bg-sky-50 p-3 w-fit">
-                    <journey.icon className="h-6 w-6 text-sky-600" aria-hidden="true" />
-                  </div>
-                  <CardTitle>{journey.title}</CardTitle>
-                  <CardDescription>{journey.detail}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-3 text-sm text-slate-700">
-                    {journey.bullets.map((bullet) => (
-                      <li key={bullet} className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-sky-500" aria-hidden="true" />
-                        {bullet}
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-            ))}
+        <section className="bg-white">
+          <div className="mx-auto max-w-6xl px-4 py-14 lg:px-6">
+            <div className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+              <div className="max-w-3xl space-y-2">
+                <Badge className="bg-sky-100 text-sky-800" variant="outline">
+                  Aligned with mission landings
+                </Badge>
+                <h2 className="text-3xl font-bold text-slate-900">Purpose-built workrooms for every stakeholder</h2>
+                <p className="text-base text-slate-600">
+                  A blue-white surface, typography, and spacing consistent with other (landings) pages while adding the depth needed for day-to-day operations.
+                </p>
+              </div>
+              <div className="flex gap-3 text-sm text-slate-600">
+                <div className="flex items-center gap-2 rounded-full bg-slate-100 px-3 py-2">
+                  <ShieldCheck className="h-4 w-4 text-sky-600" aria-hidden />
+                  Verified ecosystem
+                </div>
+                <div className="flex items-center gap-2 rounded-full bg-slate-100 px-3 py-2">
+                  <Sparkles className="h-4 w-4 text-sky-600" aria-hidden />
+                  Guided readiness
+                </div>
+              </div>
+            </div>
+            <div className="grid gap-6 lg:grid-cols-3">
+              {journeys.map((journey) => (
+                <Card key={journey.title} className="h-full rounded-2xl border-slate-200 bg-white shadow-sm">
+                  <CardHeader className="space-y-4">
+                    <div className="w-fit rounded-2xl bg-sky-50 p-3 ring-1 ring-sky-100">
+                      <journey.icon className="h-6 w-6 text-sky-700" aria-hidden="true" />
+                    </div>
+                    <CardTitle className="text-xl text-slate-900">{journey.title}</CardTitle>
+                    <CardDescription className="text-slate-700">{journey.detail}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="space-y-3 text-sm text-slate-700">
+                      {journey.bullets.map((bullet) => (
+                        <li key={bullet} className="flex items-center gap-2">
+                          <CheckCircle2 className="h-4 w-4 text-sky-500" aria-hidden="true" />
+                          {bullet}
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
         </section>
 
-        <section className="border-y border-slate-200 bg-white">
-          <div className="mx-auto grid max-w-6xl gap-8 px-4 py-16 lg:grid-cols-2">
+        <section className="border-y border-slate-200 bg-gradient-to-br from-sky-50 via-white to-blue-50">
+          <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 lg:grid-cols-[1.2fr,1fr] lg:px-6">
             <div className="space-y-4">
               <Badge className="bg-slate-100 text-slate-700" variant="outline">
                 Analytics & compliance
               </Badge>
               <h2 className="text-3xl font-bold text-slate-900">Mission control for policy makers</h2>
-              <p className="text-base text-slate-600">
-                Surface placement rates, drive progress, and socio-economic participation in real time with no manual
-                compilation.
+              <p className="max-w-3xl text-base text-slate-700">
+                Surface placement rates, drive progress, and socio-economic participation in real time with no manual compilation.
               </p>
               <ul className="space-y-3 text-sm text-slate-700">
                 <li className="flex items-center gap-2">
@@ -224,12 +278,12 @@ function PublicLanding() {
             </div>
             <div className="grid gap-6 lg:grid-cols-3">
               {initiatives.map((initiative) => (
-                <Card key={initiative.title} className="border-slate-200 bg-slate-50">
+                <Card key={initiative.title} className="rounded-2xl border-slate-200 bg-white/90 shadow-sm">
                   <CardHeader>
-                    <CardTitle className="text-base">{initiative.title}</CardTitle>
+                    <CardTitle className="text-base text-slate-900">{initiative.title}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-slate-600">{initiative.description}</p>
+                    <p className="text-sm text-slate-700">{initiative.description}</p>
                   </CardContent>
                 </Card>
               ))}
@@ -237,45 +291,55 @@ function PublicLanding() {
           </div>
         </section>
 
-        <section id="updates" className="mx-auto max-w-6xl px-4 py-16">
-          <div className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <h2 className="text-3xl font-bold text-slate-900">Circulars & updates</h2>
-              <p className="text-base text-slate-600">Never miss an advisory or drive notification.</p>
+        <section id="updates" className="bg-white">
+          <div className="mx-auto max-w-6xl px-4 py-14 lg:px-6">
+            <div className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <h2 className="text-3xl font-bold text-slate-900">Circulars & updates</h2>
+                <p className="text-base text-slate-600">Never miss an advisory or drive notification.</p>
+              </div>
+              <Button variant="outline" className="border-sky-200 text-sky-700 hover:bg-sky-50" asChild>
+                <Link href="/resources">Browse resource library</Link>
+              </Button>
             </div>
-            <Button variant="outline" asChild>
-              <Link href="/resources">Browse resource library</Link>
-            </Button>
-          </div>
-          <div className="grid gap-6 md:grid-cols-3">
-            {updates.map((update) => (
-              <Card key={update.title} className="border-slate-200 shadow-sm">
-                <CardHeader>
-                  <p className="text-xs uppercase tracking-[0.3em] text-slate-500">{update.date}</p>
-                  <CardTitle className="text-xl">{update.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-slate-600">{update.detail}</p>
-                </CardContent>
-              </Card>
-            ))}
+            <div className="grid gap-6 md:grid-cols-3">
+              {updates.map((update) => (
+                <Card key={update.title} className="rounded-2xl border-slate-200 shadow-sm">
+                  <CardHeader>
+                    <p className="text-xs uppercase tracking-[0.3em] text-slate-500">{update.date}</p>
+                    <CardTitle className="text-xl text-slate-900">{update.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-slate-600">{update.detail}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
         </section>
 
-        <section className="border-y border-slate-200 bg-gradient-to-br from-sky-100 via-white to-blue-50">
-          <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-16 text-center">
+        <section className="relative overflow-hidden bg-gradient-to-br from-white via-sky-50 to-blue-50 text-slate-900">
+          <div className="absolute inset-0 opacity-35" aria-hidden="true" style={{
+            backgroundImage: "radial-gradient(circle at 30% 20%, rgba(59,130,246,0.16) 0, rgba(255,255,255,0) 32%)",
+          }} />
+          <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-16 text-center lg:px-6">
             <h2 className="text-3xl font-bold text-slate-900">Ready to strengthen your campus-to-career pipeline?</h2>
-            <p className="text-base text-slate-600">
+            <p className="text-base text-slate-700">
               Bring students, administrators, and employers together with a unified, secure, and policy-aligned platform.
             </p>
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-              <Button size="lg" asChild>
+              <Button size="lg" className="bg-sky-600 text-white hover:bg-sky-500" asChild>
                 <Link href="/sign-in">
                   Start now
                   <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-sky-200 text-sky-700 hover:bg-sky-50"
+                asChild
+              >
                 <Link href="/sign-in">Request guided onboarding</Link>
               </Button>
             </div>
@@ -284,7 +348,7 @@ function PublicLanding() {
       </main>
 
       <footer className="border-t border-slate-200 bg-white">
-        <div className="mx-auto flex flex-col gap-4 px-4 py-6 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-6 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between lg:px-6">
           <p>(c) {new Date().getFullYear()} Department of Higher Education, Government of India</p>
           <div className="flex flex-wrap gap-4 text-xs uppercase tracking-[0.2em] text-slate-500">
             <span>Data Protection</span>

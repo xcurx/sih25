@@ -54,10 +54,10 @@ export default function EmplyersApplicationsPage() {
 
   return (
     <div className="relative space-y-8">
-      <div
+      {/* <div
         className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_10%_20%,rgba(56,189,248,0.15),transparent_45%),radial-gradient(circle_at_90%_0%,rgba(59,130,246,0.18),transparent_45%),linear-gradient(180deg,rgba(255,255,255,0.85),transparent)]"
         aria-hidden="true"
-      />
+      /> */}
 
       <section className="relative overflow-hidden rounded-[32px] border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 shadow">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.08),transparent_55%)]" />
@@ -69,7 +69,7 @@ export default function EmplyersApplicationsPage() {
               Every posting, candidate count, and next action is summarised right here.
             </p>
           </div>
-          <div className="grid gap-4 rounded-[28px] border border-white/50 bg-white/85 p-6 sm:grid-cols-2">
+          {/* <div className="grid gap-4 rounded-[28px] border border-white/50 bg-white/85 p-6 sm:grid-cols-2">
             {quickStats.slice(0, 2).map((stat) => (
               <div key={stat.label} className="rounded-[24px] border border-slate-100 bg-white p-4 text-slate-800 shadow-sm">
                 <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">{stat.label}</p>
@@ -77,26 +77,31 @@ export default function EmplyersApplicationsPage() {
                 <p className="text-xs text-slate-500">{stat.caption}</p>
               </div>
             ))}
-          </div>
+          </div> */}
         </div>
-      </section>
+      <br></br>
 
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-        {quickStats.map((stat) => (
-          <Card key={stat.label} className="border-slate-200 bg-white/90 shadow-sm">
+    <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+    {quickStats.map((stat) => (
+        <Card 
+            key={stat.label} 
+            // MODIFIED: Changed shadow-sm to shadow-md to make the shadow visible before hover.
+            className="border-slate-200 bg-white/90 shadow-md hover:shadow-xl transition-shadow"
+        >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-slate-500">{stat.label}</CardTitle>
-              <div className="rounded-full bg-sky-50 p-2 text-sky-600">
-                <stat.icon className="h-4 w-4" aria-hidden="true" />
-              </div>
+                <CardTitle className="text-sm font-medium text-slate-500">{stat.label}</CardTitle>
+                <div className="rounded-full bg-sky-50 p-2 text-sky-600">
+                    <stat.icon className="h-4 w-4" aria-hidden="true" />
+                </div>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-semibold text-slate-900">{stat.value}</p>
-              <p className="text-xs text-slate-500">{stat.caption}</p>
+                <p className="text-2xl font-semibold text-slate-900">{stat.value}</p>
+                <p className="text-xs text-slate-500">{stat.caption}</p>
             </CardContent>
-          </Card>
-        ))}
-      </div>
+        </Card>
+    ))}
+</div>
+      </section>
 
       <Card className="border-slate-200 bg-white/90 shadow-lg">
         <CardHeader>

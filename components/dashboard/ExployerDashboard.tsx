@@ -67,47 +67,50 @@ export default function EmployerDashboard() {
 
   return (
     <div className="relative space-y-8">
-      <div
+      {/* Global blue gradient removed as per previous request */}
+      {/* <div
         className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_15%_20%,rgba(56,189,248,0.2),transparent_45%),radial-gradient(circle_at_85%_10%,rgba(59,130,246,0.18),transparent_50%),linear-gradient(180deg,rgba(255,255,255,0.9),transparent)]"
         aria-hidden="true"
-      />
+      /> */}
 
-      <section className="relative overflow-hidden rounded-3xl border border-sky-100 bg-gradient-to-br from-sky-600 via-blue-600 to-indigo-600 p-8 text-white shadow-2xl">
-        <div className="pointer-events-none absolute -top-12 right-6 h-40 w-40 rounded-full bg-white/15 blur-3xl" />
-        <div className="pointer-events-none absolute bottom-0 left-0 h-32 w-32 rounded-full bg-cyan-500/20 blur-3xl" />
-        <div className="relative flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+      {/* MODIFIED SECTION: Using the new light gradient and structure */}
+      <section className="relative overflow-hidden rounded-[32px] border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 shadow">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.08),transparent_55%)]" />
+        <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+          
+          {/* LEFT CONTENT AREA: Updated to match the new text structure and colors */}
           <div className="space-y-4">
-            <Badge variant="outline" className="border-white/40 bg-white/10 text-white">
-              Employer control room
-            </Badge>
-            <div>
-              <p className="text-sm uppercase tracking-[0.3em] text-white/70">Hiring health overview</p>
-              <h1 className="mt-2 text-3xl font-semibold">Orchestrate jobs, talent pipelines, and offers in one glance.</h1>
+            {/* The old Badge and heading structure is replaced by the new text block */}
+            
+            {/* START OF NEW TEXT BLOCK */}
+            <div> 
+                <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">Applications desk</p>
+                {/* The title from the image is slightly different from the old title, keeping the old font size/weight */}
+                <h1 className="mt-3 text-3xl font-semibold text-slate-900">Monitor opportunity performance and act fast.</h1>
+                <p className="mt-2 text-sm text-slate-600">
+                    Every posting, candidate count, and next action is summarised right here.
+                </p>
             </div>
-            <div className="inline-flex flex-wrap gap-3 text-sm text-white/80">
+            {/* END OF NEW TEXT BLOCK */}
+
+            {/* Removing the two span buttons below the main heading as they are not in the new image/code snippet */}
+            {/* <div className="inline-flex flex-wrap gap-3 text-sm text-white/80">
               <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2">
                 <Sparkles className="h-4 w-4" aria-hidden="true" /> Auto-ranked candidates
               </span>
               <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2">
                 <Users className="h-4 w-4" aria-hidden="true" /> Campus reach tracker
               </span>
-            </div>
+            </div> */}
           </div>
-          <div className="grid gap-4 rounded-[28px] border border-white/30 bg-white/10 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.4)] backdrop-blur-lg sm:grid-cols-2">
-            {heroStats.map((stat) => (
-              <div
-                key={stat.label}
-                className="flex flex-col rounded-2xl border border-white/40 bg-gradient-to-br from-white/20 to-white/5 px-5 py-4 text-white shadow-[0_15px_30px_rgba(15,23,42,0.15)]"
-              >
-                <div className="text-[0.7rem] font-semibold uppercase tracking-[0.4em] text-white/70">{stat.label}</div>
-                <div className="mt-2 text-3xl font-semibold">{stat.value}</div>
-                <div className="mt-1 text-xs text-white/80">{stat.caption}</div>
-              </div>
-            ))}
-          </div>
+          
+          {/* RIGHT STATS AREA: Styling updated to match the new light background aesthetic */}
+        <div className="grid gap-4 rounded-[20px] p-0 sm:grid-cols-2">
+</div>
         </div>
-      </section>
+    <br></br>
 
+      {/* The bottom row of quick stats (which duplicates the hero stats) is kept here but might be redundant after the hero change */}
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         {quickStats.map((stat) => (
           <Card key={stat.label} className="border-slate-200 bg-white/90 shadow-sm">
@@ -124,6 +127,7 @@ export default function EmployerDashboard() {
           </Card>
         ))}
       </div>
+        </section>
 
       <div className="grid gap-6 lg:grid-cols-[3fr,2fr]">
         <Card className="border-slate-200 bg-white/90 shadow-lg">
@@ -218,44 +222,44 @@ export default function EmployerDashboard() {
                 </div>
               ))}
             </CardContent>
+          </Card>
+        </div>
+
+        <Card className="border-slate-200 bg-white/90 shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-xl text-slate-900">Campus coverage</CardTitle>
+            <CardDescription>Top institutes engaged this cycle</CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {students.slice(0, 6).map((student, index) => (
+              <div key={`${student.id}-${index}`} className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
+                <p className="text-sm font-semibold text-slate-900">{"Institute"}</p>
+                <p className="text-xs text-slate-500">{student.branch}</p>
+                <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs text-slate-600">
+                  <MapPin className="h-3.5 w-3.5 text-sky-500" aria-hidden="true" />
+                  {"Across India"}
+                </div>
+              </div>
+            ))}
+            {!loadingStudents && students.length === 0 && (
+              <p className="text-sm text-slate-500">Invite institutes to start capturing insights.</p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="border-slate-200 bg-gradient-to-r from-sky-100 via-white to-blue-50">
+          <CardContent className="flex flex-col gap-4 p-6 text-slate-700 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Next action</p>
+              <h3 className="text-xl font-semibold text-slate-900">Publish your next cohort intake</h3>
+              <p className="text-sm text-slate-600">Boost engagement by sharing preferred skills and locations.</p>
+            </div>
+            <Button className="rounded-full bg-sky-600 text-white hover:bg-sky-500">
+              Launch posting
+              <ArrowUpRight className="ml-2 h-4 w-4" aria-hidden="true" />
+            </Button>
+          </CardContent>
         </Card>
       </div>
-
-      <Card className="border-slate-200 bg-white/90 shadow-lg">
-        <CardHeader>
-          <CardTitle className="text-xl text-slate-900">Campus coverage</CardTitle>
-          <CardDescription>Top institutes engaged this cycle</CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {students.slice(0, 6).map((student, index) => (
-            <div key={`${student.id}-${index}`} className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
-              <p className="text-sm font-semibold text-slate-900">{"Institute"}</p>
-              <p className="text-xs text-slate-500">{student.branch}</p>
-              <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs text-slate-600">
-                <MapPin className="h-3.5 w-3.5 text-sky-500" aria-hidden="true" />
-                {"Across India"}
-              </div>
-            </div>
-          ))}
-          {!loadingStudents && students.length === 0 && (
-            <p className="text-sm text-slate-500">Invite institutes to start capturing insights.</p>
-          )}
-        </CardContent>
-      </Card>
-
-      <Card className="border-slate-200 bg-gradient-to-r from-sky-100 via-white to-blue-50">
-        <CardContent className="flex flex-col gap-4 p-6 text-slate-700 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Next action</p>
-            <h3 className="text-xl font-semibold text-slate-900">Publish your next cohort intake</h3>
-            <p className="text-sm text-slate-600">Boost engagement by sharing preferred skills and locations.</p>
-          </div>
-          <Button className="rounded-full bg-sky-600 text-white hover:bg-sky-500">
-            Launch posting
-            <ArrowUpRight className="ml-2 h-4 w-4" aria-hidden="true" />
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
-  )
+    )
 }

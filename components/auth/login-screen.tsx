@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Building2, Globe, GraduationCap, Loader2, Mail, Phone, Shield, ShieldCheck, Sparkles, Type } from "lucide-react"
+import LandingHeader from "../layout/LandingHeader"
 
 const roleOptions = [
   { value: "student", label: "Student / Alumnus" },
@@ -132,96 +133,8 @@ export function LoginScreen() {
 
   return (
     <div className="min-h-screen bg-slate-50" style={{ fontSize: `${fontScale}rem` }}>
-      <div className="bg-sky-700 text-white text-xs tracking-wide">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2">
-          <div className="flex items-center gap-3 font-semibold">
-            <span className="text-lg" role="img" aria-label="India flag">
-              🇮🇳
-            </span>
-            Government of India
-          </div>
-          <div className="flex items-center gap-4">
-            <button
-              className="inline-flex items-center gap-1 rounded-full border border-white/30 px-3 py-1 text-white/90 transition hover:bg-white/10"
-              onClick={handleScreenReaderNarration}
-              disabled={isReading}
-            >
-              <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-              {isReading ? "Narrating..." : "Screen reader"}
-            </button>
-            <div className="flex items-center gap-2 text-white/80">
-              <button
-                className="inline-flex items-center gap-1 rounded-full border border-white/30 px-2 py-1 text-sm transition hover:bg-white/10"
-                onClick={() => adjustFontScale(-0.05)}
-                aria-label="Decrease font size"
-              >
-                <Type className="h-3.5 w-3.5" aria-hidden="true" /> A-
-              </button>
-              <button
-                className="inline-flex items-center gap-1 rounded-full border border-white/30 px-2 py-1 text-sm transition hover:bg-white/10"
-                onClick={resetFontScale}
-                aria-label="Reset font size"
-              >
-                <Type className="h-3.5 w-3.5" aria-hidden="true" /> A
-              </button>
-              <button
-                className="inline-flex items-center gap-1 rounded-full border border-white/30 px-2 py-1 text-sm transition hover:bg-white/10"
-                onClick={() => adjustFontScale(0.05)}
-                aria-label="Increase font size"
-              >
-                <Type className="h-3.5 w-3.5" aria-hidden="true" /> A+
-              </button>
-            </div>
-            <div className="inline-flex items-center gap-1 text-white/80">
-              <Globe className="h-3.5 w-3.5" aria-hidden="true" /> English
-            </div>
-          </div>
-        </div>
-        <div className="mx-auto max-w-6xl px-4">
-          <p className="sr-only" aria-live="polite">
-            {accessibilityMessage ?? ""}
-          </p>
-        </div>
-      </div>
-
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="rounded-full border border-slate-200 p-3">
-                <Shield className="h-6 w-6 text-slate-600" aria-hidden="true" />
-              </div>
-              <div className="rounded-full border border-slate-200 p-3">
-                <GraduationCap className="h-6 w-6 text-sky-600" aria-hidden="true" />
-              </div>
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Gov Placement Portal</p>
-              <p className="text-base font-semibold text-slate-900">National Internship & Placement Mission</p>
-            </div>
-          </div>
-          <nav className="flex flex-wrap items-center gap-4 text-sm text-slate-600">
-            {/* <Link href="/mission" className="hover:text-slate-900">
-              Mission
-            </Link> */}
-            <a href="/mission" className="hover:text-slate-900">Mission</a>
-            {/* <Link href="/placements" className="hover:text-slate-900">
-              Institutes
-            </Link> */}
-            <a href="/institute" className="hover:text-slate-900">Institutes</a>
-            <a href="/l_employers" className="hover:text-slate-900">Employers</a>
-            
-            <a href="/resources" className="hover:text-slate-900">Resources</a>
-            
-          </nav>
-          <div className="flex items-center gap-3">
-            <Button variant="outline" className="rounded-full border-sky-200 text-sky-700 hover:bg-sky-50">
-              Sign in
-            </Button>
-            <Button className="rounded-full bg-sky-600 text-white hover:bg-sky-500">Register</Button>
-          </div>
-        </div>
-      </header>
+      
+      <LandingHeader />
 
       <main className="mx-auto flex min-h-[calc(100vh-140px)] max-w-6xl flex-col px-4 py-12 lg:flex-row lg:items-center lg:gap-10">
         <section className="relative mb-10 flex-1 overflow-hidden rounded-3xl border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 text-slate-900 shadow-2xl" id="main-content">
@@ -382,6 +295,7 @@ export function LoginScreen() {
                 </div>
                 <div className="grid gap-2">
                   <p>Student — student@gmail.com — 1234</p>
+                  <p>Faculty — f@gmail.com — 1234</p>
                   <p>Placement Cell — cell@gmail.com — 1234</p>
                   <p>Employer — emp@gmail.com — 1234</p>
                 </div>

@@ -151,7 +151,6 @@ export interface ApprovalApplication extends Application {
   }
 }
 
-// Internship types
 export interface Internship {
   id: string
   applicationId: string
