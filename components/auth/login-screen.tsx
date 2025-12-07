@@ -382,6 +382,7 @@ export function LoginScreen() {
                 </div>
                 <div className="grid gap-2">
                   <p>Student — student@gmail.com — 1234</p>
+                  <p>Faculty — f@gmail.com — 1234</p>
                   <p>Placement Cell — cell@gmail.com — 1234</p>
                   <p>Employer — emp@gmail.com — 1234</p>
                 </div>
