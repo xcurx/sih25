@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import LandingHeader from "@/components/layout/LandingHeader";
+import Footer from "@/components/layout/Footer";
 
 export const metadata = {
   title: "Placement Mission — Public",
@@ -16,6 +17,8 @@ export default function LandingsLayout({ children }: { children: ReactNode }) {
             {children}
           </div>
         </main>
+
+        <Footer />
       </div>
   );
 }
