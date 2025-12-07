@@ -1,5 +1,7 @@
 import { auth } from "@/auth";
+import { interviewScheduledTemplate } from "@/components/mail/mailTemplate";
 import { Prisma, PrismaClient } from "@/lib/generated/prisma";
+import { client } from "@/lib/mail";
 import { NextRequest, NextResponse } from "next/server";
 
 const prisma = new PrismaClient()
@@ -45,6 +47,14 @@ export const PATCH = async (req: NextRequest) => {
             },
             data: {
                 status: "shortlisted"
+            },
+            include: {
+                studentRel: true,
+                opportunityRel: {
+                    include: {
+                        companyRel: true
+                    }
+                }
             }
         })
 
@@ -58,6 +68,21 @@ export const PATCH = async (req: NextRequest) => {
                 redirectUrl: `/interviews`,
                 type: "interview_scheduled"
             }
+        })
+
+        client.send({
+            to: [{email: ap.studentRel.email, name: ap.studentRel.name}],
+            from: {email: "cell@gmail.com", name: "Placement Cell"},
+            subject: "Interview Scheduled for Your Application",
+            html: interviewScheduledTemplate({
+                companyName: ap.opportunityRel.companyRel?.name || "the company",
+                opportunityTitle: ap.opportunityRel.title,
+                interviewDate: scheduled.toLocaleDateString(),
+                interviewTime: scheduled.toLocaleTimeString(),
+                interviewLink: interview.interviewLink,
+                studentName: ap.studentRel.name,
+                applicationUrl: ""
+            })
         })
 
         return NextResponse.json({ application: ap, interview }, { status: 200 });

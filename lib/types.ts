@@ -447,3 +447,53 @@ export interface ApplicationDetail {
     }
   }
 }
+
+// Feedback types
+export interface Feedback {
+  id: string
+  internshipId: string
+  studentId: string
+  feedbackText: string
+  description: string
+  createdAt: string
+  studentRel?: {
+    id: string
+    name: string
+    email: string
+    branch?: string | null
+    batch?: number | null
+  }
+  internshipRel?: {
+    id: string
+    startDate: string
+    endDate: string
+    opportunityRel?: {
+      id: string
+      title: string
+      companyRel?: {
+        id: string
+        name: string
+      }
+    }
+  }
+}
+
+export interface CompanyFeedback extends Feedback {
+  internshipRel: {
+    id: string
+    startDate: string
+    endDate: string
+    studentRel?: {
+      id: string
+      name: string
+      email: string
+      branch?: string | null
+      batch?: number | null
+    }
+    opportunityRel: {
+      id: string
+      title: string
+      type: string
+    }
+  }
+}

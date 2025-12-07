@@ -4,34 +4,49 @@ import { useEffect, useMemo, useState } from "react"
 import { useSession } from "next-auth/react"
 import { redirect } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Calendar, Briefcase, Building2, MapPin, DollarSign, Clock } from "lucide-react"
+import { Calendar, Briefcase, Building2, MapPin, DollarSign, Clock, MessageSquarePlus, CheckCircle2 } from "lucide-react"
 import { toast } from "sonner"
-import { Internship } from "@/lib/types"
+import { Internship, Feedback } from "@/lib/types"
 import Loader from "@/components/loader/Loader"
+import FeedbackDialog from "@/components/feedback/FeedbackDialog"
 
 export default function StudentInternshipsPage() {
   const { data: session, status } = useSession()
   const [internships, setInternships] = useState<Internship[]>([])
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([])
   const [loading, setLoading] = useState(true)
+  const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false)
+  const [selectedInternship, setSelectedInternship] = useState<{
+    id: string
+    opportunityTitle: string
+    companyName: string
+  } | null>(null)
+
+  const loadData = async () => {
+    try {
+      setLoading(true)
+      const [internshipsRes, feedbacksRes] = await Promise.all([
+        fetch("/api/student/internship/get-internships"),
+        fetch("/api/student/feedback"),
+      ])
+      const internshipsData = await internshipsRes.json()
+      const feedbacksData = await feedbacksRes.json()
+      setInternships(internshipsData.internships || [])
+      setFeedbacks(feedbacksData.feedbacks || [])
+    } catch (e) {
+      console.error(e)
+      toast.error("Failed to load data")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    async function load() {
-      try {
-        setLoading(true)
-        const res = await fetch("/api/student/internship/get-internships")
-        const data = await res.json()
-        setInternships(data.internships || [])
-      } catch (e) {
-        console.error(e)
-        toast.error("Failed to load internships")
-      } finally {
-        setLoading(false)
-      }
-    }
     if (session?.user?.role === "student") {
-      load()
+      loadData()
     }
   }, [session?.user])
 
@@ -53,6 +68,23 @@ export default function StudentInternshipsPage() {
     if (start > now) return { label: "Not started", color: "bg-slate-100 text-slate-700" }
     if (end >= now) return { label: "Ongoing", color: "bg-green-100 text-green-700" }
     return { label: "Completed", color: "bg-sky-100 text-sky-700" }
+  }
+
+  const hasFeedback = (internshipId: string) => {
+    return feedbacks.some((f) => f.internshipId === internshipId)
+  }
+
+  const handleAddFeedback = (internship: Internship) => {
+    setSelectedInternship({
+      id: internship.id,
+      opportunityTitle: internship.opportunityRel.title,
+      companyName: internship.opportunityRel.companyRel.name,
+    })
+    setFeedbackDialogOpen(true)
+  }
+
+  const handleFeedbackSuccess = () => {
+    loadData()
   }
 
   if (status === "loading" || loading) {
@@ -159,6 +191,8 @@ export default function StudentInternshipsPage() {
                     const start = new Date(it.startDate)
                     const end = new Date(it.endDate)
                     const statusInfo = getInternshipStatus(start, end)
+                    const isCompleted = end < now
+                    const feedbackSubmitted = hasFeedback(it.id)
                     return (
                       <div key={it.id} className="flex flex-wrap items-center justify-between gap-4 p-5">
                         <div className="flex items-center gap-3">
@@ -183,6 +217,25 @@ export default function StudentInternshipsPage() {
                               Review: {it.performanceReview}
                             </Badge>
                           )}
+                          {/* Feedback button - only show for completed internships */}
+                          {isCompleted && (
+                            feedbackSubmitted ? (
+                              <Badge variant="outline" className="rounded-full bg-green-50 text-green-700 border-green-200">
+                                <CheckCircle2 className="h-3 w-3 mr-1" />
+                                Feedback Submitted
+                              </Badge>
+                            ) : (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleAddFeedback(it)}
+                                className="rounded-full text-sky-600 border-sky-300 hover:bg-sky-50"
+                              >
+                                <MessageSquarePlus className="h-4 w-4 mr-1" />
+                                Add Feedback
+                              </Button>
+                            )
+                          )}
                         </div>
                       </div>
                     )
@@ -192,6 +245,21 @@ export default function StudentInternshipsPage() {
             )
           })}
         </div>
+      )}
+
+      {/* Feedback Dialog */}
+      {selectedInternship && (
+        <FeedbackDialog
+          internshipId={selectedInternship.id}
+          opportunityTitle={selectedInternship.opportunityTitle}
+          companyName={selectedInternship.companyName}
+          isOpen={feedbackDialogOpen}
+          onClose={() => {
+            setFeedbackDialogOpen(false)
+            setSelectedInternship(null)
+          }}
+          onSuccess={handleFeedbackSuccess}
+        />
       )}
     </div>
   )
