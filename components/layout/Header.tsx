@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Shield, GraduationCap, Globe, Sparkles, Type } from "lucide-react";
+import Image from "next/image";
+import { GraduationCap, Globe, Sparkles, Type } from "lucide-react";
 import { usePathname } from "next/navigation";
 import React, { useState, useEffect } from "react";
 
@@ -124,23 +125,28 @@ export default function Header() {
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-white shadow-sm backdrop-blur">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
           <Link href="/" aria-label="Go to main landing page" className="group flex items-center gap-3 rounded-full bg-white/80 px-3 py-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow">
-            <div className="rounded-full border border-slate-200 bg-sky-50 p-3 shadow-inner">
-              <Shield className="h-7 w-7 text-sky-700" aria-hidden="true" />
-            </div>
+            <Image
+              src="/globe.svg"
+              alt="Saksham"
+              width={40}
+              height={40}
+              priority
+              className="rounded-full object-cover"
+            />
             <div className="text-left">
-              <p className="text-lg font-semibold leading-tight text-slate-900">Opportunet</p>
+              <p className="text-lg font-semibold leading-tight text-slate-900">Saksham</p>
               <p className="text-xs font-medium text-slate-500">National Internship & Placement Mission</p>
             </div>
           </Link>
 
-          <nav className="hidden flex-1 items-center justify-center gap-2 rounded-full bg-sky-50 p-1 shadow-inner shadow-white/60 md:flex">
+          <nav className="hidden flex-1 items-center gap-2 rounded-full bg-sky-50 p-1 shadow-inner shadow-white/60 md:flex">
             {navLinks.map((link) => {
               const isActive = pathname === link.href || pathname.startsWith(`${link.href}/`);
               return (
                 <Link
                   key={link.name}
                   href={link.href}
-                  className={`group relative rounded-full px-4 py-2 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 ${
+                  className={`group relative flex-1 rounded-full px-4 py-2 text-center text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 ${
                     isActive ? "text-sky-700" : "text-slate-600 hover:text-slate-900"
                   }`}
                   aria-current={isActive ? "page" : undefined}
