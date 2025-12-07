@@ -26,6 +26,7 @@ import {
   ShieldCheck,
   Sparkles,
   UserCheck,
+  UserPlus,
   Users,
 } from "lucide-react"
 import { Notifications } from "./notifications"
@@ -51,6 +52,7 @@ const navigationItems = {
     { name: "Job Postings", href: "/job-postings", icon: Briefcase },
     { name: "Students", href: "/students", icon: GraduationCap },
     { name: "Employers", href: "/employers", icon: Building2 },
+    { name: "Manage", href: "/placement/manage", icon: UserPlus },
     { name: "Analytics", href: "/analytics", icon: BarChart3 },
     { name: "Settings", href: "/settings", icon: Settings },
   ],
