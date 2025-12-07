@@ -96,7 +96,8 @@ function PublicLanding() {
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4 lg:px-6">
-          <Link href="/" aria-label="Go to main landing" className="flex items-center gap-3">
+          <div className="flex items-center gap-3">
+            <Link href="/" className="flex items-center gap-3">
             <div className="rounded-full bg-sky-100 p-3 ring-2 ring-sky-200">
               <ShieldCheck className="h-6 w-6 text-sky-700" aria-hidden="true" />
             </div>
@@ -105,6 +106,7 @@ function PublicLanding() {
               <p className="text-xs font-medium text-slate-500">National internship & Placement Mission</p>
             </div>
           </Link>
+          </div>
           <div className="flex items-center gap-3">
             <Button variant="ghost" asChild>
               <Link href="/resources/policy">Policy Desk</Link>
