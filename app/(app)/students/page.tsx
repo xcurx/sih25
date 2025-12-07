@@ -89,7 +89,7 @@ const CustomStudentCard = ({ student, onViewDetails }: CustomStudentCardProps) =
                     </div>
 
                     <div className="text-right shrink-0">
-                        <p className="text-3xl font-bold">{student.cgpa.toFixed(2)}</p>
+                        <p className="text-3xl font-bold">{student.cgpa?.toFixed(2) || "N/A"}</p>
                         <p className="text-xs text-slate-500">CGPA</p>
                     </div>
                 </div>

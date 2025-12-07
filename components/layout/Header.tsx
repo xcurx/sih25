@@ -57,9 +57,9 @@ export default function Header() {
   };
 
   return (
-    <div style={{ fontSize: `${fontScale}rem` }}>
+    <div style={{ fontSize: `${fontScale}rem` }} className="relative overflow-hidden">
       {/* thin blue banner */}
-      <div className="bg-sky-700 text-white text-xs tracking-wide">
+      <div className="bg-sky-700 text-white text-xs tracking-wide border-b border-sky-600/70 shadow-[0_6px_18px_rgba(14,165,233,0.25)]">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2">
           <div className="flex items-center gap-3 font-semibold">
             <span className="text-lg" role="img" aria-label="India flag">🇮🇳</span>
@@ -67,8 +67,8 @@ export default function Header() {
           </div>
 
           <div className="flex items-center gap-4">
-            <button
-              className="inline-flex items-center gap-1 rounded-full border border-white/30 px-3 py-1 text-white/90 transition hover:bg-white/10"
+              <button
+                className="inline-flex items-center gap-1 rounded-full border border-white/30 px-3 py-1 text-white/90 transition hover:bg-white/10 shadow-sm hover:shadow"
               onClick={handleScreenReaderNarration}
               disabled={isReading}
             >
@@ -99,8 +99,9 @@ export default function Header() {
         </div>
       </div>
 
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4">
+      <header className="relative border-b border-slate-200/80 bg-gradient-to-r from-white via-sky-50 to-white/90 shadow-[0_10px_35px_rgba(15,23,42,0.08)] backdrop-blur">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(125,211,252,0.35),transparent_35%),radial-gradient(circle_at_80%_40%,rgba(59,130,246,0.35),transparent_32%)]" aria-hidden="true" />
+        <div className="relative mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4">
           <Link href="/" aria-label="Go to main landing page" className="flex items-center gap-3">
             <div className="rounded-full border border-slate-200 p-3">
               <Shield className="h-7 w-7 text-sky-700" />
@@ -111,16 +112,30 @@ export default function Header() {
             </div>
           </Link>
 
-          <nav className="flex flex-wrap items-center gap-4 text-sm text-slate-600">
-            <Link href="/mission" className="hover:text-slate-900">Mission</Link>
-            <Link href="/institutes" className="hover:text-slate-900">Institutes</Link>
-            <Link href="/l_employers" className="hover:text-slate-900">Employers</Link>
-            <Link href="/resources" className="hover:text-slate-900">Resources</Link>
+          <nav className="flex flex-wrap items-center gap-3 text-sm text-slate-600">
+            {[
+              { href: "/mission", label: "Mission" },
+              { href: "/institutes", label: "Institutes" },
+              { href: "/l_employers", label: "Employers" },
+              { href: "/resources", label: "Resources" },
+            ].map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="relative rounded-full border border-slate-200/70 bg-white/60 px-3 py-2 font-medium text-slate-700 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-sky-200 hover:text-slate-900 hover:shadow md:px-4"
+              >
+                <span className="relative after:absolute after:left-1/2 after:bottom-0 after:h-[2px] after:w-0 after:-translate-x-1/2 after:bg-sky-600 after:transition-all after:duration-200 hover:after:w-3/4">
+                  {item.label}
+                </span>
+              </Link>
+            ))}
           </nav>
 
           <div className="flex items-center gap-3">
             <Link href="/sign-in">
-              <Button className="rounded-full bg-sky-600 text-white hover:bg-sky-500" variant="default">Sign in</Button>
+              <Button className="rounded-full border border-sky-200/80 bg-gradient-to-r from-sky-600 to-blue-600 text-white shadow-lg shadow-sky-200 transition-all duration-200 hover:-translate-y-0.5 hover:from-sky-500 hover:to-blue-500" variant="default">
+                Sign in
+              </Button>
             </Link>
           </div>
         </div>
