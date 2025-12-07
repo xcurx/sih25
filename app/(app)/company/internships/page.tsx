@@ -1,38 +1,109 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useSession } from "next-auth/react"
-import { redirect, useRouter } from "next/navigation"
+import { redirect } from "next/navigation"
+import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowUpRight, Briefcase, Calendar, Users, CheckCircle } from "lucide-react"
-import { Opportunity } from "@/lib/types"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Briefcase, Calendar, Users, CheckCircle, MapPin, GraduationCap, Mail, Phone, Upload, Award, Loader2, ExternalLink, FileText } from "lucide-react"
+import { Internship } from "@/lib/types"
+import { uploader } from "@/lib/uploader"
 import axios from "axios"
 import Loader from "@/components/loader/Loader"
 
 export default function EmployerInternshipsPage() {
   const { data: session, status } = useSession()
-  const [opportunities, setOpportunities] = useState<Opportunity[]>([])
+  const [internships, setInternships] = useState<Internship[]>([])
   const [loading, setLoading] = useState(true)
-  const router = useRouter()
+  const [uploadingId, setUploadingId] = useState<string | null>(null)
+  const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({})
+
+  const fetchInternships = async () => {
+    try {
+      const res = await axios.get("/api/employer/internship/get-internships", { withCredentials: true })
+      if (res.status === 200) {
+        setInternships(res.data.internships)
+      }
+    } catch (error) {
+      console.error("Error fetching internships:", error)
+    }
+  }
 
   useEffect(() => {
     async function load() {
       setLoading(true)
-      try {
-        const res = await axios.get("/api/employer/get-company-opportunities", { withCredentials: true })
-        if (res.status === 200) {
-          setOpportunities(res.data.opportunities)
-        }
-      } catch (error) {
-        console.error("Error fetching opportunities:", error)
-      } finally {
-        setLoading(false)
-      }
+      await fetchInternships()
+      setLoading(false)
     }
     load()
   }, [])
+
+  const handleCertificateUpload = async (internshipId: string, file: File) => {
+    // Validate file type (PDF or image)
+    const validTypes = ["application/pdf", "image/jpeg", "image/jpg", "image/png", "image/webp"]
+    if (!validTypes.includes(file.type)) {
+      toast.error("Please upload a PDF or image file (JPEG, PNG, WebP)")
+      return
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File size must be less than 5MB")
+      return
+    }
+
+    setUploadingId(internshipId)
+    try {
+      // Upload file to Cloudinary
+      const result = await uploader(file, 'internship-certificates')
+
+      if (!result) {
+        throw new Error("Upload failed")
+      }
+
+      // Save certificate to database
+      await axios.post(`/api/employer/certificate/upload/${internshipId}`, {
+        url: result.url
+      })
+
+      toast.success("Certificate uploaded successfully!")
+      
+      // Refresh internships list
+      await fetchInternships()
+    } catch (error) {
+      console.error("Upload error:", error)
+      toast.error("Failed to upload certificate")
+    } finally {
+      setUploadingId(null)
+      // Clear the file input
+      if (fileInputRefs.current[internshipId]) {
+        fileInputRefs.current[internshipId]!.value = ""
+      }
+    }
+  }
+
+  const handleFileChange = (internshipId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      handleCertificateUpload(internshipId, file)
+    }
+  }
+
+  const isPdfUrl = (url: string) => {
+    return url.toLowerCase().includes('.pdf') || url.includes('/raw/')
+  }
+
+  const handleViewCertificate = (url: string) => {
+    if (isPdfUrl(url)) {
+      const viewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`
+      window.open(viewerUrl, "_blank")
+    } else {
+      window.open(url, "_blank")
+    }
+  }
 
   if (status === "loading" || loading) {
     return <Loader />
@@ -42,12 +113,51 @@ export default function EmployerInternshipsPage() {
     redirect("/sign-in")
   }
 
+  // Calculate stats
+  const totalInterns = internships.length
+  const activeInterns = internships.filter(i => new Date(i.endDate) >= new Date()).length
+  const completedInterns = internships.filter(i => new Date(i.endDate) < new Date()).length
+
+  // Group internships by opportunity
+  const internshipsByOpportunity = internships.reduce((acc, intern) => {
+    const oppId = intern.opportunityId
+    if (!acc[oppId]) {
+      acc[oppId] = {
+        opportunity: intern.opportunityRel,
+        interns: []
+      }
+    }
+    acc[oppId].interns.push(intern)
+    return acc
+  }, {} as Record<string, { opportunity: Internship['opportunityRel'], interns: Internship[] }>)
+
+  const uniqueOpportunities = Object.keys(internshipsByOpportunity).length
+
   const quickStats = [
-    { label: "Active Opportunities", value: opportunities.filter(o => o.status === "active").length, icon: Briefcase, caption: "Open positions" },
-    { label: "Total Opportunities", value: opportunities.length, icon: Calendar, caption: "All postings" },
-    { label: "With Interns", value: 0, icon: Users, caption: "Active internships" },
-    { label: "Completed", value: 0, icon: CheckCircle, caption: "Finished internships" },
+    { label: "Total Interns", value: totalInterns, icon: Users, caption: "All internships" },
+    { label: "Active Interns", value: activeInterns, icon: Briefcase, caption: "Currently working" },
+    { label: "Completed", value: completedInterns, icon: CheckCircle, caption: "Finished internships" },
+    { label: "Opportunities", value: uniqueOpportunities, icon: Calendar, caption: "With interns" },
   ]
+
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2)
+  }
+
+  const isActive = (startDate: string, endDate: string) => {
+    if (new Date(startDate) >= new Date()) {
+      return "Not started"
+    } else if (new Date(endDate) <= new Date()) {
+      return "Completed"  
+    } else {
+      return "Active"
+    }
+  }
 
   return (
     <div className="relative space-y-8">
@@ -64,7 +174,7 @@ export default function EmployerInternshipsPage() {
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">Internship Manager</p>
             <h1 className="mt-3 text-3xl font-semibold text-slate-900">Track and manage your company&apos;s interns</h1>
             <p className="mt-2 text-sm text-slate-600">
-              Select an opportunity to view and manage the interns working under it.
+              View all interns working at your company across different opportunities.
             </p>
           </div>
           {/* <div className="grid gap-4 rounded-[28px] border border-white/50 bg-white/85 p-6 sm:grid-cols-2"> */}
@@ -123,51 +233,166 @@ export default function EmployerInternshipsPage() {
               <p className="mt-3 text-lg font-medium text-slate-700">No opportunities yet</p>
               <p className="mt-1 text-sm text-slate-500">Post a job opportunity to start hiring interns.</p>
             </div>
-          ) : (
-            opportunities.map((job) => (
-              <div key={job.id} className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <h3 className="text-base font-semibold text-slate-900">{job.title}</h3>
-                    <p className="text-xs text-slate-500">
-                      {job.location} · {job.type}
-                    </p>
-                  </div>
-                  <Badge variant={job.status === "active" ? "secondary" : "outline"} className="rounded-full">
-                    {job.status}
-                  </Badge>
+          </CardContent>
+        </Card>
+      ) : (
+        Object.values(internshipsByOpportunity).map(({ opportunity, interns }) => (
+          <Card key={opportunity.id} className="border-slate-200 bg-white/90 shadow-lg">
+            <CardHeader>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <CardTitle className="text-xl text-slate-900">{opportunity.title}</CardTitle>
+                  <CardDescription className="flex items-center gap-2 mt-1">
+                    <MapPin className="h-3.5 w-3.5" />
+                    {opportunity.location} · {opportunity.type}
+                  </CardDescription>
                 </div>
-                <div className="mt-4 grid gap-4 rounded-2xl border border-white bg-white/90 p-4 text-center sm:grid-cols-3">
-                  <div>
-                    <p className="text-lg font-semibold text-slate-900">{job._count?.applications || 0}</p>
-                    <p className="text-xs text-slate-500">Applications</p>
-                  </div>
-                  <div>
-                    <p className="text-lg font-semibold text-slate-900">–</p>
-                    <p className="text-xs text-slate-500">Active Interns</p>
-                  </div>
-                  <div>
-                    <p className="text-lg font-semibold text-slate-900">–</p>
-                    <p className="text-xs text-slate-500">Completed</p>
-                  </div>
-                </div>
-                <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                  <p className="text-xs text-slate-500">
-                    Duration: {new Date(job.startDate).toLocaleDateString()} – {new Date(job.endDate).toLocaleDateString()}
-                  </p>
-                  <Button
-                    className="rounded-full bg-sky-600 text-white hover:bg-sky-500"
-                    onClick={() => router.push(`/company/internships/${job.id}`)}
-                  >
-                    View Interns
-                    <ArrowUpRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </div>
+                <Badge variant="outline" className="rounded-full border-slate-200 text-slate-600">
+                  {interns.length} intern{interns.length !== 1 ? 's' : ''}
+                </Badge>
               </div>
-            ))
-          )}
-        </CardContent>
-      </Card>
+              <p className="text-xs text-slate-500 mt-2">
+                Duration: {new Date(opportunity.startDate).toLocaleDateString()} – {new Date(opportunity.endDate).toLocaleDateString()}
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {interns.map((intern) => (
+                <div key={intern.id} className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
+                  <div className="flex items-start gap-4">
+                    <Avatar className="h-12 w-12 border-2 border-sky-100">
+                      <AvatarFallback className="bg-gradient-to-br from-sky-400 to-blue-500 text-white">
+                        {getInitials(intern.studentRel.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <h3 className="text-base font-semibold text-slate-900">{intern.studentRel.name}</h3>
+                        <Badge 
+                          variant={isActive(intern.startDate, intern.endDate) == "Active" ? "secondary" : "outline"} 
+                          className={`rounded-full ${isActive(intern.startDate, intern.endDate) == "Active" ? 'bg-emerald-100 text-emerald-700' : 'text-slate-500'}`}
+                        >
+                          {isActive(intern.startDate, intern.endDate)}
+                        </Badge>
+                      </div>
+                      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-500">
+                        <span className="flex items-center gap-1">
+                          <Mail className="h-3.5 w-3.5" />
+                          {intern.studentRel.email}
+                        </span>
+                        {intern.studentRel.phone && (
+                          <span className="flex items-center gap-1">
+                            <Phone className="h-3.5 w-3.5" />
+                            {intern.studentRel.phone}
+                          </span>
+                        )}
+                      </div>
+                      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
+                        {intern.studentRel.branch && (
+                          <span className="flex items-center gap-1">
+                            <GraduationCap className="h-3.5 w-3.5" />
+                            {intern.studentRel.branch} {intern.studentRel.batch && `• Batch ${intern.studentRel.batch}`}
+                          </span>
+                        )}
+                        {intern.studentRel.cgpa && (
+                          <span>CGPA: {intern.studentRel.cgpa}</span>
+                        )}
+                      </div>
+                      <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                        <span>
+                          Internship: {new Date(intern.startDate).toLocaleDateString()} – {new Date(intern.endDate).toLocaleDateString()}
+                        </span>
+                        {intern.salary && (
+                          <Badge variant="outline" className="rounded-full text-xs">
+                            ₹{intern.salary}
+                          </Badge>
+                        )}
+                      </div>
+                      {intern.performanceReview && (
+                        <div className="mt-3 rounded-lg bg-white/80 border border-slate-100 p-3">
+                          <p className="text-xs font-medium text-slate-600 mb-1">Performance Review:</p>
+                          <p className="text-sm text-slate-700">{intern.performanceReview}</p>
+                        </div>
+                      )}
+
+                      {/* Certificate Section - Show for completed internships */}
+                      {isActive(intern.startDate, intern.endDate) === "Completed" && (
+                        <div className="mt-4 pt-4 border-t border-slate-200">
+                          {intern.certificateRel ? (
+                            <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-emerald-50/70 border border-emerald-100">
+                              <div className="flex items-center gap-3">
+                                <div className="p-2 bg-emerald-100 rounded-lg">
+                                  <Award className="h-4 w-4 text-emerald-600" />
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium text-slate-900">Certificate Issued</p>
+                                  <p className="text-xs text-slate-500">{intern.certificateRel.title}</p>
+                                </div>
+                              </div>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="rounded-full border-emerald-200 hover:bg-emerald-50"
+                                onClick={() => handleViewCertificate(intern.certificateRel!.certificateUrl)}
+                              >
+                                <ExternalLink className="h-4 w-4 mr-1" />
+                                View
+                              </Button>
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-sky-50/70 border border-sky-100">
+                              <div className="flex items-center gap-3">
+                                <div className="p-2 bg-sky-100 rounded-lg">
+                                  {isPdfUrl("") ? (
+                                    <FileText className="h-4 w-4 text-sky-600" />
+                                  ) : (
+                                    <Award className="h-4 w-4 text-sky-600" />
+                                  )}
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium text-slate-900">Issue Certificate</p>
+                                  <p className="text-xs text-slate-500">Upload PDF or image (max 5MB)</p>
+                                </div>
+                              </div>
+                              <div>
+                                <input
+                                  type="file"
+                                  accept="application/pdf,image/jpeg,image/jpg,image/png,image/webp"
+                                  className="hidden"
+                                  ref={(el) => { fileInputRefs.current[intern.id] = el }}
+                                  onChange={(e) => handleFileChange(intern.id, e)}
+                                />
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="rounded-full bg-gradient-to-r from-sky-600 to-blue-600 text-white hover:from-sky-700 hover:to-blue-700 border-0"
+                                  onClick={() => fileInputRefs.current[intern.id]?.click()}
+                                  disabled={uploadingId === intern.id}
+                                >
+                                  {uploadingId === intern.id ? (
+                                    <>
+                                      <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                                      Uploading...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Upload className="h-4 w-4 mr-1" />
+                                      Upload
+                                    </>
+                                  )}
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        ))
+      )}
     </div>
   )
 }

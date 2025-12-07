@@ -1,5 +1,7 @@
 import { auth } from "@/auth";
+import { applicationRejectedTemplate, interviewAcceptedTemplate } from "@/components/mail/mailTemplate";
 import { Prisma, PrismaClient } from "@/lib/generated/prisma";
+import { client } from "@/lib/mail";
 import { NextRequest, NextResponse } from "next/server";
 
 const prisma = new PrismaClient()
@@ -41,7 +43,21 @@ export const PATCH = async (req: NextRequest, context: { params: Promise<{ id:st
             include: {
                 applicationRel: {
                     include: {
-                        opportunityRel: true
+                        opportunityRel: {
+                            include:{
+                                companyRel: {
+                                    select: {
+                                        name: true,
+                                    }
+                                }
+                            } 
+                        },
+                        studentRel: {
+                            select: {
+                                name: true,
+                                email: true,
+                            }
+                        }
                     }
                 }
             }
@@ -63,6 +79,53 @@ export const PATCH = async (req: NextRequest, context: { params: Promise<{ id:st
                         startDate: updatedInterview.applicationRel.opportunityRel.startDate,
                         salary: updatedInterview.applicationRel.opportunityRel.salary,
                     }
+                })
+
+
+                const notification = await prisma.notification.create({
+                    data: {
+                        studentId: updatedInterview.applicationRel.studentId,
+                        title: "Interview Accepted",
+                        message: `Congratulations! Your interview for the position of ${updatedInterview.applicationRel.opportunityRel.title} has been accepted. An intership offer has been given to you.`,
+                        redirectUrl: `/internships`,
+                        type: "internship_offer",
+                    }
+                })
+
+                client.send({
+                    to: [{email: updatedInterview.applicationRel.studentRel.email, name: updatedInterview.applicationRel.studentRel.name}],
+                    from: {email: "cell@gmail.com", name: "Placement Cell"},
+                    subject: "Interview Scheduled for Your Application",
+                    html: interviewAcceptedTemplate({
+                        companyName: updatedInterview.applicationRel.opportunityRel.companyRel?.name || "the company",
+                        opportunityTitle: updatedInterview.applicationRel.opportunityRel.title,
+                        studentName: updatedInterview.applicationRel.studentRel.name,
+                        applicationUrl: "",
+                        startDate: internship.startDate.toISOString(),
+                        salary: internship.salary || "To be discussed"
+                    })
+                })
+            } else {
+                const notification = await prisma.notification.create({
+                    data: {
+                        studentId: updatedInterview.applicationRel.studentId,
+                        title: "Interview Rejected",
+                        message: `We regret to inform you that your interview for the position of ${updatedInterview.applicationRel.opportunityRel.title} has been rejected. We encourage you to apply for other opportunities.`,
+                        redirectUrl: `/jobs`,
+                        type: "application_rejected",
+                    }
+                })
+
+                client.send({
+                    to: [{email: updatedInterview.applicationRel.studentRel.email, name: updatedInterview.applicationRel.studentRel.name}],
+                    from: {email: "cell@gmail.com", name: "Placement Cell"},
+                    subject: "Interview Scheduled for Your Application",
+                    html: applicationRejectedTemplate({
+                        companyName: updatedInterview.applicationRel.opportunityRel.companyRel?.name || "the company",
+                        opportunityTitle: updatedInterview.applicationRel.opportunityRel.title,
+                        studentName: updatedInterview.applicationRel.studentRel.name,
+                        jobsUrl: ""
+                    })
                 })
             }
         }

@@ -1,125 +1,67 @@
 "use client"
 
-import ApplicationCard from "@/components/applications/ApplicationCard"
-import ApplicationDetailsDialog from "@/components/applications/ApplicationDetailsDialog"
 import Loader from "@/components/loader/Loader"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import type { Application } from "@/lib/types"
+import { StudentProfile, StudentProfileStats } from "@/lib/types"
 import axios from "axios"
 import {
   ArrowLeft,
-  Calendar,
-  CheckCircle,
-  Clock,
-  Download,
+  Award,
+  Briefcase,
+  Building2,
   ExternalLink,
   FileText,
   Github,
+  GraduationCap,
   Linkedin,
   Mail,
   Phone,
-  Search,
-  User,
-  XCircle
 } from "lucide-react"
 import { useSession } from "next-auth/react"
+import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
-interface StudentProfile {
-  id: string
-  name: string
-  email: string
-  phone: string
-  branch: string
-  batch: number
-  cgpa: number
-  resume?: string
-  skills: string[]
-  github?: string
-  linkedin?: string
-}
-
-export default function PlacementCellStudentProfilePage() {
+export default function StudentProfilePage() {
   const { data: session, status } = useSession()
-  const [student, setStudent] = useState<StudentProfile | null>(null)
-  const [applications, setApplications] = useState<Application[]>([])
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [selectedApplication, setSelectedApplication] = useState<Application | null>(null)
-  const [loading, setLoading] = useState(true)
+  const params = useParams()
   const router = useRouter()
-  const { id } = useParams()
+  const [student, setStudent] = useState<StudentProfile | null>(null)
+  const [stats, setStats] = useState<StudentProfileStats | null>(null)
+  const [loading, setLoading] = useState(true)
 
-  const getStudentProfile = async () => {
+  const fetchStudent = async () => {
     try {
-      const res = await axios.get(`/api/placementcell/get-student-profile/${id}`, {
+      const res = await axios.get(`/api/placementcell/get-student-profile/${params.id}`, {
         withCredentials: true,
       })
       if (res.status === 200) {
         setStudent(res.data.student)
+        setStats(res.data.stats)
       }
     } catch (error) {
-      console.error("Error fetching student profile:", error)
+      console.error(error)
       toast.error("Failed to fetch student profile")
+    } finally {
+      setLoading(false)
     }
-  }
-
-  const getStudentApplications = async () => {
-    try {
-      const res = await axios.get(`/api/placementcell/get-student-applications/${id}`, {
-        withCredentials: true,
-      })
-      if (res.status === 200) {
-        setApplications(res.data.applications || [])
-      }
-    } catch (error) {
-      console.error("Error fetching student applications:", error)
-      toast.error("Failed to fetch student applications")
-    }
-  }
-
-  const fetchData = async () => {
-    setLoading(true)
-    await Promise.all([getStudentProfile(), getStudentApplications()])
-    setLoading(false)
   }
 
   useEffect(() => {
-    if (status === "authenticated") {
-      fetchData()
-    }
-  }, [status, id])
-
-  const filteredApplications = applications.filter((app) => {
-    const matchesSearch =
-      app.opportunityRel.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      app.opportunityRel.companyRel?.name.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus = statusFilter === "all" || app.status === statusFilter
-    return matchesSearch && matchesStatus
-  })
-
-  const pendingApplications = filteredApplications.filter(
-    (app) => app.status === "applied" || app.status === "mentor_approval_needed"
-  )
-  const shortlistedApplications = filteredApplications.filter((app) => app.status === "shortlisted")
-  const completedApplications = filteredApplications.filter((app) =>
-    ["accepted", "rejected", "interviewed"].includes(app.status)
-  )
+    if (status === "loading" || status === "unauthenticated") return
+    fetchStudent()
+  }, [status, params.id])
 
   if (status === "loading" || loading) {
     return <Loader />
   }
 
-  if (status === "unauthenticated" || session?.user?.role !== "placement-cell") {
-    router.replace("/")
+  if (session?.user?.role !== "placement-cell" && session?.user?.role !== "faculty") {
+    router.push("/")
     return null
   }
 
@@ -132,6 +74,30 @@ export default function PlacementCellStudentProfilePage() {
       </div>
     )
   }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "applied": return "bg-blue-100 text-blue-700 border-blue-200"
+      case "reviewed": return "bg-indigo-100 text-indigo-700 border-indigo-200"
+      case "shortlisted": return "bg-emerald-100 text-emerald-700 border-emerald-200"
+      case "rejected": return "bg-red-100 text-red-700 border-red-200"
+      case "accepted": return "bg-green-100 text-green-700 border-green-200"
+      case "mentor_approval_needed": return "bg-amber-100 text-amber-700 border-amber-200"
+      default: return "bg-slate-100 text-slate-700 border-slate-200"
+    }
+  }
+
+  const getPlacementStatus = () => {
+    if (student.applications.some((app) => app.status === "accepted")) {
+      return { status: "Placed", color: "bg-green-100 text-green-700 border-green-200" }
+    }
+    if (student.applications.some((app) => ["pending", "interview", "shortlisted"].includes(app.status))) {
+      return { status: "In Process", color: "bg-amber-100 text-amber-700 border-amber-200" }
+    }
+    return { status: "Unplaced", color: "bg-slate-100 text-slate-700 border-slate-200" }
+  }
+
+  const placementInfo = getPlacementStatus()
 
   return (
     <div className="p-6 max-w-7xl w-full mx-auto space-y-8">
@@ -336,7 +302,6 @@ export default function PlacementCellStudentProfilePage() {
               <p className="text-xs text-slate-500">Final stage</p>
             </CardContent>
           </Card>
-        </div>
 
         {/* Search and Filter */}
         <Card className="border-slate-200 bg-white shadow-sm rounded-2xl">
@@ -468,13 +433,6 @@ export default function PlacementCellStudentProfilePage() {
           </TabsContent>
         </Tabs>
       </div>
-
-      {/* Application Details Dialog */}
-      <ApplicationDetailsDialog
-        application={selectedApplication}
-        onClose={() => setSelectedApplication(null)}
-        userRole="placement-cell"
-      />
     </div>
   )
 }

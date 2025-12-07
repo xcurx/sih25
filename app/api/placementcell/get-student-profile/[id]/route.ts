@@ -7,7 +7,7 @@ const prisma = new PrismaClient()
 export const GET = async (req: NextRequest, context: { params: Promise<{ id:string }> }) => {
     const session = await auth();
 
-    if (!session?.user || session?.user.role !== "placement-cell") {
+    if (!session?.user || (session?.user.role !== "placement-cell" && session?.user.role !== "faculty")) {
         return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
@@ -20,27 +20,52 @@ export const GET = async (req: NextRequest, context: { params: Promise<{ id:stri
 
         const student = await prisma.student.findUnique({
             where: { id },
-            select: {
-                id: true,
-                name: true,
-                email: true,
-                batch: true,
-                branch: true,
-                cgpa: true,
-                github: true,
-                linkedin: true,
-                phone: true,
-                resume: true,
-                skills: true,
-            }
+            include: {
+                applications: {
+                    include: {
+                        opportunityRel: {
+                            include: {
+                                companyRel: true,
+                            },
+                        },
+                        interviewRel: true,
+                    },
+                    orderBy: {
+                        appliedAt: 'desc',
+                    },
+                },
+                internships: {
+                    include: {
+                        opportunityRel: {
+                            include: {
+                                companyRel: true,
+                            },
+                        },
+                        certificateRel: true,
+                    },
+                },
+                projects: true,
+                certificates: true,
+            },
         })
 
         if (!student) {
             return NextResponse.json({ message: "Student not found" }, { status: 404 });
         }
 
-        return NextResponse.json({ student }, { status: 200 });
+        // Calculate stats
+        const stats = {
+            totalApplications: student.applications.length,
+            accepted: student.applications.filter(a => a.status === 'accepted').length,
+            rejected: student.applications.filter(a => a.status === 'rejected').length,
+            pending: student.applications.filter(a => ['applied', 'reviewed', 'shortlisted', 'mentor_approval_needed'].includes(a.status)).length,
+            interviews: student.applications.filter(a => a.interviewRel).length,
+            internships: student.internships.length,
+        };
+
+        return NextResponse.json({ student, stats }, { status: 200 });
     } catch (error) {
+        console.error("Error fetching student:", error);
         return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
     }
 }

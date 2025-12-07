@@ -1,7 +1,6 @@
 "use client"
 
 import { ApplicationApprovalCard } from "@/components/faculty/ApplicationApprovalCard"
-import { ApplicationDetailsDialog } from "@/components/faculty/ApplicationDetailsDialog"
 import Loader from "@/components/loader/Loader"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -34,7 +33,6 @@ export default function ApprovalPage() {
   const [departmentFilter, setDepartmentFilter] = useState("all")
   const [applications, setApplications] = useState<ApprovalApplication[]>([])
   const [selectedApplication, setSelectedApplication] = useState<ApprovalApplication | null>(null)
-  const [showDetailsDialog, setShowDetailsDialog] = useState(false)
   const [showActionDialog, setShowActionDialog] = useState(false)
   const [actionType, setActionType] = useState<"approve" | "reject" | null>(null)
   const [remarks, setRemarks] = useState("")
@@ -92,7 +90,6 @@ export default function ApprovalPage() {
     setSelectedApplication(app)
     setActionType(action)
     setShowActionDialog(true)
-    setShowDetailsDialog(false)
   }
 
   const filteredApplications = applications.filter((app) => {
@@ -252,7 +249,6 @@ export default function ApprovalPage() {
         </CardContent>
       </Card>
 
-      {/* Applications Tabs */}
       <Tabs defaultValue="all" className="space-y-6">
         <TabsList className="bg-slate-100 p-1 h-auto rounded-full">
           <TabsTrigger 
@@ -281,10 +277,6 @@ export default function ApprovalPage() {
               <ApplicationApprovalCard
                 key={app.id}
                 application={app}
-                onViewDetails={() => {
-                  setSelectedApplication(app)
-                  setShowDetailsDialog(true)
-                }}
                 onApprove={() => openActionDialog(app, "approve")}
                 onReject={() => openActionDialog(app, "reject")}
               />
@@ -305,10 +297,6 @@ export default function ApprovalPage() {
               <ApplicationApprovalCard
                 key={app.id}
                 application={app}
-                onViewDetails={() => {
-                  setSelectedApplication(app)
-                  setShowDetailsDialog(true)
-                }}
                 onApprove={() => openActionDialog(app, "approve")}
                 onReject={() => openActionDialog(app, "reject")}
               />
@@ -329,10 +317,6 @@ export default function ApprovalPage() {
               <ApplicationApprovalCard
                 key={app.id}
                 application={app}
-                onViewDetails={() => {
-                  setSelectedApplication(app)
-                  setShowDetailsDialog(true)
-                }}
                 onApprove={() => openActionDialog(app, "approve")}
                 onReject={() => openActionDialog(app, "reject")}
               />

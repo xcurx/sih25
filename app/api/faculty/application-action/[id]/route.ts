@@ -30,8 +30,35 @@ export const PATCH = async (req: NextRequest, context: { params: Promise<{ id:st
                 status: action === "approve" ? "applied" : "rejected",
                 mentorRemarks: remarks,
                 mentorApproved: action === "approve" ? true : false,
+            },
+            include: {
+                opportunityRel: true
             }
         })
+
+        const notification = await prisma.notification.create({
+            data: {
+                studentId: application.studentId,
+                title: action === "approve" ? "Application Approved" : "Application Rejected",
+                message: action === "approve"
+                    ? "Your application has been approved by the faculty mentor."
+                    : `Your application has been rejected by the faculty mentor. Remarks: ${remarks || "No remarks provided."}`,
+                redirectUrl: `/applications/${application.id}`,
+                type: action === "approve" ? "approval_accepted" : "approval_rejected"
+            }
+        })
+
+        if (action === "approve") {
+            await prisma.notification.create({
+                data: {
+                    employerId: application.opportunityRel.employerId,
+                    title: "New Application Received",
+                    message: `A new application has been submitted for your opportunity "${application.opportunityRel.title}".`,
+                    redirectUrl: `/employer/applications/${application.id}`,
+                    type: "new_application"
+                }
+            })
+        }
 
         return NextResponse.json({ message: "Application updated successfully", application }, { status: 200 });
     } catch (error) {

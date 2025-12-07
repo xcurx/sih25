@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useAuth } from "@/contexts/auth-context"
 import {
   BarChart,
   Bar,
@@ -83,7 +82,7 @@ export default function AnalyticsPage() {
   const [timeRange, setTimeRange] = useState("6months")
   const [selectedDepartment, setSelectedDepartment] = useState("all")
 
-  if (session?.user?.role !== "placement-cell") {
+  if (session?.user?.role !== "placement-cell" && session?.user?.role !== "faculty") {
     return (
       <div className="p-6">
         <div className="text-center py-12 rounded-xl border-2 border-red-300 bg-red-50">

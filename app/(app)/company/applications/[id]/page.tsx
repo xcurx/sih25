@@ -4,62 +4,80 @@ import AppliedStudentCard from "@/components/employer/AppliedStudentsCard"
 import Loader from "@/components/loader/Loader"
 import StudentDetailsDialog from "@/components/students/StudentDetailsDialog"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { ApplicationStatus, Student } from "@/lib/types"
 import axios from "axios"
 import {
   Download,
-  Search
+  Search,
+  Users,
+  UserCheck,
+  Clock,
+  Briefcase
 } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { useParams, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 
 export default function AppliedStudentsPage() {
-  const { data:session, status } = useSession();
+  const { data: session, status } = useSession();
   const [searchTerm, setSearchTerm] = useState("")
   const [departmentFilter, setDepartmentFilter] = useState("all")
   const [yearFilter, setYearFilter] = useState("all")
-  const [placementStatus, setPlacementStatus] = useState("all")
+  const [statusFilter, setStatusFilter] = useState("all")
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
-  const [applications, setApplications] = useState<{ student: Student, status:ApplicationStatus, id:string }[]>([])
+  const [applications, setApplications] = useState<{ student: Student, status: ApplicationStatus, id: string }[]>([])
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const { id } = useParams();
 
   const getStudents = async () => {
-      setLoading(true);
-      try {
-        const res = await axios.get(`/api/employer/get-applied-students-for-opportunity/${id}`, { withCredentials: true });
-        if (res.status === 200) {
-          setApplications(res.data.applications.map((app: any) => {
-            return { student: app.studentRel, status: app.status, id: app.id };
-          }));
-        }
-      } catch (error) {
-        console.error("Error fetching students:", error);
-      } finally {
-        setLoading(false);
+    setLoading(true);
+    try {
+      const res = await axios.get(`/api/employer/get-applied-students-for-opportunity/${id}`, { withCredentials: true });
+      if (res.status === 200) {
+        setApplications(res.data.applications.map((app: any) => {
+          return { student: app.studentRel, status: app.status, id: app.id };
+        }));
       }
+    } catch (error) {
+      console.error("Error fetching students:", error);
+    } finally {
+      setLoading(false);
+    }
   }
 
-  const filteredStudents = applications.filter(({student}) => {
+  const filteredStudents = applications.filter(({ student, status: appStatus }) => {
     const matchesSearch =
       student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       student.skills.some((skill) => skill.toLowerCase().includes(searchTerm.toLowerCase()))
 
-    const matchesDepartment = departmentFilter === "all" || student.branch == departmentFilter
-    const matchesYear = yearFilter === "all" || (`${4-(student.batch-2025)}`) === yearFilter
+    const matchesDepartment = departmentFilter === "all" || student.branch === departmentFilter
+    const matchesYear = yearFilter === "all" || (`${4 - (student.batch - 2025)}`) === yearFilter
+    const matchesStatus = statusFilter === "all" || appStatus === statusFilter
 
-    return matchesSearch && matchesDepartment && matchesYear
+    return matchesSearch && matchesDepartment && matchesYear && matchesStatus
   })
 
-  const departments = Array.from(new Set(applications.map(({student}) => student.branch)))    
-  const years = Array.from(new Set(applications.map(({student}) => `${4-(student.batch-2025)}`))).sort()
+  const departments = Array.from(new Set(applications.map(({ student }) => student.branch)))
+  const years = Array.from(new Set(applications.map(({ student }) => `${4 - (student.batch - 2025)}`))).sort()
+
+  // Stats
+  const totalApplications = applications.length
+  const appliedCount = applications.filter(a => a.status === "applied").length
+  const reviewedCount = applications.filter(a => a.status === "reviewed").length
+  const shortlistedCount = applications.filter(a => a.status === "shortlisted").length
+
+  const quickStats = [
+    { label: "Total Applications", value: totalApplications, icon: Users, caption: "All applicants" },
+    { label: "Pending Review", value: appliedCount, icon: Clock, caption: "Awaiting review" },
+    { label: "Reviewed", value: reviewedCount, icon: UserCheck, caption: "Applications reviewed" },
+    { label: "Shortlisted", value: shortlistedCount, icon: Briefcase, caption: "Ready for interview" },
+  ]
 
   useEffect(() => {
     if (status === "unauthenticated" || status === "loading") return;
@@ -67,7 +85,7 @@ export default function AppliedStudentsPage() {
   }, [status])
 
   if (status === "loading" || status === "unauthenticated" || loading) {
-    return <Loader/>
+    return <Loader />
   }
 
   if (session?.user?.role !== "employer") {
@@ -75,34 +93,69 @@ export default function AppliedStudentsPage() {
   }
 
   return (
-    <div className="p-6 max-w-7xl w-full mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-primary">Application Management</h1>
-          <p className="text-muted-foreground">Manage student applications</p>
+    <div className="relative space-y-8">
+      <div
+        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_10%_20%,rgba(56,189,248,0.15),transparent_45%),radial-gradient(circle_at_90%_0%,rgba(59,130,246,0.18),transparent_45%),linear-gradient(180deg,rgba(255,255,255,0.85),transparent)]"
+        aria-hidden="true"
+      />
+
+      {/* Hero Section */}
+      <section className="relative overflow-hidden rounded-[32px] border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 shadow">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.08),transparent_55%)]" />
+        <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">Application Manager</p>
+            <h1 className="mt-3 text-3xl font-semibold text-slate-900">Manage Student Applications</h1>
+            <p className="mt-2 text-sm text-slate-600">
+              Review, shortlist, and schedule interviews with applicants.
+            </p>
+          </div>
+          <div className="grid gap-4 rounded-[28px] border border-white/50 bg-white/85 p-6 sm:grid-cols-2">
+            {quickStats.slice(0, 2).map((stat) => (
+              <div key={stat.label} className="rounded-[24px] border border-slate-100 bg-white p-4 text-slate-800 shadow-sm">
+                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">{stat.label}</p>
+                <p className="mt-2 text-3xl font-semibold text-slate-900">{stat.value}</p>
+                <p className="text-xs text-slate-500">{stat.caption}</p>
+              </div>
+            ))}
+          </div>
         </div>
-        <Button variant="outline">
-          <Download className="mr-2 h-4 w-4" />
-          Export Data
-        </Button>
+      </section>
+
+      {/* Stats Grid */}
+      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        {quickStats.map((stat) => (
+          <Card key={stat.label} className="border-slate-200 bg-white/90 shadow-sm rounded-2xl">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-500">{stat.label}</CardTitle>
+              <div className="rounded-full bg-sky-50 p-2 text-sky-600">
+                <stat.icon className="h-4 w-4" aria-hidden="true" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-semibold text-slate-900">{stat.value}</p>
+              <p className="text-xs text-slate-500">{stat.caption}</p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       {/* Search and Filter */}
-      <Card className="mb-6">
+      <Card className="border-slate-200 bg-white/90 shadow-lg rounded-3xl">
         <CardContent className="p-6">
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-4 top-3.5 h-4 w-4 text-slate-400" />
               <Input
                 placeholder="Search students by name, email, or skills..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-11 rounded-xl border-slate-200 bg-slate-50/50 focus:bg-white transition-colors"
               />
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-3 flex-wrap">
               <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-                <SelectTrigger className="w-48">
+                <SelectTrigger className="w-48 rounded-xl border-slate-200">
                   <SelectValue placeholder="All Departments" />
                 </SelectTrigger>
                 <SelectContent>
@@ -115,7 +168,7 @@ export default function AppliedStudentsPage() {
                 </SelectContent>
               </Select>
               <Select value={yearFilter} onValueChange={setYearFilter}>
-                <SelectTrigger className="w-32">
+                <SelectTrigger className="w-32 rounded-xl border-slate-200">
                   <SelectValue placeholder="All Years" />
                 </SelectTrigger>
                 <SelectContent>
@@ -127,28 +180,56 @@ export default function AppliedStudentsPage() {
                   ))}
                 </SelectContent>
               </Select>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-40 rounded-xl border-slate-200">
+                  <SelectValue placeholder="All Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="applied">Applied</SelectItem>
+                  <SelectItem value="reviewed">Reviewed</SelectItem>
+                  <SelectItem value="shortlisted">Shortlisted</SelectItem>
+                  <SelectItem value="interviewed">Interviewed</SelectItem>
+                  <SelectItem value="accepted">Accepted</SelectItem>
+                  <SelectItem value="rejected">Rejected</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button variant="outline" className="rounded-xl border-slate-200 hover:bg-slate-50">
+                <Download className="mr-2 h-4 w-4" />
+                Export
+              </Button>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Student Tabs */}
-      <Tabs defaultValue="all" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="all">All Students ({filteredStudents.length})</TabsTrigger>
-        </TabsList>
+      {/* Applications List */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-slate-900">Applications</h2>
+          <Badge variant="outline" className="rounded-full border-slate-200 text-slate-600">
+            {filteredStudents.length} result{filteredStudents.length !== 1 ? 's' : ''}
+          </Badge>
+        </div>
 
-        <TabsContent value="all" className="space-y-4">
+        {filteredStudents.length === 0 ? (
+          <Card className="border-slate-200 bg-white/90 shadow-lg rounded-3xl">
+            <CardContent className="py-12">
+              <div className="text-center">
+                <Users className="mx-auto h-12 w-12 text-slate-300" />
+                <p className="mt-3 text-lg font-medium text-slate-700">No applications found</p>
+                <p className="mt-1 text-sm text-slate-500">Try adjusting your search or filter criteria.</p>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
           <div className="grid gap-4">
-            {filteredStudents.map(({student, status, id}) => (
+            {filteredStudents.map(({ student, status, id }) => (
               <AppliedStudentCard key={id} student={student} status={status} id={id} onViewDetails={setSelectedStudent} />
             ))}
-            {
-              !loading && filteredStudents.length === 0 && <p className="text-sm text-center text-muted-foreground">No students found.</p>
-            }
           </div>
-        </TabsContent>
-      </Tabs>
+        )}
+      </div>
 
       {/* Student Details Dialog */}
       <StudentDetailsDialog student={selectedStudent} onClose={() => setSelectedStudent(null)} />

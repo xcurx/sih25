@@ -1,6 +1,5 @@
 "use client"
 
-import EmployerCard from "@/components/employer/EmployerCard"
 import EmployerDetailsDialog from "@/components/employer/EmployerDetailsDialog"
 import Loader from "@/components/loader/Loader"
 import { Button } from "@/components/ui/button"
@@ -12,6 +11,7 @@ import axios from "axios"
 import {
   Briefcase,
   Building2,
+  ExternalLink,
   Plus,
   Search,
   Star,
@@ -24,10 +24,10 @@ import {
   MessageSquare
 } from "lucide-react"
 import { useSession } from "next-auth/react"
+import Link from "next/link"
 import { useEffect, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 
-// Extended company information (Logic/Data kept untouched)
 const companyDetails = {
   "TechCorp Inc.": {
     industry: "Technology",
@@ -79,29 +79,23 @@ const companyDetails = {
   },
 }
 
-// --- START: NEW LIST CARD COMPONENT ---
 interface CustomEmployerCardProps {
     company: Company;
     onViewDetails: (company: Company) => void;
-    // Assuming you'd pass industry/rating info for consistent look
     companyInfo: typeof companyDetails[keyof typeof companyDetails] | undefined;
 }
 
 const CustomEmployerCard = ({ company, onViewDetails, companyInfo }: CustomEmployerCardProps) => {
-    // Fallback data for required fields
     const contactPerson = company.employees?.[0]?.name || "N/A";
     const contactEmail = company.employees?.[0]?.email || "contact@email.com";
     const companyLocation = companyInfo?.location || "N/A";
     const industry = companyInfo?.industry || "Software";
     const rating = companyInfo?.rating || 4.0;
-    
-    // Placeholder for last interaction (not available in Company type, using a static value)
     const lastInteraction = "2 days ago"; 
 
     return (
         <Card className="border-slate-200 bg-white shadow-sm rounded-2xl transition hover:shadow-md hover:border-sky-200">
             <CardContent className="p-5 space-y-4">
-                {/* Header Section */}
                 <div className="flex justify-between items-center">
                     <div className="flex items-center space-x-4">
                         {/* Placeholder for Logo/Icon */}
@@ -139,7 +133,6 @@ const CustomEmployerCard = ({ company, onViewDetails, companyInfo }: CustomEmplo
                 
                 <hr className="border-slate-100" />
 
-                {/* Footer Section: Last Interaction and Actions */}
                 <div className="flex justify-between items-center">
                     <div className="flex items-center text-xs text-slate-500">
                         <Clock className="h-3.5 w-3.5 mr-2" />
@@ -153,13 +146,18 @@ const CustomEmployerCard = ({ company, onViewDetails, companyInfo }: CustomEmplo
                             <Eye className="h-3.5 w-3.5 mr-1.5" />
                             View Details
                         </Button>
+                        <Link href={`/employers/${company.id}`}>
+                            <Button variant="default" size="sm" className="rounded-full bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700">
+                                <ExternalLink className="h-4 w-4 mr-2" />
+                                View Full Profile
+                            </Button>
+                        </Link>
                     </div>
                 </div>
             </CardContent>
         </Card>
     );
 };
-// --- END: NEW LIST CARD COMPONENT ---
 
 
 export default function EmployersPage() {
@@ -195,7 +193,6 @@ export default function EmployersPage() {
     return matchesSearch && matchesIndustry
   })
 
-  // Data helpers (kept logic untouched)
   const industries = Array.from(new Set(Object.values(companyDetails).map((c) => c.industry)))
   const totalCompanies = Object.keys(companyDetails).length
   const totalActiveJobs = Object.values(companyDetails).reduce((sum, company) => sum + company.activeJobs, 0)
@@ -339,12 +336,10 @@ export default function EmployersPage() {
           <CustomEmployerCard
             key={company.id}
             company={company}
-            // Passing the mock data to simulate the required fields for the new card design
             companyInfo={companyDetails[company.name as keyof typeof companyDetails]}
             onViewDetails={setSelectedEmployer}
           />
         ))}
-        {/* Fallback for no results */}
         {filteredEmployers.length === 0 && (
           <div className="text-center py-10 border border-slate-200 rounded-2xl bg-slate-50">
             <Building2 className="h-8 w-8 text-slate-400 mx-auto mb-3" />
@@ -353,10 +348,8 @@ export default function EmployersPage() {
         )}
       </div>
 
-      {/* Employer Details Dialog */}
       <EmployerDetailsDialog
         company={selectedEmployer}
-        // companyInfo={selectedEmployer ? companyDetails[selectedEmployer.name as keyof typeof companyDetails] : null}
         onClose={() => setSelectedEmployer(null)}
       />
     </div>

@@ -2,29 +2,133 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { ArrowUpRight, Calendar, CheckCircle2, FileText, GraduationCap, Layers, MapPin, Sparkles, Target, TrendingUp } from "lucide-react"
-import { mockJobs, mockStudents } from "@/lib/mock-data"
+import {
+  ArrowUpRight,
+  Briefcase,
+  Calendar,
+  FileText,
+  GraduationCap,
+  Layers,
+  MapPin,
+  Sparkles,
+  Award,
+  FolderKanban,
+  Clock,
+  CheckCircle2,
+  TrendingUp,
+  TrendingDown,
+  Loader2,
+} from "lucide-react"
+import { useSession } from "next-auth/react"
+import { useEffect, useState } from "react"
+import { toast } from "sonner"
+import Link from "next/link"
+
+interface DashboardStats {
+  student: {
+    id: string
+    name: string
+    email: string
+    branch: string | null
+    batch: number | null
+    cgpa: number | null
+  }
+  profileCompleteness: number
+  stats: {
+    applicationsThisMonth: number
+    applicationsLastMonth: number
+    applicationsDiff: number
+    totalApplications: number
+    shortlistedCount: number
+    appliedCount: number
+    acceptedCount: number
+    rejectedCount: number
+    totalInterviews: number
+    scheduledInterviewsCount: number
+    internshipsCount: number
+    activeInternships: number
+    certificatesCount: number
+    projectsCount: number
+    unreadNotifications: number
+  }
+  upcomingInterviews: {
+    id: string
+    title: string
+    company: string
+    scheduledAt: string
+    status: string
+    interviewLink: string
+  }[]
+  recentOpportunities: {
+    id: string
+    title: string
+    company: string
+    companyId: string
+    type: string
+    location: string
+    salary: string | null
+    applicationDeadline: string
+    applied: boolean
+    applicationsCount: number
+  }[]
+}
 
 export default function StudentDashboard() {
-  const student = mockStudents[0]
-  const recentJobs = mockJobs.slice(0, 4)
+  const { data: session, status } = useSession()
+  const [dashboardData, setDashboardData] = useState<DashboardStats | null>(null)
+  const [loading, setLoading] = useState(true)
 
-  const focusAreas = [
-    { label: "Aptitude drills", progress: 72, status: "+12% this week" },
-    { label: "System design", progress: 54, status: "Add 2 mock interviews" },
-    { label: "Leadership stories", progress: 38, status: "Draft STAR responses" },
-  ]
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true)
+        const res = await fetch("/api/student/dashboard-stats")
+        if (res.ok) {
+          const data = await res.json()
+          setDashboardData(data)
+        } else {
+          toast.error("Failed to load dashboard data")
+        }
+      } catch (error) {
+        console.error("Error fetching dashboard:", error)
+        toast.error("Failed to load dashboard")
+      } finally {
+        setLoading(false)
+      }
+    }
 
-  const interviews = [
-    { title: "Product Engineering Intern", company: "TechCorp", date: "21 Nov · 09:30 AM", stage: "Technical" },
-    { title: "Data Insights Intern", company: "AnalyticsHub", date: "24 Nov · 02:00 PM", stage: "HR Round" },
-  ]
+    if (session?.user?.role === "student") {
+      fetchDashboardData()
+    }
+  }, [session?.user])
 
-  const actionItems = [
-    { title: "Refresh resume headline", detail: "Add impact metric for latest hackathon", priority: "Today" },
-    { title: "Share portfolio link", detail: "Update employer application #1423", priority: "Due tomorrow" },
-    { title: "Submit preferences", detail: "Select winter internship window", priority: "Due Friday" },
-  ]
+  if (status === "loading" || loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-sky-600" />
+      </div>
+    )
+  }
+
+  if (!dashboardData) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <p className="text-slate-500">Failed to load dashboard data</p>
+      </div>
+    )
+  }
+
+  const { student, profileCompleteness, stats, upcomingInterviews, recentOpportunities } = dashboardData
+
+  const formatInterviewDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString("en-US", {
+      day: "numeric",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  }
 
   return (
     <div className="space-y-8">
@@ -146,14 +250,38 @@ export default function StudentDashboard() {
                 className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50/60 px-4 py-3"
               >
                 <div>
-                  <p className="text-sm font-semibold text-slate-700">{area.label}</p>
-                  <p className="text-xs text-slate-500">{area.status}</p>
+                  <p className="text-sm font-semibold text-slate-700">Total Applications</p>
+                  <p className="text-xs text-slate-500">{stats.shortlistedCount} shortlisted</p>
                 </div>
-                <Badge variant="outline" className="border-slate-200 bg-white text-slate-700">
-                  {area.progress}%
-                </Badge>
               </div>
-            ))}
+              <Badge variant="outline" className="border-slate-200 bg-white text-slate-700">
+                {stats.totalApplications}
+              </Badge>
+            </div>
+            <div className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50/60 px-4 py-3">
+              <div className="flex items-center gap-3">
+                <Briefcase className="h-4 w-4 text-slate-500" />
+                <div>
+                  <p className="text-sm font-semibold text-slate-700">Internships</p>
+                  <p className="text-xs text-slate-500">{stats.activeInternships} active</p>
+                </div>
+              </div>
+              <Badge variant="outline" className="border-slate-200 bg-white text-slate-700">
+                {stats.internshipsCount}
+              </Badge>
+            </div>
+            <div className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50/60 px-4 py-3">
+              <div className="flex items-center gap-3">
+                <Award className="h-4 w-4 text-slate-500" />
+                <div>
+                  <p className="text-sm font-semibold text-slate-700">Certificates</p>
+                  <p className="text-xs text-slate-500">Achievements earned</p>
+                </div>
+              </div>
+              <Badge variant="outline" className="border-slate-200 bg-white text-slate-700">
+                {stats.certificatesCount}
+              </Badge>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -214,9 +342,14 @@ export default function StudentDashboard() {
                 <CardTitle className="text-lg text-slate-900">Opportunity radar</CardTitle>
                 <CardDescription className="text-sm">Curated roles aligned with your skills</CardDescription>
               </div>
-              <Badge variant="outline" className="border-slate-200 bg-slate-50 text-slate-600">
-                Updated hourly
-              </Badge>
+              <Link href="/jobs">
+                <Badge
+                  variant="outline"
+                  className="border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 cursor-pointer"
+                >
+                  View all
+                </Badge>
+              </Link>
             </div>
           </CardHeader>
           <CardContent className="space-y-4 pt-6">
@@ -230,30 +363,39 @@ export default function StudentDashboard() {
                     <h3 className="text-base font-semibold text-slate-900">{job.title}</h3>
                     <p className="text-sm text-slate-500">{job.companyId}</p>
                   </div>
-                  <Badge variant="secondary" className="bg-sky-100 text-sky-700">
-                    {job.type}
-                  </Badge>
-                </div>
-                <div className="flex flex-wrap items-center gap-3 text-sm text-slate-600">
-                  <div className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1">
-                    <MapPin className="h-4 w-4 text-slate-400" aria-hidden="true" />
-                    {job.location}
+                  <div className="flex flex-wrap items-center gap-3 text-sm text-slate-600">
+                    <div className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1">
+                      <MapPin className="h-4 w-4 text-slate-400" aria-hidden="true" />
+                      {opp.location}
+                    </div>
+                    <div className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1">
+                      <Clock className="h-4 w-4 text-slate-400" aria-hidden="true" />
+                      Deadline: {new Date(opp.applicationDeadline).toLocaleDateString()}
+                    </div>
                   </div>
-                  <div className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1">
-                    <Layers className="h-4 w-4 text-slate-400" aria-hidden="true" />
-                    {"Technology"}
+                  <div className="flex flex-wrap items-center gap-3">
+                    {opp.applied ? (
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                        <CheckCircle2 className="h-3 w-3 mr-1" />
+                        Applied
+                      </Badge>
+                    ) : (
+                      <Link href={`/jobs/${opp.id}`}>
+                        <Button
+                          size="sm"
+                          className="rounded-full bg-sky-600 text-white hover:bg-sky-500"
+                        >
+                          View & Apply
+                        </Button>
+                      </Link>
+                    )}
+                    <span className="text-xs text-slate-500">
+                      {opp.applicationsCount} application{opp.applicationsCount !== 1 ? "s" : ""}
+                    </span>
                   </div>
                 </div>
-                <div className="flex flex-wrap items-center gap-3">
-                  <Button size="sm" className="rounded-full bg-sky-600 text-white hover:bg-sky-500">
-                    Apply now
-                  </Button>
-                  <Button size="sm" variant="ghost" className="rounded-full text-slate-600 hover:text-slate-900">
-                    Save for later
-                  </Button>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </CardContent>
         </Card>
 
@@ -279,15 +421,15 @@ export default function StudentDashboard() {
                     </Badge>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
             <div className="rounded-2xl border border-slate-100 bg-gradient-to-r from-slate-50 via-white to-slate-50 p-4 text-sm text-slate-600">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500" aria-hidden="true" />
-                Mock interview tip
+                Quick tip
               </div>
               <p className="mt-1 text-xs text-slate-500">
-                Block 30 mins every evening to rehearse behavioural responses and share recordings with your mentor.
+                Review the job description and prepare questions before each interview.
               </p>
             </div>
           </CardContent>
@@ -310,15 +452,6 @@ export default function StudentDashboard() {
                 </div>
                 <Progress value={area.progress} className="mt-2 h-2.5 rounded-full bg-slate-100" />
               </div>
-            ))}
-            <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4 text-sm text-slate-600">
-              <p className="flex items-center gap-2 text-slate-700">
-                <TrendingUp className="h-4 w-4 text-sky-600" aria-hidden="true" />
-                Weekly reflection
-              </p>
-              <p className="mt-2 text-xs text-slate-500">
-                Add at least two quantifiable impact stories to your portfolio to boost recruiter recall.
-              </p>
             </div>
           </CardContent>
         </Card>
@@ -342,11 +475,7 @@ export default function StudentDashboard() {
                   {item.priority}
                 </Badge>
               </div>
-            ))}
-            <Button variant="ghost" className="w-full justify-between text-slate-600 hover:text-slate-900">
-              View full task list
-              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
-            </Button>
+            </div>
           </CardContent>
         </Card>
       </div>

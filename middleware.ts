@@ -1,14 +1,25 @@
-// export { auth as middleware } from "@/auth"
-
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "./auth";
+
+const PUBLIC_PATHS = [
+  "/",
+  "/mission",
+  "/resources",
+  "/institutes",
+  "/l_employers",
+];
+
+function isPublic(pathname: string) {
+  if (!pathname) return true;
+  if (pathname.startsWith("/google.svg") || pathname.startsWith("/public/") || pathname.startsWith("/_next/")) return true;
+  return PUBLIC_PATHS.some((p) => pathname === p);
+}
 
 export const middleware = async (req: NextRequest) => {
     const { pathname } = req.nextUrl;
     const session = await auth();
 
-    const isPublicAsset = pathname.startsWith("/google.svg") || pathname.startsWith("/public/");
-    if (isPublicAsset) {
+    if (isPublic(pathname)) {
       return NextResponse.next();
     }
 

@@ -18,6 +18,7 @@ import {
   XCircle
 } from "lucide-react"
 import axios from "axios"
+import Link from "next/link"
 import { useSession } from "next-auth/react"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -235,8 +236,19 @@ export default function InterviewCard({
             className="flex-1 w-full rounded-full border-slate-200 hover:bg-slate-50"
           >
             <Eye className="mr-2 h-4 w-4" />
-            View Details
+            Quick View
           </Button>
+          {application.interviewRel && (
+            <Link href={`/interviews/${application.interviewRel.id}`} className="flex-1 w-full">
+              <Button 
+                variant="outline"
+                className="w-full rounded-full border-sky-200 text-sky-700 hover:bg-sky-50"
+              >
+                <ExternalLink className="mr-2 h-4 w-4" />
+                Full Details
+              </Button>
+            </Link>
+          )}
           {application.interviewRel?.interviewLink && isUpcoming && iStatus === "scheduled" && (
             <Button
               className="flex-1 w-full rounded-full bg-gradient-to-r from-sky-600 to-blue-600 text-white hover:from-sky-700 hover:to-blue-700 shadow-md"
