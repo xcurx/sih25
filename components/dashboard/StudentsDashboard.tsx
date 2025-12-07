@@ -1,4 +1,3 @@
-
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -28,74 +27,119 @@ export default function StudentDashboard() {
   ]
 
   return (
-    <div className="relative space-y-8">
-      <div
-        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_10%_20%,rgba(14,165,233,0.15),transparent_45%),radial-gradient(circle_at_90%_10%,rgba(37,99,235,0.2),transparent_45%),linear-gradient(180deg,rgba(255,255,255,0.8),transparent)]"
-        aria-hidden="true"
-      />
-      <div className="grid gap-6 lg:grid-cols-[3fr,2fr]">
-        <div className="relative overflow-hidden rounded-3xl border border-sky-100 bg-gradient-to-br from-sky-600 via-sky-500 to-blue-500 p-8 text-white shadow-2xl">
-          <div className="pointer-events-none absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white/20 blur-3xl" />
-          <div className="pointer-events-none absolute bottom-0 left-0 h-32 w-32 rounded-full bg-cyan-400/20 blur-3xl" />
-          <div className="relative space-y-6">
-            <Badge variant="outline" className="border-white/40 bg-white/10 text-white">
-              Student cockpit
-            </Badge>
-            <div>
-              <p className="text-sm uppercase tracking-[0.3em] text-white/70">Good day, {student.name}</p>
-              <h1 className="mt-2 text-3xl font-semibold">
-                Track your placement journey and stay ahead of every deadline.
-              </h1>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <Button
-                asChild
-                variant="secondary"
-                className="rounded-full bg-white/20 text-white hover:bg-white/30"
-              >
-                <a href="/jobs">
-                  Explore matches
-                  <ArrowUpRight className="ml-2 h-4 w-4" aria-hidden="true" />
-                </a>
-              </Button>
-              <Button
-                asChild
-                className="rounded-full bg-white text-slate-900 hover:bg-slate-100"
-              >
-                <a href="/profile">Update profile</a>
-              </Button>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-3">
-              {[
-                { label: "Applications this month", value: "12", sub: "+3 vs last cycle" },
-                { label: "Interview pipeline", value: "3", sub: "2 scheduled" },
-                { label: "Profile strength", value: "85%", sub: "Great momentum" },
-              ].map((stat) => (
-                <div key={stat.label} className="rounded-2xl border border-white/20 bg-white/10 p-4">
-                  <p className="text-xs uppercase tracking-[0.2em] text-white/70">{stat.label}</p>
-                  <p className="text-2xl font-semibold">{stat.value}</p>
-                  <p className="text-xs text-white/80">{stat.sub}</p>
-                </div>
-              ))}
-            </div>
+    <div className="space-y-8">
+      {/* Hero Section with Stats */}
+      <section className="relative overflow-hidden rounded-[32px] border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 shadow space-y-6">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.08),transparent_55%)]" />
+        <div className="relative space-y-4">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">Student Dashboard</p>
+            <h1 className="mt-3 text-3xl font-semibold text-slate-900">Good day, {student.name}</h1>
+            <p className="mt-2 text-sm text-slate-600">
+              Track your placement journey and stay ahead of every deadline.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Button
+              asChild
+              className="rounded-full bg-sky-600 text-white hover:bg-sky-500"
+            >
+              <a href="/jobs">
+                Explore matches
+                <ArrowUpRight className="ml-2 h-4 w-4" aria-hidden="true" />
+              </a>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              className="rounded-full border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+            >
+              <a href="/profile">Update profile</a>
+            </Button>
           </div>
         </div>
 
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-lg">
+        {/* Stats Cards inside gradient */}
+        <div className="relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-500">Applications</CardTitle>
+              <div className="rounded-full p-2 bg-sky-50 text-sky-600">
+                <FileText className="h-4 w-4" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-semibold text-slate-900">12</div>
+              <p className="text-xs text-slate-500">+3 vs last cycle</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-500">Interview Pipeline</CardTitle>
+              <div className="rounded-full p-2 bg-cyan-50 text-cyan-600">
+                <Calendar className="h-4 w-4" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-semibold text-slate-900">3</div>
+              <p className="text-xs text-slate-500">2 scheduled</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-500">Profile Strength</CardTitle>
+              <div className="rounded-full p-2 bg-emerald-50 text-emerald-600">
+                <Sparkles className="h-4 w-4" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-semibold text-slate-900">85%</div>
+              <p className="text-xs text-slate-500">Great momentum</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-500">CGPA</CardTitle>
+              <div className="rounded-full p-2 bg-blue-50 text-blue-600">
+                <GraduationCap className="h-4 w-4" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-semibold text-slate-900">{student.cgpa}</div>
+              <p className="text-xs text-slate-500">Current semester</p>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* Profile Completeness Card */}
+      <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
+        <CardHeader className="border-b border-slate-100 pb-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-semibold text-slate-500">Profile completeness</p>
-              <h2 className="text-3xl font-bold text-slate-900">85%</h2>
+              <CardTitle className="text-lg text-slate-900">Profile completeness</CardTitle>
+              <CardDescription className="text-sm mt-1">Complete remaining sections to unlock premium drives</CardDescription>
             </div>
-            <div className="rounded-full bg-sky-50 p-4">
-              <Sparkles className="h-6 w-6 text-sky-600" aria-hidden="true" />
+            <div className="rounded-full bg-sky-50 p-3">
+              <Sparkles className="h-5 w-5 text-sky-600" aria-hidden="true" />
             </div>
           </div>
-          <Progress value={85} className="mt-4 h-3 rounded-full bg-slate-100" />
-          <p className="mt-3 text-sm text-slate-500">
+        </CardHeader>
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-3xl font-bold text-slate-900">85%</h2>
+            <Badge variant="outline" className="border-slate-200 bg-slate-50 text-slate-600">
+              Great progress
+            </Badge>
+          </div>
+          <Progress value={85} className="h-3 rounded-full bg-slate-100 mb-4" />
+          <p className="text-sm text-slate-500 mb-6">
             Complete the remaining sections to unlock premium drives and fast-track interviews.
           </p>
-          <div className="mt-6 grid gap-3">
+          <div className="grid gap-3">
             {focusAreas.map((area) => (
               <div
                 key={area.label}
@@ -111,9 +155,10 @@ export default function StudentDashboard() {
               </div>
             ))}
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
+      {/* Additional Insights Grid */}
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         {[
           {
@@ -145,8 +190,8 @@ export default function StudentDashboard() {
             accent: "bg-indigo-50 text-indigo-700",
           },
         ].map((insight) => (
-          <Card key={insight.title} className="border-slate-200 bg-white/90 shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+          <Card key={insight.title} className="border-slate-200 bg-white shadow-md rounded-xl transition-shadow hover:shadow-xl">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-slate-500">{insight.title}</CardTitle>
               <div className={`rounded-full p-2 ${insight.accent}`}>
                 <insight.icon className="h-4 w-4" aria-hidden="true" />
@@ -160,20 +205,21 @@ export default function StudentDashboard() {
         ))}
       </div>
 
+      {/* Opportunity Radar & Interview Timeline */}
       <div className="grid gap-6 lg:grid-cols-[2fr,1fr]">
-        <Card className="border-slate-200 bg-white/90 shadow-lg">
-          <CardHeader>
+        <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
+          <CardHeader className="border-b border-slate-100 pb-4">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-xl text-slate-900">Opportunity radar</CardTitle>
-                <CardDescription>Curated roles aligned with your skills</CardDescription>
+                <CardTitle className="text-lg text-slate-900">Opportunity radar</CardTitle>
+                <CardDescription className="text-sm">Curated roles aligned with your skills</CardDescription>
               </div>
               <Badge variant="outline" className="border-slate-200 bg-slate-50 text-slate-600">
                 Updated hourly
               </Badge>
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 pt-6">
             {recentJobs.map((job) => (
               <div
                 key={job.id}
@@ -211,12 +257,12 @@ export default function StudentDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="border-slate-200 bg-white/90 shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-xl text-slate-900">Interview timeline</CardTitle>
-            <CardDescription>Stay synced with upcoming rounds</CardDescription>
+        <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
+          <CardHeader className="border-b border-slate-100 pb-4">
+            <CardTitle className="text-lg text-slate-900">Interview timeline</CardTitle>
+            <CardDescription className="text-sm">Stay synced with upcoming rounds</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-5">
+          <CardContent className="space-y-5 pt-6">
             {interviews.map((interview) => (
               <div key={interview.title} className="flex gap-4">
                 <div className="relative flex flex-col items-center">
@@ -248,13 +294,14 @@ export default function StudentDashboard() {
         </Card>
       </div>
 
+      {/* Skill Readiness & Action Center */}
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="border-slate-200 bg-white/90 shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-xl text-slate-900">Skill readiness</CardTitle>
-            <CardDescription>Personalised learning nudges</CardDescription>
+        <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
+          <CardHeader className="border-b border-slate-100 pb-4">
+            <CardTitle className="text-lg text-slate-900">Skill readiness</CardTitle>
+            <CardDescription className="text-sm">Personalised learning nudges</CardDescription>
           </CardHeader>
-          <CardContent className="grid gap-4">
+          <CardContent className="grid gap-4 pt-6">
             {focusAreas.map((area) => (
               <div key={area.label}>
                 <div className="flex items-center justify-between">
@@ -276,12 +323,12 @@ export default function StudentDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="border-slate-200 bg-white/90 shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-xl text-slate-900">Action center</CardTitle>
-            <CardDescription>Keep your pipeline tidy</CardDescription>
+        <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
+          <CardHeader className="border-b border-slate-100 pb-4">
+            <CardTitle className="text-lg text-slate-900">Action center</CardTitle>
+            <CardDescription className="text-sm">Keep your pipeline tidy</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 pt-6">
             {actionItems.map((item) => (
               <div
                 key={item.title}

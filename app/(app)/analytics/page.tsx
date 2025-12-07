@@ -134,7 +134,7 @@ export default function AnalyticsPage() {
             { title: "Partner Companies", value: "89", caption: "+12 new partnerships", icon: Building2, accent: "bg-purple-50 text-purple-600", trend: true },
             { title: "Avg. Package", value: "₹6.8L", caption: "+8.5% from last year", icon: DollarSign, accent: "bg-emerald-50 text-emerald-600", trend: true },
           ].map((stat) => (
-            <Card key={stat.title} className="border-slate-200 bg-white/90 shadow-sm rounded-2xl">
+            <Card key={stat.title} className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-slate-500">{stat.title}</CardTitle>
                 <div className={`rounded-full p-2 ${stat.accent}`}>
@@ -176,7 +176,7 @@ export default function AnalyticsPage() {
         <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Placement Funnel */}
-            <Card className="border-slate-200 bg-white shadow-sm rounded-2xl">
+            <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
               <CardHeader className="border-b border-slate-100 pb-4">
                 <CardTitle className="text-lg text-slate-900">Placement Funnel</CardTitle>
                 <CardDescription className="text-sm">Student journey from application to placement</CardDescription>
@@ -197,7 +197,7 @@ export default function AnalyticsPage() {
             </Card>
 
             {/* Salary Distribution */}
-            <Card className="border-slate-200 bg-white shadow-sm rounded-2xl">
+            <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
               <CardHeader className="border-b border-slate-100 pb-4">
                 <CardTitle className="text-lg text-slate-900">Salary Distribution</CardTitle>
                 <CardDescription className="text-sm">Distribution of placement packages</CardDescription>
@@ -239,7 +239,7 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Monthly Trends */}
-          <Card className="border-slate-200 bg-white shadow-sm rounded-2xl">
+          <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
             <CardHeader className="border-b border-slate-100 pb-4">
               <CardTitle className="text-lg text-slate-900">Monthly Trends</CardTitle>
               <CardDescription className="text-sm">Placement activity over time</CardDescription>
@@ -282,7 +282,7 @@ export default function AnalyticsPage() {
         </TabsContent>
 
         <TabsContent value="departments" className="space-y-6">
-          <Card className="border-slate-200 bg-white shadow-sm rounded-2xl">
+          <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
             <CardHeader className="border-b border-slate-100 pb-4">
               <CardTitle className="text-lg text-slate-900">Department-wise Performance</CardTitle>
               <CardDescription className="text-sm">Placement statistics by department</CardDescription>
@@ -322,7 +322,7 @@ export default function AnalyticsPage() {
         </TabsContent>
 
         <TabsContent value="companies" className="space-y-6">
-          <Card className="border-slate-200 bg-white shadow-sm rounded-2xl">
+          <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
             <CardHeader className="border-b border-slate-100 pb-4">
               <CardTitle className="text-lg text-slate-900">Top Recruiting Companies</CardTitle>
               <CardDescription className="text-sm">Companies with highest hiring numbers</CardDescription>
@@ -354,7 +354,7 @@ export default function AnalyticsPage() {
         </TabsContent>
 
         <TabsContent value="skills" className="space-y-6">
-          <Card className="border-slate-200 bg-white shadow-sm rounded-2xl">
+          <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
             <CardHeader className="border-b border-slate-100 pb-4">
               <CardTitle className="text-lg text-slate-900">In-Demand Skills</CardTitle>
               <CardDescription className="text-sm">Most requested skills by employers</CardDescription>
@@ -386,7 +386,7 @@ export default function AnalyticsPage() {
         <TabsContent value="trends" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Placements Over Time */}
-            <Card className="border-slate-200 bg-white shadow-sm rounded-2xl">
+            <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
               <CardHeader className="border-b border-slate-100 pb-4">
                 <CardTitle className="text-lg text-slate-900">Placements Over Time</CardTitle>
                 <CardDescription className="text-sm">Number of placements secured each month</CardDescription>
@@ -412,7 +412,7 @@ export default function AnalyticsPage() {
             </Card>
 
             {/* Company Engagement */}
-            <Card className="border-slate-200 bg-white shadow-sm rounded-2xl">
+            <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
               <CardHeader className="border-b border-slate-100 pb-4">
                 <CardTitle className="text-lg text-slate-900">Company Engagement</CardTitle>
                 <CardDescription className="text-sm">Number of unique companies recruiting each month</CardDescription>
@@ -431,7 +431,7 @@ export default function AnalyticsPage() {
             </Card>
           </div>
 
-          <Card className="border-slate-200 bg-white shadow-sm rounded-2xl">
+          <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
             <CardHeader className="border-b border-slate-100 pb-4">
               <CardTitle className="text-lg text-slate-900">Key Insights & Actions</CardTitle>
               <CardDescription className="text-sm">Important trends and observations for strategic planning</CardDescription>

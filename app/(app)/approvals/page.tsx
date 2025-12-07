@@ -73,7 +73,6 @@ export default function ApprovalPage() {
 
       if (res.status === 200) {
         toast.success(`Application ${actionType === "approve" ? "approved" : "rejected"} successfully`)
-        // Remove the application from the list after action
         setApplications(prev => prev.map(app => app.id === selectedApplication.id? 
           { ...app, mentorApproved:actionType==="approve", status:"applied" } : app))
         setShowActionDialog(false)
@@ -102,7 +101,8 @@ export default function ApprovalPage() {
       app.opportunityRel.companyRel?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       app.studentRel?.name.toLowerCase().includes(searchTerm.toLowerCase())
 
-    const matchesStatus = statusFilter === "all" || app.status === statusFilter
+    const matchesStatus = statusFilter === "all" || (statusFilter === "applied" ? app.mentorApproved === false : app.mentorApproved === true)
+
     const matchesDepartment =
       departmentFilter === "all" || app.studentRel?.branch === departmentFilter
 
@@ -131,94 +131,101 @@ export default function ApprovalPage() {
 
   return (
     <div className="p-6 max-w-7xl w-full mx-auto space-y-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-slate-900">Application Approvals</h1>
-        <p className="text-slate-500">
-          Review and approve student applications before they reach employers
-        </p>
-      </div>
+      {/* Hero Section with Stats - matching other dashboards */}
+      <section className="relative overflow-hidden rounded-[32px] border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 shadow space-y-6">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.08),transparent_55%)]" />
+        <div className="relative space-y-4">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">Faculty Approvals</p>
+            <h1 className="mt-3 text-3xl font-semibold text-slate-900">Application Approvals</h1>
+            <p className="mt-2 text-sm text-slate-600">
+              Review and approve student applications before they reach employers
+            </p>
+          </div>
+        </div>
 
-      {/* Stats Cards - Dusty Blue/Slate Theme */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-        {/* Card 1: Total Pending (Red for attention) */}
-        <Card className="border-slate-200 bg-white shadow-md rounded-xl transition hover:shadow-lg">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-500">Total Pending</CardTitle>
-            <div className="rounded-full p-2 bg-red-50 text-red-700">
+        {/* Stats Cards inside gradient */}
+        <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Card 1: Total Pending */}
+          <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-500">Total Pending</CardTitle>
+              <div className="rounded-full p-2 bg-red-50 text-red-600">
                 <Clock className="h-4 w-4" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-slate-900">{pendingApplications.length}</div>
-            <p className="text-xs text-red-600 font-medium">Awaiting review</p>
-          </CardContent>
-        </Card>
-        
-        {/* Card 2: Reviewed Applications (Dusty Blue accent) */}
-        <Card className="border-slate-200 bg-white shadow-md rounded-xl transition hover:shadow-lg">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-500">Reviewed</CardTitle>
-            <div className="rounded-full p-2 bg-blue-100 text-blue-700"> {/* Dusty Blue */}
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-semibold text-slate-900">{pendingApplications.length}</div>
+              <p className="text-xs text-red-600 font-medium">Awaiting review</p>
+            </CardContent>
+          </Card>
+          
+          {/* Card 2: Reviewed Applications */}
+          <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-500">Reviewed</CardTitle>
+              <div className="rounded-full p-2 bg-emerald-50 text-emerald-600">
                 <CheckCircle className="h-4 w-4" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-slate-900">{reviewedApplications.length}</div>
-            <p className="text-xs text-slate-500">Mentors approved</p>
-          </CardContent>
-        </Card>
-        
-        {/* Card 3: All Applications (Indigo accent) */}
-        <Card className="border-slate-200 bg-white shadow-md rounded-xl transition hover:shadow-lg">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-500">All Applications</CardTitle>
-            <div className="rounded-full p-2 bg-indigo-50 text-indigo-700">
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-semibold text-slate-900">{reviewedApplications.length}</div>
+              <p className="text-xs text-slate-500">Mentor approved</p>
+            </CardContent>
+          </Card>
+          
+          {/* Card 3: All Applications */}
+          <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-500">All Applications</CardTitle>
+              <div className="rounded-full p-2 bg-sky-50 text-sky-600">
                 <FileText className="h-4 w-4" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-slate-900">{applications.length}</div>
-            <p className="text-xs text-slate-500">Total received</p>
-          </CardContent>
-        </Card>
-        
-        {/* Card 4: Recent Submissions (Emerald accent) */}
-        <Card className="border-slate-200 bg-white shadow-md rounded-xl transition hover:shadow-lg">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-500">Recent</CardTitle>
-            <div className="rounded-full p-2 bg-emerald-50 text-emerald-700">
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-semibold text-slate-900">{applications.length}</div>
+              <p className="text-xs text-slate-500">Total received</p>
+            </CardContent>
+          </Card>
+          
+          {/* Card 4: Recent Submissions */}
+          <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-500">Recent</CardTitle>
+              <div className="rounded-full p-2 bg-sky-50 text-sky-600">
                 <Calendar className="h-4 w-4" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-slate-900">
-              {applications.filter(app => {
-                const weekAgo = new Date()
-                weekAgo.setDate(weekAgo.getDate() - 7)
-                return new Date(app.appliedAt) > weekAgo
-              }).length}
-            </div>
-            <p className="text-xs text-slate-500">Last 7 days</p>
-          </CardContent>
-        </Card>
-      </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-semibold text-slate-900">
+                {applications.filter(app => {
+                  const weekAgo = new Date()
+                  weekAgo.setDate(weekAgo.getDate() - 7)
+                  return new Date(app.appliedAt) > weekAgo
+                }).length}
+              </div>
+              <p className="text-xs text-slate-500">Last 7 days</p>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
 
       {/* Search and Filter */}
-      <Card className="mb-6 border-slate-200 bg-white shadow-lg rounded-xl">
+      <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
         <CardContent className="p-6">
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
                 placeholder="Search by student, company, or job title..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 border-slate-300 focus:border-blue-600 focus:ring-blue-600 rounded-lg"
+                className="pl-10 h-10 border-slate-200 focus:border-sky-600 rounded-lg transition"
               />
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-4 w-full lg:w-auto">
               <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-                <SelectTrigger className="w-48 border-slate-300 focus:ring-blue-600 rounded-lg">
+                <SelectTrigger className="w-full lg:w-48 h-10 border-slate-200 focus:ring-sky-600 rounded-lg">
                   <SelectValue placeholder="All Departments" />
                 </SelectTrigger>
                 <SelectContent>
@@ -231,7 +238,7 @@ export default function ApprovalPage() {
                 </SelectContent>
               </Select>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-40 border-slate-300 focus:ring-blue-600 rounded-lg">
+                <SelectTrigger className="w-full lg:w-40 h-10 border-slate-200 focus:ring-sky-600 rounded-lg">
                   <SelectValue placeholder="All Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -247,10 +254,25 @@ export default function ApprovalPage() {
 
       {/* Applications Tabs */}
       <Tabs defaultValue="all" className="space-y-6">
-        <TabsList className="bg-blue-100/50 border border-slate-200"> {/* Slight blue background */}
-          <TabsTrigger value="all" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md">All ({filteredApplications.length})</TabsTrigger>
-          <TabsTrigger value="pending" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md">Pending ({pendingApplications.length})</TabsTrigger>
-          <TabsTrigger value="reviewed" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md">Reviewed ({reviewedApplications.length})</TabsTrigger>
+        <TabsList className="bg-slate-100 p-1 h-auto rounded-full">
+          <TabsTrigger 
+            value="all" 
+            className="rounded-full data-[state=active]:bg-sky-600 data-[state=active]:text-white data-[state=active]:shadow-sm transition text-slate-700 hover:text-slate-900"
+          >
+            All ({filteredApplications.length})
+          </TabsTrigger>
+          <TabsTrigger 
+            value="pending" 
+            className="rounded-full data-[state=active]:bg-sky-600 data-[state=active]:text-white data-[state=active]:shadow-sm transition text-slate-700 hover:text-slate-900"
+          >
+            Pending ({pendingApplications.length})
+          </TabsTrigger>
+          <TabsTrigger 
+            value="reviewed" 
+            className="rounded-full data-[state=active]:bg-sky-600 data-[state=active]:text-white data-[state=active]:shadow-sm transition text-slate-700 hover:text-slate-900"
+          >
+            Reviewed ({reviewedApplications.length})
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="all" className="space-y-4">
@@ -326,7 +348,7 @@ export default function ApprovalPage() {
         </TabsContent>
       </Tabs>
 
-      {/* Application Details Dialog (Assumes ApplicationDetailsDialog handles its own content styling) */}
+      {/* Application Details Dialog */}
       <ApplicationDetailsDialog
         application={selectedApplication}
         open={showDetailsDialog}
@@ -338,14 +360,14 @@ export default function ApprovalPage() {
         onReject={() => openActionDialog(selectedApplication!, "reject")}
       />
 
-      {/* Action Confirmation Dialog - UI Updated as requested */}
+      {/* Action Confirmation Dialog */}
       <Dialog open={showActionDialog} onOpenChange={setShowActionDialog}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-slate-900">
               {actionType === "approve" ? (
                 <>
-                  <CheckCircle className="h-5 w-5 text-blue-600" /> {/* Blue for Approval Icon */}
+                  <CheckCircle className="h-5 w-5 text-sky-600" />
                   Approve Application
                 </>
               ) : (
@@ -364,17 +386,17 @@ export default function ApprovalPage() {
 
           {selectedApplication && (
             <div className="space-y-4">
-              {/* Target area updated to slight/dusty blue (bg-blue-100) */}
               <div 
                 className={`p-4 rounded-lg border ${
                     actionType === "approve" 
-                        ? "bg-blue-100 border-blue-200" // Dusty blue background for approval
-                        : "bg-red-50 border-red-100" 
+                        ? "bg-sky-50 border-sky-200" 
+                        : "bg-red-50 border-red-200" 
                 }`}
               >
                 <p className="text-sm font-medium text-slate-800">{selectedApplication.studentRel?.name}</p>
                 <p className="text-sm text-slate-600">
-                  {selectedApplication.opportunityRel.title} at **{selectedApplication.opportunityRel.companyRel?.name}** </p>
+                  {selectedApplication.opportunityRel.title} at {selectedApplication.opportunityRel.companyRel?.name}
+                </p>
               </div>
 
               <div className="space-y-2">
@@ -391,7 +413,7 @@ export default function ApprovalPage() {
                   value={remarks}
                   onChange={(e) => setRemarks(e.target.value)}
                   rows={4}
-                  className="border-slate-300 focus:border-blue-600 focus:ring-blue-600 rounded-lg"
+                  className="border-slate-200 focus:border-sky-600 focus:ring-sky-600 rounded-lg"
                 />
               </div>
             </div>
@@ -406,13 +428,12 @@ export default function ApprovalPage() {
                 setActionType(null)
               }}
               disabled={actionLoading}
-              className="border-slate-300 text-slate-700 hover:bg-blue-50 hover:text-blue-700"
+              className="border-slate-200 text-slate-700 hover:bg-slate-50"
             >
               Cancel
             </Button>
             <Button
-              // Approve button updated to strong blue (bg-blue-600)
-              className={actionType === "approve" ? "bg-blue-600 hover:bg-blue-700 text-white" : "bg-red-500 hover:bg-red-600 text-white"}
+              className={actionType === "approve" ? "bg-sky-600 hover:bg-sky-700 text-white" : "bg-red-500 hover:bg-red-600 text-white"}
               onClick={handleAction}
               disabled={actionLoading || (actionType === "reject" && !remarks.trim())}
             >

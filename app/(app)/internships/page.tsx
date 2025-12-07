@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useSession } from "next-auth/react"
 import { redirect } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
-import { Card } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Calendar, Briefcase, Building2, MapPin, DollarSign, Clock } from "lucide-react"
 import { toast } from "sonner"
@@ -64,57 +64,88 @@ export default function StudentInternshipsPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-6">
+    <div className="mx-auto w-full max-w-6xl px-4 py-6 space-y-8">
       {/* Hero Section */}
-      <div className="rounded-3xl bg-gradient-to-r from-sky-50 via-white to-sky-50 p-6 shadow-sm">
-        <div className="flex items-center gap-3">
-          <div className="rounded-full bg-sky-100 p-2 shadow-inner">
-            <Briefcase className="h-5 w-5 text-sky-700" />
-          </div>
+      <section className="relative overflow-hidden rounded-[32px] border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 shadow space-y-6">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.08),transparent_55%)]" />
+        <div className="relative space-y-4">
           <div>
-            <h1 className="text-xl font-semibold text-slate-900">My Internships</h1>
-            <p className="text-sm text-slate-600">Track your internship experiences grouped by opportunity</p>
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">Internship Tracker</p>
+            <h1 className="mt-3 text-3xl font-semibold text-slate-900">My Internships</h1>
+            <p className="mt-2 text-sm text-slate-600">
+              Track your internship experiences grouped by opportunity
+            </p>
           </div>
         </div>
-      </div>
 
-      {/* Stats Summary */}
-      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Card className="rounded-2xl border-slate-200 p-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Internships</p>
-          <p className="mt-1 text-2xl font-semibold text-slate-900">{internships.length}</p>
-        </Card>
-        <Card className="rounded-2xl border-slate-200 p-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Ongoing</p>
-          <p className="mt-1 text-2xl font-semibold text-green-600">
-            {internships.filter((it) => {
-              const start = new Date(it.startDate)
-              const end = new Date(it.endDate)
-              return start <= now && end >= now
-            }).length}
-          </p>
-        </Card>
-        <Card className="rounded-2xl border-slate-200 p-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Companies</p>
-          <p className="mt-1 text-2xl font-semibold text-sky-600">{groupedByOpportunity.length}</p>
-        </Card>
-      </div>
+        {/* Stats Cards inside gradient */}
+        <div className="relative grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-500">Total Internships</CardTitle>
+              <div className="rounded-full p-2 bg-sky-50 text-sky-600">
+                <Briefcase className="h-4 w-4" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-semibold text-slate-900">{internships.length}</div>
+              <p className="text-xs text-slate-500">All experiences</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-500">Ongoing</CardTitle>
+              <div className="rounded-full p-2 bg-emerald-50 text-emerald-600">
+                <Clock className="h-4 w-4" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-semibold text-slate-900">
+                {internships.filter((it) => {
+                  const start = new Date(it.startDate)
+                  const end = new Date(it.endDate)
+                  return start <= now && end >= now
+                }).length}
+              </div>
+              <p className="text-xs text-slate-500">Active now</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-500">Companies</CardTitle>
+              <div className="rounded-full p-2 bg-blue-50 text-blue-600">
+                <Building2 className="h-4 w-4" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-semibold text-slate-900">{groupedByOpportunity.length}</div>
+              <p className="text-xs text-slate-500">Unique organizations</p>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
 
       {/* Internships List */}
       {groupedByOpportunity.length === 0 ? (
-        <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-8 text-center text-slate-600">
-          <Briefcase className="mx-auto h-12 w-12 text-slate-300" />
-          <p className="mt-3 text-lg font-medium">No internships yet</p>
-          <p className="mt-1 text-sm">Apply to opportunities and get accepted to see your internships here.</p>
+        <div className="rounded-xl border border-slate-200 bg-white p-12 text-center shadow-lg">
+          <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-slate-100">
+            <Briefcase className="h-10 w-10 text-slate-400" />
+          </div>
+          <h3 className="mb-2 text-xl font-semibold text-slate-900">No internships yet</h3>
+          <p className="text-slate-500">
+            Apply to opportunities and get accepted to see your internships here.
+          </p>
         </div>
       ) : (
-        <div className="mt-6 space-y-6">
+        <div className="space-y-6">
           {groupedByOpportunity.map(({ opportunity, items }) => {
             const company = opportunity.companyRel
             return (
-              <Card key={opportunity.id} className="overflow-hidden rounded-2xl border-slate-200">
+              <Card key={opportunity.id} className="overflow-hidden rounded-xl border-slate-200 shadow-lg">
                 {/* Opportunity Header */}
-                <div className="bg-gradient-to-r from-white to-sky-50 p-5">
+                <div className="bg-gradient-to-r from-white to-sky-50 p-5 border-b border-slate-100">
                   <div className="flex items-start gap-4">
                     <Avatar className="h-12 w-12 border border-slate-200">
                       <AvatarFallback className="bg-sky-100 text-sky-700 font-semibold">
@@ -154,7 +185,7 @@ export default function StudentInternshipsPage() {
                 </div>
 
                 {/* Internship Items */}
-                <div className="divide-y divide-slate-100">
+                <div className="divide-y divide-slate-100 bg-white">
                   {items.map((it) => {
                     const start = new Date(it.startDate)
                     const end = new Date(it.endDate)

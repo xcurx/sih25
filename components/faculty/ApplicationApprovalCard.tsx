@@ -35,7 +35,7 @@ const getStatusBadge = (status: string) => {
             return <Badge className="bg-amber-500/10 text-amber-700 border border-amber-300 font-medium hover:bg-amber-500/20">Awaiting Faculty Review</Badge>
         case "reviewed":
             // Mentor has approved, waiting for employer review
-            return <Badge className="bg-indigo-500/10 text-indigo-700 border border-indigo-300 font-medium hover:bg-indigo-500/20">Mentor Approved</Badge>
+            return <Badge className="bg-sky-500/10 text-sky-700 border border-sky-300 font-medium hover:bg-sky-500/20">Mentor Approved</Badge>
         case "shortlisted":
             // Employer is reviewing
             return <Badge className="bg-sky-500/10 text-sky-700 border border-sky-300 font-medium hover:bg-sky-500/20">Shortlisted</Badge>
@@ -75,18 +75,18 @@ export function ApplicationApprovalCard({
 
 
     return (
-        <Card className="border-slate-200 shadow-md rounded-xl hover:shadow-lg transition-shadow duration-300">
+        <Card className="border-slate-200 bg-white shadow-md rounded-xl hover:shadow-xl transition-all duration-300">
             <CardHeader className="pb-4">
                 <div className="flex items-start justify-between gap-4">
                     <div className="flex items-start space-x-4 flex-1">
                         {/* Student Avatar */}
-                        <Avatar className="h-14 w-14 border-2 border-blue-500/50">
+                        <Avatar className="h-14 w-14 border-2 border-sky-200">
                             <AvatarImage
                                 src={application.studentRel?.avatar || "/placeholder.svg"}
                                 alt={application.studentRel?.name}
                             />
                             {/* Improved fallback UI */}
-                            <AvatarFallback className="text-lg bg-blue-600 text-white font-semibold">
+                            <AvatarFallback className="text-lg bg-sky-600 text-white font-semibold">
                                 {getStudentInitials(application.studentRel?.name)}
                             </AvatarFallback>
                         </Avatar>
@@ -113,15 +113,15 @@ export function ApplicationApprovalCard({
                             {/* Contact & CGPA Info */}
                             <div className="flex flex-wrap items-center gap-x-6 gap-y-1 mt-3 text-sm text-slate-500">
                                 <div className="flex items-center gap-1">
-                                    <GraduationCap className="h-4 w-4 text-blue-500" />
+                                    <GraduationCap className="h-4 w-4 text-sky-600" />
                                     <span>CGPA: <span className="font-semibold text-slate-700">{application.studentRel?.cgpa || 'N/A'}</span></span>
                                 </div>
                                 <div className="flex items-center gap-1">
-                                    <Mail className="h-4 w-4 text-blue-500" />
+                                    <Mail className="h-4 w-4 text-sky-600" />
                                     <span className="truncate">{application.studentRel?.email}</span>
                                 </div>
                                 <div className="flex items-center gap-1">
-                                    <Phone className="h-4 w-4 text-blue-500" />
+                                    <Phone className="h-4 w-4 text-sky-600" />
                                     <span>{application.studentRel?.phone}</span>
                                 </div>
                             </div>
@@ -129,7 +129,7 @@ export function ApplicationApprovalCard({
                     </div>
                 </div>
                 {/* Mobile Status Badge */}
-                <div className="sm:hidden mt-3 pt-2 border-t">
+                <div className="sm:hidden mt-3 pt-2 border-t border-slate-100">
                     {getStatusBadge(normalizedStatus)}
                 </div>
             </CardHeader>
@@ -138,30 +138,30 @@ export function ApplicationApprovalCard({
                 {/* Job/Company Info Block - Subtle Accent */}
                 <div className="p-4 border border-slate-200 bg-slate-50 rounded-xl">
                     <div className="flex items-start gap-3">
-                        <div className="p-2 bg-blue-100 rounded-lg"> {/* Blue accent */}
-                            <Building2 className="h-5 w-5 text-blue-600" />
+                        <div className="p-2 bg-white border border-slate-200 rounded-lg shadow-sm">
+                            <Building2 className="h-5 w-5 text-sky-600" />
                         </div>
                         <div className="flex-1 min-w-0">
                             {/* Job Title */}
                             <h4 className="font-bold text-lg text-slate-800 truncate">{application.opportunityRel.title}</h4>
                             {/* Company Name */}
-                            <p className="text-sm text-slate-600 truncate">
+                            <p className="text-sm text-slate-600 truncate font-medium">
                                 {application.opportunityRel.companyRel?.name}
                             </p>
                             {/* Opportunity Details */}
                             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-xs text-slate-500">
                                 <div className="flex items-center gap-1">
-                                    <MapPin className="h-3 w-3" />
+                                    <MapPin className="h-3 w-3 text-sky-600" />
                                     <span className="font-medium text-slate-700">{application.opportunityRel.location}</span>
                                 </div>
                                 <span className="text-slate-300">•</span>
                                 <div className="flex items-center gap-1">
-                                    <FileText className="h-3 w-3" />
+                                    <FileText className="h-3 w-3 text-sky-600" />
                                     <span className="capitalize">{application.opportunityRel.type}</span>
                                 </div>
                                 <span className="text-slate-300">•</span>
                                 <div className="flex items-center gap-1">
-                                    <Calendar className="h-3 w-3" />
+                                    <Calendar className="h-3 w-3 text-sky-600" />
                                     <span>Applied: {new Date(application.appliedAt).toLocaleDateString()}</span>
                                 </div>
                             </div>
@@ -177,15 +177,13 @@ export function ApplicationApprovalCard({
                             {application.studentRel.skills.slice(0, 5).map((skill, index) => (
                                 <Badge 
                                     key={index} 
-                                    variant="secondary" 
-                                    className="text-xs bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200"
+                                    className="text-xs bg-sky-50 text-sky-700 border border-sky-200 hover:bg-sky-100"
                                 >
                                     {skill}
                                 </Badge>
                             ))}
                             {application.studentRel.skills.length > 5 && (
                                 <Badge 
-                                    variant="secondary" 
                                     className="text-xs bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200"
                                 >
                                     +{application.studentRel.skills.length - 5} more
@@ -200,7 +198,7 @@ export function ApplicationApprovalCard({
                     <Button 
                         variant="outline" 
                         onClick={onViewDetails} 
-                        className="flex-1 border-slate-300 text-slate-700 hover:bg-blue-50 hover:text-blue-700"
+                        className="flex-1 border-slate-300 text-slate-700 hover:bg-sky-50 hover:text-sky-700 hover:border-sky-300"
                     >
                         <FileText className="mr-2 h-4 w-4" />
                         View Full Details
@@ -218,7 +216,7 @@ export function ApplicationApprovalCard({
                             </Button>
                             <Button 
                                 onClick={onApprove} 
-                                className="flex-1 bg-blue-600 hover:bg-blue-700"
+                                className="flex-1 bg-sky-600 hover:bg-sky-700 text-white"
                             >
                                 <CheckCircle className="mr-2 h-4 w-4" />
                                 Approve

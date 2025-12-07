@@ -246,7 +246,7 @@ export default function EmployersPage() {
         {/* Stats Cards inside gradient */}
         <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Partner Companies */}
-          <Card className="border-slate-200 bg-white/90 shadow-sm rounded-2xl">
+          <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-slate-500">Partner Companies</CardTitle>
               <div className="rounded-full p-2 bg-sky-50 text-sky-600">
@@ -260,7 +260,7 @@ export default function EmployersPage() {
           </Card>
 
           {/* Active Jobs */}
-          <Card className="border-slate-200 bg-white/90 shadow-sm rounded-2xl">
+          <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-slate-500">Active Jobs</CardTitle>
               <div className="rounded-full p-2 bg-emerald-50 text-emerald-600">
@@ -274,7 +274,7 @@ export default function EmployersPage() {
           </Card>
 
           {/* Total Hires */}
-          <Card className="border-slate-200 bg-white/90 shadow-sm rounded-2xl">
+          <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-slate-500">Total Hires</CardTitle>
               <div className="rounded-full p-2 bg-sky-50 text-sky-600">
@@ -288,7 +288,7 @@ export default function EmployersPage() {
           </Card>
 
           {/* Avg. Package */}
-          <Card className="border-slate-200 bg-white/90 shadow-sm rounded-2xl">
+          <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-slate-500">Avg. Package</CardTitle>
               <div className="rounded-full p-2 bg-amber-50 text-amber-600">
@@ -304,7 +304,7 @@ export default function EmployersPage() {
       </section>
 
       {/* Search and Filter */}
-      <Card className="shadow-sm border-slate-200 rounded-2xl bg-white">
+      <Card className="shadow-lg border-slate-200 rounded-xl bg-white">
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row gap-4 items-center">
             <div className="flex-1 relative w-full">

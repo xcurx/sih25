@@ -73,8 +73,6 @@ export default function JobsPage() {
     setSelectedSkills([])
   }
 
-  // console.log(filteredJobs);
-
   useEffect(() => {
     if (status === "loading" || status === "unauthenticated") return;
     getOpportunities();
@@ -89,48 +87,52 @@ export default function JobsPage() {
   }
 
   return (
-    <div className="relative p-6 max-w-7xl w-full mx-auto space-y-8">
-      {/* Background gradient effect */}
-      <div
-        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_10%_20%,rgba(14,165,233,0.15),transparent_45%),radial-gradient(circle_at_90%_10%,rgba(37,99,235,0.2),transparent_45%),linear-gradient(180deg,rgba(255,255,255,0.8),transparent)]"
-        aria-hidden="true"
-      />
-      
+    <div className="p-6 max-w-7xl w-full mx-auto space-y-8">
       {/* Hero Section */}
-      <div className="relative overflow-hidden rounded-3xl border border-sky-100 bg-gradient-to-br from-sky-600 via-sky-500 to-blue-500 p-8 text-white shadow-2xl">
-        <div className="pointer-events-none absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white/20 blur-3xl" />
-        <div className="pointer-events-none absolute bottom-0 left-0 h-32 w-32 rounded-full bg-cyan-400/20 blur-3xl" />
+      <section className="relative overflow-hidden rounded-[32px] border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 shadow space-y-6">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.08),transparent_55%)]" />
         <div className="relative space-y-4">
-          <Badge variant="outline" className="border-white/40 bg-white/10 text-white">
-            <Sparkles className="h-3 w-3 mr-1" />
-            Opportunity hub
-          </Badge>
           <div>
-            <h1 className="text-3xl font-bold">Discover Your Next Career Move</h1>
-            <p className="text-white/90 mt-2">
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">Opportunity Hub</p>
+            <h1 className="mt-3 text-3xl font-semibold text-slate-900">Discover Your Next Career Move</h1>
+            <p className="mt-2 text-sm text-slate-600">
               Browse through {jobs.length} carefully curated opportunities from top companies
             </p>
           </div>
-          <div className="flex flex-wrap gap-4">
-            {[
-              { label: "Total opportunities", value: jobs.length.toString() },
-              { label: "Active applications", value: jobs.filter(j => j.applied).length.toString() },
-              { label: "New this week", value: jobs.filter(j => {
-                const daysDiff = Math.ceil((new Date().getTime() - new Date(j.postedAt).getTime()) / (1000 * 60 * 60 * 24));
-                return daysDiff <= 7;
-              }).length.toString() },
-            ].map((stat) => (
-              <div key={stat.label} className="rounded-2xl border border-white/20 bg-white/10 px-4 py-3">
-                <p className="text-xs uppercase tracking-[0.2em] text-white/70">{stat.label}</p>
-                <p className="text-2xl font-semibold">{stat.value}</p>
-              </div>
-            ))}
-          </div>
         </div>
-      </div>
+
+        {/* Stats Cards inside gradient */}
+        <div className="relative grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
+            <CardContent className="p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Total Opportunities</p>
+              <p className="text-2xl font-semibold text-slate-900">{jobs.length}</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
+            <CardContent className="p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Active Applications</p>
+              <p className="text-2xl font-semibold text-slate-900">{jobs.filter(j => j.applied).length}</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
+            <CardContent className="p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-500">New This Week</p>
+              <p className="text-2xl font-semibold text-slate-900">
+                {jobs.filter(j => {
+                  const daysDiff = Math.ceil((new Date().getTime() - new Date(j.postedAt).getTime()) / (1000 * 60 * 60 * 24));
+                  return daysDiff <= 7;
+                }).length}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
 
       {/* Search and Filter Bar */}
-      <Card className="border-slate-200 bg-white/90 shadow-lg rounded-3xl">
+      <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
         <CardContent className="p-6">
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1 relative">
@@ -278,7 +280,7 @@ export default function JobsPage() {
       </div>
 
       {filteredJobs.length === 0 && (
-        <div className="rounded-3xl border border-slate-200 bg-white/90 p-12 text-center shadow-lg">
+        <div className="rounded-xl border border-slate-200 bg-white p-12 text-center shadow-lg">
           <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-slate-100">
             <Briefcase className="h-10 w-10 text-slate-400" />
           </div>
@@ -298,5 +300,3 @@ export default function JobsPage() {
     </div>
   )
 }
-
-
