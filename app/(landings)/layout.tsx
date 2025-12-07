@@ -17,7 +17,6 @@ export default function LandingsLayout({ children }: { children: ReactNode }) {
             {children}
           </div>
         </main>
-
         <Footer />
       </div>
   );

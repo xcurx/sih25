@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge"
 import { Building2, Globe, GraduationCap, Loader2, Mail, Phone, Shield, ShieldCheck, Sparkles, Type } from "lucide-react"
 import LandingHeader from "../layout/LandingHeader"
+import Footer from "../layout/Footer"
 
 const roleOptions = [
   { value: "student", label: "Student / Alumnus" },
@@ -358,6 +359,8 @@ export function LoginScreen() {
           </div>
         </section>
       </main>
+
+      <Footer />
     </div>
   )
 }
