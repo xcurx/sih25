@@ -8,17 +8,21 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Briefcase, Calendar, Users, CheckCircle, MapPin, GraduationCap, Mail, Phone, Upload, Award, Loader2, ExternalLink, FileText } from "lucide-react"
+import { Briefcase, Calendar, Users, CheckCircle, MapPin, GraduationCap, Mail, Phone, Upload, Award, Loader2, ExternalLink, FileText, MessageSquare, Save, Edit3 } from "lucide-react"
 import { Internship } from "@/lib/types"
 import { uploader } from "@/lib/uploader"
 import axios from "axios"
 import Loader from "@/components/loader/Loader"
+import { Textarea } from "@/components/ui/textarea"
 
 export default function EmployerInternshipsPage() {
   const { data: session, status } = useSession()
   const [internships, setInternships] = useState<Internship[]>([])
   const [loading, setLoading] = useState(true)
   const [uploadingId, setUploadingId] = useState<string | null>(null)
+  const [savingRemarksId, setSavingRemarksId] = useState<string | null>(null)
+  const [editingRemarksId, setEditingRemarksId] = useState<string | null>(null)
+  const [remarksText, setRemarksText] = useState<Record<string, string>>({})
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({})
 
   const fetchInternships = async () => {
@@ -102,6 +106,42 @@ export default function EmployerInternshipsPage() {
       window.open(viewerUrl, "_blank")
     } else {
       window.open(url, "_blank")
+    }
+  }
+
+  const handleStartEditRemarks = (internshipId: string, currentRemarks: string | null) => {
+    setEditingRemarksId(internshipId)
+    setRemarksText(prev => ({ ...prev, [internshipId]: currentRemarks || "" }))
+  }
+
+  const handleCancelEditRemarks = () => {
+    setEditingRemarksId(null)
+  }
+
+  const handleSaveRemarks = async (internshipId: string) => {
+    const remarks = remarksText[internshipId]?.trim()
+    
+    if (!remarks) {
+      toast.error("Please enter remarks before saving")
+      return
+    }
+
+    setSavingRemarksId(internshipId)
+    try {
+      await axios.post(`/api/employer/internship/add-remarks/${internshipId}`, {
+        remarks
+      })
+
+      toast.success("Remarks saved successfully!")
+      setEditingRemarksId(null)
+      
+      // Refresh internships list
+      await fetchInternships()
+    } catch (error) {
+      console.error("Error saving remarks:", error)
+      toast.error("Failed to save remarks")
+    } finally {
+      setSavingRemarksId(null)
     }
   }
 
@@ -372,6 +412,103 @@ export default function EmployerInternshipsPage() {
                               </div>
                             </div>
                           )}
+
+                          {/* Employer Remarks Section */}
+                          <div className="mt-4">
+                            {intern.employerRemarks && editingRemarksId !== intern.id ? (
+                              <div className="p-3 rounded-xl bg-amber-50/70 border border-amber-100">
+                                <div className="flex items-start justify-between gap-3">
+                                  <div className="flex items-start gap-3 flex-1">
+                                    <div className="p-2 bg-amber-100 rounded-lg">
+                                      <MessageSquare className="h-4 w-4 text-amber-600" />
+                                    </div>
+                                    <div className="flex-1">
+                                      <p className="text-sm font-medium text-slate-900">Your Remarks</p>
+                                      <p className="text-sm text-slate-600 mt-1 whitespace-pre-wrap">{intern.employerRemarks}</p>
+                                    </div>
+                                  </div>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="rounded-full border-amber-200 hover:bg-amber-50"
+                                    onClick={() => handleStartEditRemarks(intern.id, intern.employerRemarks ?? null)}
+                                  >
+                                    <Edit3 className="h-4 w-4 mr-1" />
+                                    Edit
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : editingRemarksId === intern.id ? (
+                              <div className="p-3 rounded-xl bg-amber-50/70 border border-amber-100">
+                                <div className="flex items-start gap-3">
+                                  <div className="p-2 bg-amber-100 rounded-lg">
+                                    <MessageSquare className="h-4 w-4 text-amber-600" />
+                                  </div>
+                                  <div className="flex-1">
+                                    <p className="text-sm font-medium text-slate-900 mb-2">
+                                      {intern.employerRemarks ? "Edit Remarks" : "Add Remarks for Student"}
+                                    </p>
+                                    <Textarea
+                                      placeholder="Write your remarks about the student's performance, skills, attitude, areas of improvement, etc."
+                                      value={remarksText[intern.id] || ""}
+                                      onChange={(e) => setRemarksText(prev => ({ ...prev, [intern.id]: e.target.value }))}
+                                      className="min-h-[100px] resize-none border-amber-200 focus:border-amber-300 focus:ring-amber-200"
+                                    />
+                                    <div className="flex justify-end gap-2 mt-3">
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="rounded-full"
+                                        onClick={handleCancelEditRemarks}
+                                        disabled={savingRemarksId === intern.id}
+                                      >
+                                        Cancel
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        className="rounded-full bg-amber-500 text-white hover:bg-amber-600"
+                                        onClick={() => handleSaveRemarks(intern.id)}
+                                        disabled={savingRemarksId === intern.id}
+                                      >
+                                        {savingRemarksId === intern.id ? (
+                                          <>
+                                            <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                                            Saving...
+                                          </>
+                                        ) : (
+                                          <>
+                                            <Save className="h-4 w-4 mr-1" />
+                                            Save Remarks
+                                          </>
+                                        )}
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50/70 border border-slate-100">
+                                <div className="flex items-center gap-3">
+                                  <div className="p-2 bg-slate-100 rounded-lg">
+                                    <MessageSquare className="h-4 w-4 text-slate-500" />
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-medium text-slate-900">Student Remarks</p>
+                                    <p className="text-xs text-slate-500">Provide feedback about the intern&apos;s performance</p>
+                                  </div>
+                                </div>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="rounded-full border-slate-200 hover:bg-slate-100"
+                                  onClick={() => handleStartEditRemarks(intern.id, null)}
+                                >
+                                  <MessageSquare className="h-4 w-4 mr-1" />
+                                  Add Remarks
+                                </Button>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       )}
                     </div>

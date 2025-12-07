@@ -160,6 +160,7 @@ export interface Internship {
   endDate: string
   salary?: string | null
   performanceReview?: string | null
+  employerRemarks?: string | null
   studentRel: InternshipStudent
   opportunityRel: InternshipOpportunity
   applicationRel?: { id: string }

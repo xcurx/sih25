@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Calendar, Briefcase, Building2, MapPin, DollarSign, Clock, MessageSquarePlus, CheckCircle2 } from "lucide-react"
+import { Calendar, Briefcase, Building2, MapPin, DollarSign, Clock, MessageSquarePlus, CheckCircle2, MessageSquare } from "lucide-react"
 import { toast } from "sonner"
 import { Internship, Feedback } from "@/lib/types"
 import Loader from "@/components/loader/Loader"
@@ -194,49 +194,66 @@ export default function StudentInternshipsPage() {
                     const isCompleted = end < now
                     const feedbackSubmitted = hasFeedback(it.id)
                     return (
-                      <div key={it.id} className="flex flex-wrap items-center justify-between gap-4 p-5">
-                        <div className="flex items-center gap-3">
-                          <div className={`rounded-full px-3 py-1 text-xs font-medium ${statusInfo.color}`}>
-                            {statusInfo.label}
+                      <div key={it.id} className="p-5">
+                        <div className="flex flex-wrap items-center justify-between gap-4">
+                          <div className="flex items-center gap-3">
+                            <div className={`rounded-full px-3 py-1 text-xs font-medium ${statusInfo.color}`}>
+                              {statusInfo.label}
+                            </div>
+                            <div className="text-sm text-slate-600">
+                              <span className="inline-flex items-center gap-1">
+                                <Clock className="h-4 w-4 text-slate-400" />
+                                {start.toLocaleDateString()} – {end.toLocaleDateString()}
+                              </span>
+                            </div>
                           </div>
-                          <div className="text-sm text-slate-600">
-                            <span className="inline-flex items-center gap-1">
-                              <Clock className="h-4 w-4 text-slate-400" />
-                              {start.toLocaleDateString()} – {end.toLocaleDateString()}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          {it.salary && (
-                            <Badge variant="secondary" className="rounded-full">
-                              {it.salary}
-                            </Badge>
-                          )}
-                          {it.performanceReview && (
-                            <Badge variant="outline" className="rounded-full">
-                              Review: {it.performanceReview}
-                            </Badge>
-                          )}
-                          {/* Feedback button - only show for completed internships */}
-                          {isCompleted && (
-                            feedbackSubmitted ? (
-                              <Badge variant="outline" className="rounded-full bg-green-50 text-green-700 border-green-200">
-                                <CheckCircle2 className="h-3 w-3 mr-1" />
-                                Feedback Submitted
+                          <div className="flex items-center gap-3">
+                            {it.salary && (
+                              <Badge variant="secondary" className="rounded-full">
+                                {it.salary}
                               </Badge>
-                            ) : (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleAddFeedback(it)}
-                                className="rounded-full text-sky-600 border-sky-300 hover:bg-sky-50"
-                              >
-                                <MessageSquarePlus className="h-4 w-4 mr-1" />
-                                Add Feedback
-                              </Button>
-                            )
-                          )}
+                            )}
+                            {it.performanceReview && (
+                              <Badge variant="outline" className="rounded-full">
+                                Review: {it.performanceReview}
+                              </Badge>
+                            )}
+                            {/* Feedback button - only show for completed internships */}
+                            {isCompleted && (
+                              feedbackSubmitted ? (
+                                <Badge variant="outline" className="rounded-full bg-green-50 text-green-700 border-green-200">
+                                  <CheckCircle2 className="h-3 w-3 mr-1" />
+                                  Feedback Submitted
+                                </Badge>
+                              ) : (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleAddFeedback(it)}
+                                  className="rounded-full text-sky-600 border-sky-300 hover:bg-sky-50"
+                                >
+                                  <MessageSquarePlus className="h-4 w-4 mr-1" />
+                                  Add Feedback
+                                </Button>
+                              )
+                            )}
+                          </div>
                         </div>
+
+                        {/* Employer Remarks - show for completed internships with remarks */}
+                        {isCompleted && it.employerRemarks && (
+                          <div className="mt-4 rounded-xl bg-amber-50/70 border border-amber-100 p-4">
+                            <div className="flex items-start gap-3">
+                              <div className="p-2 bg-amber-100 rounded-lg">
+                                <MessageSquare className="h-4 w-4 text-amber-600" />
+                              </div>
+                              <div className="flex-1">
+                                <p className="text-sm font-medium text-slate-900">Employer Remarks</p>
+                                <p className="text-sm text-slate-600 mt-1 whitespace-pre-wrap">{it.employerRemarks}</p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )
                   })}
