@@ -37,22 +37,22 @@ export default function JobPostingCard({ job }: { job: Opportunity }) {
   const daysUntilDeadline = Math.ceil((new Date(job.applicationDeadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="bg-white border border-gray-200 shadow-sm">
+      <CardHeader className="pb-4">
         <div className="flex items-start justify-between">
           <div className="flex items-start space-x-4">
-            <div className="p-3 bg-primary/10 rounded-lg">
-              <Building2 className="h-6 w-6 text-primary" />
+            <div className="p-3 bg-sky-50 rounded-lg">
+              <Building2 className="h-6 w-6 text-sky-600" />
             </div>
             <div className="flex-1">
               <div className="flex items-center space-x-2 mb-1">
-                <CardTitle className="text-xl">{job.title}</CardTitle>
+                <CardTitle className="text-xl text-gray-900">{job.title}</CardTitle>
                 {/* <Badge variant={getStatusColor(job.status)}>{job.status}</Badge> */}
               </div>
-              <CardDescription className="text-lg font-medium text-foreground">{
+              <CardDescription className="text-base font-normal text-gray-600">{
                 job?.companyRel?.name
               }</CardDescription>
-              <div className="flex items-center space-x-4 mt-2 text-sm text-muted-foreground">
+              <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
                 <div className="flex items-center space-x-1">
                   <MapPin className="h-4 w-4" />
                   <span>{job.location}</span>
@@ -72,7 +72,7 @@ export default function JobPostingCard({ job }: { job: Opportunity }) {
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900 hover:bg-gray-100">
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -100,43 +100,43 @@ export default function JobPostingCard({ job }: { job: Opportunity }) {
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-2">
-            <p className="text-muted-foreground line-clamp-2 mb-4">{job.description}</p>
-            <div className="space-y-2">
+            <p className="text-gray-600 line-clamp-2 mb-4">{job.description}</p>
+            <div className="space-y-3">
               <div>
-                <span className="font-medium">Skills: </span>
-                <div className="flex flex-wrap gap-1 mt-1">
+                <span className="font-medium text-gray-900">Skills: </span>
+                <div className="flex flex-wrap gap-1.5 mt-1.5">
                   {job.skillsRequired.slice(0, 4).map((skill, index) => (
-                    <Badge key={index} variant="outline" className="text-xs">
+                    <Badge key={index} variant="outline" className="text-xs border-gray-300 text-gray-700 bg-white">
                       {skill}
                     </Badge>
                   ))}
                   {job.skillsRequired.length > 4 && (
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" className="text-xs border-gray-300 text-gray-700 bg-white">
                       +{job.skillsRequired.length - 4} more
                     </Badge>
                   )}
                 </div>
               </div>
               <div>
-                <span className="font-medium">Departments: </span>
-                <span className="text-muted-foreground">{job.eligibleDepartments.join(", ")}</span>
+                <span className="font-medium text-gray-900">Departments: </span>
+                <span className="text-gray-600">{job.eligibleDepartments.join(", ")}</span>
               </div>
             </div>
           </div>
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4 text-center">
-              <div className="p-3 bg-muted rounded-lg">
-                <div className="text-lg font-bold">{job._count.applications}</div>
-                <div className="text-xs text-muted-foreground">Applications</div>
+            <div className="grid grid-cols-2 gap-3 text-center">
+              <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
+                <div className="text-xl font-bold text-gray-900">{job._count.applications}</div>
+                <div className="text-xs text-gray-500 mt-1">Applications</div>
               </div>
-              <div className="p-3 bg-muted rounded-lg">
-                <div className="text-lg font-bold">0</div>
-                <div className="text-xs text-muted-foreground">Shortlisted</div>
+              <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
+                <div className="text-xl font-bold text-gray-900">0</div>
+                <div className="text-xs text-gray-500 mt-1">Shortlisted</div>
               </div>
             </div>
             <div className="flex space-x-2">
               <ApplicationsDialog id={job.id}/>
-              <Button variant="outline" size="sm" className="flex-1 bg-transparent">
+              <Button variant="outline" size="sm" className="flex-1 bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-gray-900">
                 <Edit className="mr-2 h-4 w-4" />
                 Edit
               </Button>
@@ -171,46 +171,61 @@ const ApplicationsDialog = ({ id }:{ id:string }) => {
         getApplications();
     }, [id]);
 
+    const getStatusBadgeStyle = (status: string) => {
+        switch (status.toLowerCase()) {
+            case 'accepted':
+                return 'bg-gray-900 text-white hover:bg-gray-900';
+            case 'reviewed':
+                return 'bg-red-600 text-white hover:bg-red-600';
+            case 'shortlisted':
+                return 'bg-red-600 text-white hover:bg-red-600';
+            case 'applied':
+                return 'bg-gray-200 text-gray-700 hover:bg-gray-200';
+            default:
+                return 'bg-gray-200 text-gray-700 hover:bg-gray-200';
+        }
+    }
+
     return (
         <Dialog>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="flex-1 bg-transparent">
+              <Button size="sm" className="flex-1 bg-sky-600 hover:bg-sky-700 text-white border-0">
                 <Users className="mr-2 h-4 w-4" />
                 Applications
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="bg-white max-w-2xl">
               <DialogHeader>
-                <DialogTitle>Job Applications</DialogTitle>
-                <DialogDescription>
+                <DialogTitle className="text-gray-900">Job Applications</DialogTitle>
+                <DialogDescription className="text-gray-600">
                   View and manage applications for this job posting.
                 </DialogDescription>
               </DialogHeader>
               {
                 applications.length === 0 ? (
-                    <div className="p-6 text-center text-muted-foreground">
+                    <div className="p-6 text-center text-gray-500">
                         {loading ? "Loading applications..." : "No applications found."}
                     </div>
                 ) : (
-                    <div className="max-h-[400px] overflow-y-auto mt-4">
+                    <div className="max-h-[400px] overflow-y-auto mt-4 space-y-3">
                         {
                             applications.map((app) => (
-                                <div key={app.id} className="border rounded-md p-4 mb-2">
-                                    <div className="flex justify-between items-start mb-2">
+                                <div key={app.id} className="border border-gray-200 rounded-lg p-4 bg-white hover:bg-gray-50 transition-colors">
+                                    <div className="flex justify-between items-start mb-3">
                                         <div>
-                                            <h4 className="font-medium">{app.studentRel.name}</h4>
-                                            <p className="text-sm text-muted-foreground">{app.studentRel.email}</p>
+                                            <h4 className="font-semibold text-gray-900 text-base">{app.studentRel.name}</h4>
+                                            <p className="text-sm text-gray-600 mt-0.5">{app.studentRel.email}</p>
                                         </div>
-                                        <Badge variant={app.status === 'applied' ? 'secondary' : app.status === 'accepted' ? 'default' : 'destructive'}>
+                                        <Badge className={`${getStatusBadgeStyle(app.status)} rounded-md px-3 py-1 text-xs font-medium`}>
                                             {app.status}
                                         </Badge>
                                     </div>
-                                    <div className="text-sm grid grid-cols-2 gap-2">
+                                    <div className="text-sm grid grid-cols-2 gap-3 text-gray-600">
                                         <div>
-                                            <span className="font-medium">Branch:</span> {app.studentRel.branch}
+                                            <span className="font-medium text-gray-900">Branch:</span> {app.studentRel.branch}
                                         </div>
                                         <div>
-                                            <span className="font-medium">Batch:</span> {app.studentRel.batch}
+                                            <span className="font-medium text-gray-900">Batch:</span> {app.studentRel.batch}
                                         </div>
                                     </div>
                                 </div>

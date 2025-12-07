@@ -127,74 +127,79 @@ export default function PlacementCellStudentProfilePage() {
     return (
       <div className="p-6 max-w-7xl w-full mx-auto">
         <div className="flex items-center justify-center h-64">
-          <p className="text-muted-foreground">Student not found</p>
+          <p className="text-slate-500">Student not found</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="p-6 max-w-7xl w-full mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => router.back()}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-primary">Student Profile</h1>
-            <p className="text-muted-foreground">
-              Complete profile and application tracking for {student.name}
-            </p>
+    <div className="p-6 max-w-7xl w-full mx-auto space-y-8">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden rounded-[32px] border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 shadow">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.08),transparent_55%)]" />
+        <div className="relative flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={() => router.back()} className="rounded-full hover:bg-white/50">
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">Student Profile</p>
+              <h1 className="mt-2 text-3xl font-semibold text-slate-900">{student.name}</h1>
+              <p className="mt-1 text-sm text-slate-600">
+                Complete profile and application tracking
+              </p>
+            </div>
           </div>
+          {student.resume && (
+            <Button className="bg-sky-600 hover:bg-sky-700 rounded-full">
+              <Download className="mr-2 h-4 w-4" />
+              Download Resume
+            </Button>
+          )}
         </div>
-        {student.resume && (
-          <Button>
-            <Download className="mr-2 h-4 w-4" />
-            Download Resume
-          </Button>
-        )}
-      </div>
+      </section>
 
       {/* Student Profile Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <Card className="lg:col-span-1">
-          <CardHeader className="text-center">
-            <Avatar className="h-24 w-24 mx-auto mb-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-1 border-slate-200 bg-white shadow-sm rounded-2xl">
+          <CardHeader className="text-center border-b border-slate-100">
+            <Avatar className="h-24 w-24 mx-auto mb-4 border-4 border-slate-100">
               <AvatarImage src={"/placeholder.svg"} alt={student.name} />
-              <AvatarFallback className="text-2xl">
+              <AvatarFallback className="text-2xl bg-sky-50 text-sky-700">
                 {student.name
                   .split(" ")
                   .map((n) => n[0])
                   .join("")}
               </AvatarFallback>
             </Avatar>
-            <CardTitle>{student.name}</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-slate-900">{student.name}</CardTitle>
+            <CardDescription className="text-slate-600">
               {student.branch} • Year {(student.batch as number) - new Date().getFullYear() + 5}
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary">{student.cgpa}</div>
-              <div className="text-sm text-muted-foreground">CGPA</div>
+          <CardContent className="space-y-4 pt-6">
+            <div className="text-center p-4 bg-sky-50 rounded-xl border border-sky-100">
+              <div className="text-3xl font-bold text-sky-700">{student.cgpa}</div>
+              <div className="text-sm text-slate-600">CGPA</div>
             </div>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm">
-                <Mail className="h-4 w-4 text-muted-foreground" />
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-sm text-slate-700">
+                <Mail className="h-4 w-4 text-slate-500" />
                 <span className="break-all">{student.email}</span>
               </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Phone className="h-4 w-4 text-muted-foreground" />
+              <div className="flex items-center gap-2 text-sm text-slate-700">
+                <Phone className="h-4 w-4 text-slate-500" />
                 <span>{student.phone}</span>
               </div>
               {student.github && (
                 <div className="flex items-center gap-2 text-sm">
-                  <Github className="h-4 w-4 text-muted-foreground" />
+                  <Github className="h-4 w-4 text-slate-500" />
                   <a
                     href={student.github}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-primary hover:underline truncate"
+                    className="text-sky-600 hover:text-sky-700 hover:underline truncate"
                   >
                     GitHub Profile
                   </a>
@@ -202,12 +207,12 @@ export default function PlacementCellStudentProfilePage() {
               )}
               {student.linkedin && (
                 <div className="flex items-center gap-2 text-sm">
-                  <Linkedin className="h-4 w-4 text-muted-foreground" />
+                  <Linkedin className="h-4 w-4 text-slate-500" />
                   <a
                     href={student.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-primary hover:underline truncate"
+                    className="text-sky-600 hover:text-sky-700 hover:underline truncate"
                   >
                     LinkedIn Profile
                   </a>
@@ -217,36 +222,36 @@ export default function PlacementCellStudentProfilePage() {
           </CardContent>
         </Card>
 
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Academic Information</CardTitle>
-            <CardDescription>Educational background and performance</CardDescription>
+        <Card className="lg:col-span-2 border-slate-200 bg-white shadow-sm rounded-2xl">
+          <CardHeader className="border-b border-slate-100">
+            <CardTitle className="text-slate-900">Academic Information</CardTitle>
+            <CardDescription className="text-slate-600">Educational background and performance</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+          <CardContent className="space-y-4 pt-6">
+            <div className="grid grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">Full Name</label>
-                <p className="text-base">{student.name}</p>
+                <label className="text-sm font-medium text-slate-500">Full Name</label>
+                <p className="text-base text-slate-900">{student.name}</p>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">Email</label>
-                <p className="text-base break-all">{student.email}</p>
+                <label className="text-sm font-medium text-slate-500">Email</label>
+                <p className="text-base text-slate-900 break-all">{student.email}</p>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">Phone</label>
-                <p className="text-base">{student.phone}</p>
+                <label className="text-sm font-medium text-slate-500">Phone</label>
+                <p className="text-base text-slate-900">{student.phone}</p>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">CGPA</label>
-                <p className="text-base font-semibold">{student.cgpa}</p>
+                <label className="text-sm font-medium text-slate-500">CGPA</label>
+                <p className="text-base font-semibold text-sky-700">{student.cgpa}</p>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">Department</label>
-                <p className="text-base">{student.branch}</p>
+                <label className="text-sm font-medium text-slate-500">Department</label>
+                <p className="text-base text-slate-900">{student.branch}</p>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">Batch Year</label>
-                <p className="text-base">{student.batch}</p>
+                <label className="text-sm font-medium text-slate-500">Batch Year</label>
+                <p className="text-base text-slate-900">{student.batch}</p>
               </div>
             </div>
           </CardContent>
@@ -254,21 +259,21 @@ export default function PlacementCellStudentProfilePage() {
       </div>
 
       {/* Skills Section */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Technical Skills</CardTitle>
-          <CardDescription>Programming languages and technologies</CardDescription>
+      <Card className="border-slate-200 bg-white shadow-sm rounded-2xl">
+        <CardHeader className="border-b border-slate-100">
+          <CardTitle className="text-slate-900">Technical Skills</CardTitle>
+          <CardDescription className="text-slate-600">Programming languages and technologies</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <div className="flex flex-wrap gap-2">
             {student.skills && student.skills.length > 0 ? (
               student.skills.map((skill, index) => (
-                <Badge key={index} variant="secondary">
+                <Badge key={index} variant="outline" className="bg-slate-50 text-slate-700 border-slate-200 rounded-full">
                   {skill}
                 </Badge>
               ))
             ) : (
-              <p className="text-sm text-muted-foreground">No skills listed</p>
+              <p className="text-sm text-slate-500">No skills listed</p>
             )}
           </div>
         </CardContent>
@@ -276,72 +281,78 @@ export default function PlacementCellStudentProfilePage() {
 
       {/* Applications Section */}
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-primary">Applications</h2>
-            <p className="text-muted-foreground">Track all job applications and their status</p>
-          </div>
+        <div>
+          <h2 className="text-2xl font-bold text-slate-900">Applications</h2>
+          <p className="text-slate-600">Track all job applications and their status</p>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card>
+          <Card className="border-slate-200 bg-white shadow-sm rounded-2xl">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Applications</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-slate-500">Total Applications</CardTitle>
+              <div className="rounded-full p-2 bg-sky-50">
+                <FileText className="h-4 w-4 text-sky-600" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{filteredApplications.length}</div>
-              <p className="text-xs text-muted-foreground">All time</p>
+              <div className="text-2xl font-semibold text-slate-900">{filteredApplications.length}</div>
+              <p className="text-xs text-slate-500">All time</p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="border-slate-200 bg-white shadow-sm rounded-2xl">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-slate-500">Pending</CardTitle>
+              <div className="rounded-full p-2 bg-amber-50">
+                <Clock className="h-4 w-4 text-amber-600" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{pendingApplications.length}</div>
-              <p className="text-xs text-muted-foreground">Awaiting review</p>
+              <div className="text-2xl font-semibold text-slate-900">{pendingApplications.length}</div>
+              <p className="text-xs text-slate-500">Awaiting review</p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="border-slate-200 bg-white shadow-sm rounded-2xl">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Shortlisted</CardTitle>
-              <CheckCircle className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-slate-500">Shortlisted</CardTitle>
+              <div className="rounded-full p-2 bg-blue-50">
+                <CheckCircle className="h-4 w-4 text-blue-600" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{shortlistedApplications.length}</div>
-              <p className="text-xs text-muted-foreground">Interview stage</p>
+              <div className="text-2xl font-semibold text-slate-900">{shortlistedApplications.length}</div>
+              <p className="text-xs text-slate-500">Interview stage</p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="border-slate-200 bg-white shadow-sm rounded-2xl">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Completed</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-slate-500">Completed</CardTitle>
+              <div className="rounded-full p-2 bg-emerald-50">
+                <Calendar className="h-4 w-4 text-emerald-600" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{completedApplications.length}</div>
-              <p className="text-xs text-muted-foreground">Final stage</p>
+              <div className="text-2xl font-semibold text-slate-900">{completedApplications.length}</div>
+              <p className="text-xs text-slate-500">Final stage</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Search and Filter */}
-        <Card>
+        <Card className="border-slate-200 bg-white shadow-sm rounded-2xl">
           <CardContent className="p-6">
             <div className="flex flex-col lg:flex-row gap-4">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input
                   placeholder="Search by job title or company..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 border-slate-200 focus:border-sky-500 rounded-lg"
                 />
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full lg:w-48">
+                <SelectTrigger className="w-full lg:w-48 border-slate-200 focus:ring-sky-500 rounded-lg">
                   <SelectValue placeholder="All Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -361,13 +372,19 @@ export default function PlacementCellStudentProfilePage() {
 
         {/* Applications Tabs */}
         <Tabs defaultValue="all" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="all">All ({filteredApplications.length})</TabsTrigger>
-            <TabsTrigger value="pending">Pending ({pendingApplications.length})</TabsTrigger>
-            <TabsTrigger value="shortlisted">
+          <TabsList className="bg-slate-100 p-1 h-auto rounded-full">
+            <TabsTrigger value="all" className="rounded-full data-[state=active]:bg-sky-600 data-[state=active]:text-white data-[state=active]:shadow-sm transition text-slate-700 hover:text-slate-900">
+              All ({filteredApplications.length})
+            </TabsTrigger>
+            <TabsTrigger value="pending" className="rounded-full data-[state=active]:bg-sky-600 data-[state=active]:text-white data-[state=active]:shadow-sm transition text-slate-700 hover:text-slate-900">
+              Pending ({pendingApplications.length})
+            </TabsTrigger>
+            <TabsTrigger value="shortlisted" className="rounded-full data-[state=active]:bg-sky-600 data-[state=active]:text-white data-[state=active]:shadow-sm transition text-slate-700 hover:text-slate-900">
               Shortlisted ({shortlistedApplications.length})
             </TabsTrigger>
-            <TabsTrigger value="completed">Completed ({completedApplications.length})</TabsTrigger>
+            <TabsTrigger value="completed" className="rounded-full data-[state=active]:bg-sky-600 data-[state=active]:text-white data-[state=active]:shadow-sm transition text-slate-700 hover:text-slate-900">
+              Completed ({completedApplications.length})
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="all" className="space-y-4">
@@ -381,10 +398,10 @@ export default function PlacementCellStudentProfilePage() {
                 />
               ))
             ) : (
-              <Card>
+              <Card className="border-slate-200 rounded-2xl">
                 <CardContent className="p-12 text-center">
-                  <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground">No applications found</p>
+                  <FileText className="h-12 w-12 mx-auto text-slate-400 mb-4" />
+                  <p className="text-slate-500">No applications found</p>
                 </CardContent>
               </Card>
             )}
@@ -401,10 +418,10 @@ export default function PlacementCellStudentProfilePage() {
                 />
               ))
             ) : (
-              <Card>
+              <Card className="border-slate-200 rounded-2xl">
                 <CardContent className="p-12 text-center">
-                  <Clock className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground">No pending applications</p>
+                  <Clock className="h-12 w-12 mx-auto text-slate-400 mb-4" />
+                  <p className="text-slate-500">No pending applications</p>
                 </CardContent>
               </Card>
             )}
@@ -421,10 +438,10 @@ export default function PlacementCellStudentProfilePage() {
                 />
               ))
             ) : (
-              <Card>
+              <Card className="border-slate-200 rounded-2xl">
                 <CardContent className="p-12 text-center">
-                  <CheckCircle className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground">No shortlisted applications</p>
+                  <CheckCircle className="h-12 w-12 mx-auto text-slate-400 mb-4" />
+                  <p className="text-slate-500">No shortlisted applications</p>
                 </CardContent>
               </Card>
             )}
@@ -441,10 +458,10 @@ export default function PlacementCellStudentProfilePage() {
                 />
               ))
             ) : (
-              <Card>
+              <Card className="border-slate-200 rounded-2xl">
                 <CardContent className="p-12 text-center">
-                  <XCircle className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground">No completed applications</p>
+                  <XCircle className="h-12 w-12 mx-auto text-slate-400 mb-4" />
+                  <p className="text-slate-500">No completed applications</p>
                 </CardContent>
               </Card>
             )}

@@ -191,7 +191,7 @@ export default function InterviewsPage() {
 </section>
             
             {/* Search and Filter */}
-            {/* <Card className="border-slate-200 bg-white/90 shadow-lg rounded-3xl"> */}
+            <Card className="border-slate-200 bg-white/90 shadow-lg rounded-3xl">
                 <CardContent className="p-6">
                     <div className="flex flex-col lg:flex-row gap-4">
                         <div className="flex-1 relative">
@@ -217,7 +217,7 @@ export default function InterviewsPage() {
                         </Select>
                     </div>
                 </CardContent>
-            {/* </Card> */}
+            </Card>
 
             {/* Interviews Tabs */}
             <Tabs defaultValue="all" className="space-y-6">

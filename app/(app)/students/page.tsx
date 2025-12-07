@@ -1,7 +1,6 @@
 "use client"
 
 import Loader from "@/components/loader/Loader"
-import StudentCard from "@/components/students/StudentCard"
 import StudentDetailsDialog from "@/components/students/StudentDetailsDialog"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -16,6 +15,7 @@ import {
   Award,
   Briefcase,
   Download,
+  ExternalLink,
   Eye,
   GraduationCap,
   Mail,
@@ -29,14 +29,9 @@ import {
   FileText
 } from "lucide-react"
 import { useSession } from "next-auth/react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-
-// --- START: NEW LIST CARD COMPONENT ---
-// NOTE: I am creating a custom component here to simulate the requested UI structure
-// since the original code used an external <StudentCard /> component.
-// This new component will ensure the card appearance matches the user's image request
-// while adopting the blue-themed styles.
 
 interface CustomStudentCardProps {
     student: Student;
@@ -44,41 +39,37 @@ interface CustomStudentCardProps {
 }
 
 const CustomStudentCard = ({ student, onViewDetails }: CustomStudentCardProps) => {
-    // Helper to determine placement status for the badge
     const isPlaced = student.applications.some((app) => app.status === "accepted");
     const isInProcess = student.applications.some((app) => ["applied", "shortlisted"].includes(app.status)) && !isPlaced;
     const isUnplaced = !isPlaced && !isInProcess;
 
     const statusBadge = () => {
-        if (isPlaced) return <Badge className="bg-emerald-500 hover:bg-emerald-600">Placed</Badge>;
-        if (isInProcess) return <Badge className="bg-blue-500 hover:bg-blue-600">In Process</Badge>;
-        return <Badge className="bg-amber-500 hover:bg-amber-600">Unplaced</Badge>;
+        if (isPlaced) return <Badge className="bg-emerald-600 hover:bg-emerald-600 text-white rounded-full">Placed</Badge>;
+        if (isInProcess) return <Badge className="bg-sky-600 hover:bg-sky-600 text-white rounded-full">In Process</Badge>;
+        return <Badge className="bg-amber-600 hover:bg-amber-600 text-white rounded-full">Unplaced</Badge>;
     };
 
     const getYear = (batch: number) => {
-        // Assuming 2025 is the graduating year (Year 4). This mirrors the logic in the parent component.
         return 4 - (batch - 2025);
     };
 
-    // Placeholder data for skills and applications count since Student type definition is not fully visible
     const skills = student.skills || ["JS", "Python", "SQL"]; 
     const applicationsCount = student.applications?.length || 0;
 
     return (
-        <Card className="border-slate-200 shadow-md rounded-xl transition hover:shadow-lg hover:border-sky-300">
+        <Card className="border-slate-200 bg-white shadow-sm rounded-2xl transition hover:shadow-md hover:border-sky-200">
             <CardContent className="p-5 space-y-4">
                 <div className="flex justify-between items-start">
-                    {/* Left Section: Avatar, Name, Info */}
                     <div className="flex space-x-4 items-start">
-                        <Avatar className="h-12 w-12 border border-slate-200">
+                        <Avatar className="h-12 w-12 border-2 border-slate-100">
                             <AvatarImage src={student.avatar || "/placeholder.svg"} alt={student.name} />
-                            <AvatarFallback className="bg-sky-50 text-sky-700 text-lg font-semibold">
+                            <AvatarFallback className="bg-sky-50 text-sky-700 text-base font-semibold">
                                 {student.name.charAt(0)}
                             </AvatarFallback>
                         </Avatar>
-                        <div className="space-y-0.5">
-                            <div className="flex items-center space-x-3">
-                                <h3 className="text-xl font-bold text-slate-800">{student.name}</h3>
+                        <div className="space-y-1">
+                            <div className="flex items-center space-x-2">
+                                <h3 className="text-base font-semibold text-slate-900">{student.name}</h3>
                                 {statusBadge()}
                             </div>
                             <p className="text-sm text-slate-600">
@@ -97,51 +88,51 @@ const CustomStudentCard = ({ student, onViewDetails }: CustomStudentCardProps) =
                         </div>
                     </div>
 
-                    {/* Right Section: CGPA */}
                     <div className="text-right shrink-0">
-                        <p className="text-3xl font-bold">{student.cgpa.toFixed(2)}</p>
+                        <p className="text-2xl font-semibold text-slate-900">
+                            {student.cgpa ? student.cgpa.toFixed(2) : 'N/A'}
+                        </p>
                         <p className="text-xs text-slate-500">CGPA</p>
                     </div>
                 </div>
                 
                 <hr className="border-slate-100" />
 
-                {/* Skills and Applications */}
                 <div className="space-y-2">
-                    <p className="text-sm font-semibold text-slate-700">Skills:</p>
+                    <p className="text-sm font-medium text-slate-700">Skills:</p>
                     <div className="flex flex-wrap gap-2">
                         {skills.slice(0, 6).map((skill, index) => (
-                            <Badge key={index} variant="outline" className="bg-slate-100 text-slate-700 rounded-full border-slate-200">
+                            <Badge key={index} variant="outline" className="bg-slate-50 text-slate-700 rounded-full border-slate-200 text-xs">
                                 {skill}
                             </Badge>
                         ))}
                     </div>
-                    <p className="text-sm text-slate-500 pt-1 flex items-center gap-2">
-                        <FileText className="h-4 w-4" />
-                        <span className="font-semibold text-slate-700">{applicationsCount}</span> Total Applications
+                    <p className="text-xs text-slate-500 pt-1 flex items-center gap-2">
+                        <FileText className="h-3.5 w-3.5" />
+                        <span className="font-medium text-slate-700">{applicationsCount}</span> Total Applications
                     </p>
                 </div>
 
-                {/* Action Buttons */}
-                <div className="flex flex-wrap gap-3 pt-2 border-t border-slate-100 mt-4">
-                    <Button variant="outline" size="sm" className="rounded-full text-slate-700 border-slate-300 hover:bg-slate-100">
-                        <Mail className="h-4 w-4 mr-2" />
+                <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-100">
+                    <Button variant="ghost" size="sm" className="rounded-full text-slate-600 hover:bg-slate-100 text-xs">
+                        <Mail className="h-3.5 w-3.5 mr-1.5" />
                         Contact
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => onViewDetails(student)} className="rounded-full text-sky-600 border-sky-300 hover:bg-sky-50">
-                        <Eye className="h-4 w-4 mr-2" />
-                        View Profile
+                    <Button variant="ghost" size="sm" onClick={() => onViewDetails(student)} className="rounded-full text-sky-600 hover:bg-sky-50 text-xs">
+                        <Eye className="h-3.5 w-3.5 mr-1.5" />
+                        Quick View
                     </Button>
-                    <Button variant="default" size="sm" onClick={() => onViewDetails(student)} className="rounded-full bg-blue-500 hover:bg-blue-600">
-                        <MessageSquare className="h-4 w-4 mr-2" />
-                        View Full Profile
-                    </Button>
+                    <Link href={`/students/${student.id}`}>
+                        <Button size="sm" className="rounded-full bg-sky-600 hover:bg-sky-700 text-white text-xs">
+                            <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
+                            View Profile
+                        </Button>
+                    </Link>
                 </div>
             </CardContent>
         </Card>
     );
 };
-// --- END: NEW LIST CARD COMPONENT ---
 
 
 export default function StudentsPage() {
@@ -207,81 +198,84 @@ export default function StudentsPage() {
 
     return (
       <div className="p-6 max-w-7xl w-full mx-auto space-y-8">
-        {/* Header and CTA */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-800">Student Talent Pool</h1>
-            <p className="text-base text-slate-500 mt-1">Manage student profiles and track placement progress across all departments.</p>
+        {/* Hero Section with Stats - matching employer dashboard style */}
+        <section className="relative overflow-hidden rounded-[32px] border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 shadow space-y-6">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.08),transparent_55%)]" />
+          <div className="relative space-y-4">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">Student Management</p>
+              <h1 className="mt-3 text-3xl font-semibold text-slate-900">Student Talent Pool</h1>
+              <p className="mt-2 text-sm text-slate-600">
+                Manage student profiles and track placement progress across all departments.
+              </p>
+            </div>
+            <div className="flex justify-end pt-4">
+              <Button variant="outline" className="rounded-full border-sky-600 text-sky-600 hover:bg-sky-50 hover:text-sky-700">
+                <Download className="mr-2 h-4 w-4" />
+                Export Data
+              </Button>
+            </div>
           </div>
-          <Button variant="outline" className="rounded-full border-sky-600 text-sky-600 hover:bg-sky-50 hover:text-sky-700">
-            <Download className="mr-2 h-4 w-4" />
-            Export Data
-          </Button>
-        </div>
 
-        {/* Stats Cards - Updated UI with Blue Theme */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          
-          {/* Total Students */}
-          <Card className="border-slate-200 bg-white shadow-sm rounded-xl">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-slate-500">Total Students</CardTitle>
-              <div className={`rounded-full p-2 bg-sky-50 text-sky-700`}>
-                <GraduationCap className="h-4 w-4" aria-hidden="true" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-slate-900">{filteredStudents.length}</div>
-              <p className="text-xs text-slate-500">Eligible for placement</p>
-            </CardContent>
-          </Card>
+          {/* Stats Cards inside gradient */}
+          <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card className="border-slate-200 bg-white/90 shadow-sm rounded-2xl">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-slate-500">Total Students</CardTitle>
+                <div className="rounded-full p-2 bg-sky-50 text-sky-600">
+                  <GraduationCap className="h-4 w-4" aria-hidden="true" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-semibold text-slate-900">{filteredStudents.length}</div>
+                <p className="text-xs text-slate-500">Eligible for placement</p>
+              </CardContent>
+            </Card>
 
-          {/* Placed */}
-          <Card className="border-slate-200 bg-white shadow-sm rounded-xl">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-slate-500">Placed</CardTitle>
-              <div className={`rounded-full p-2 bg-emerald-50 text-emerald-700`}>
-                <Award className="h-4 w-4" aria-hidden="true" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-slate-900">{placedStudents.length}</div>
-              <p className="text-xs text-slate-500">Successfully secured offers</p>
-            </CardContent>
-          </Card>
+            <Card className="border-slate-200 bg-white/90 shadow-sm rounded-2xl">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-slate-500">Placed</CardTitle>
+                <div className="rounded-full p-2 bg-emerald-50 text-emerald-600">
+                  <Award className="h-4 w-4" aria-hidden="true" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-semibold text-slate-900">{placedStudents.length}</div>
+                <p className="text-xs text-slate-500">Successfully secured offers</p>
+              </CardContent>
+            </Card>
 
-          {/* In Process */}
-          <Card className="border-slate-200 bg-white shadow-sm rounded-xl">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-slate-500">In Process</CardTitle>
-              <div className={`rounded-full p-2 bg-blue-50 text-blue-700`}>
-                <Briefcase className="h-4 w-4" aria-hidden="true" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-slate-900">{activeStudents.length}</div>
-              <p className="text-xs text-slate-500">Active applications/interviews</p>
-            </CardContent>
-          </Card>
+            <Card className="border-slate-200 bg-white/90 shadow-sm rounded-2xl">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-slate-500">In Process</CardTitle>
+                <div className="rounded-full p-2 bg-sky-50 text-sky-600">
+                  <Briefcase className="h-4 w-4" aria-hidden="true" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-semibold text-slate-900">{activeStudents.length}</div>
+                <p className="text-xs text-slate-500">Active applications/interviews</p>
+              </CardContent>
+            </Card>
 
-          {/* Unplaced */}
-          <Card className="border-slate-200 bg-white shadow-sm rounded-xl">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-slate-500">Unplaced</CardTitle>
-              <div className={`rounded-full p-2 bg-amber-50 text-amber-700`}>
-                <AlertCircle className="h-4 w-4" aria-hidden="true" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-slate-900">{unplacedStudents.length}</div>
-              <p className="text-xs text-slate-500">Require immediate attention</p>
-            </CardContent>
-          </Card>
-        </div>
+            <Card className="border-slate-200 bg-white/90 shadow-sm rounded-2xl">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-slate-500">Unplaced</CardTitle>
+                <div className="rounded-full p-2 bg-amber-50 text-amber-600">
+                  <AlertCircle className="h-4 w-4" aria-hidden="true" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-semibold text-slate-900">{unplacedStudents.length}</div>
+                <p className="text-xs text-slate-500">Require immediate attention</p>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
 
-        {/* Search and Filter - Updated UI */}
-        <Card className="shadow-lg border-slate-100 rounded-xl">
-          <CardContent className="p-4 sm:p-6">
+        {/* Search and Filter Card */}
+        <Card className="shadow-sm border-slate-200 rounded-2xl bg-white">
+          <CardContent className="p-6">
             <div className="flex flex-col lg:flex-row gap-4 items-center">
               <div className="flex-1 relative w-full">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -289,13 +283,12 @@ export default function StudentsPage() {
                   placeholder="Search students by name, email, or skills..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 h-10 border-slate-300 focus:border-sky-500 rounded-lg transition"
+                  className="pl-10 h-10 border-slate-200 focus:border-sky-500 rounded-lg transition"
                 />
               </div>
               <div className="flex gap-4 w-full lg:w-auto">
-                {/* Department Filter */}
                 <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-                  <SelectTrigger className="w-full lg:w-48 h-10 border-slate-300 focus:ring-sky-500 rounded-lg">
+                  <SelectTrigger className="w-full lg:w-48 h-10 border-slate-200 focus:ring-sky-500 rounded-lg">
                     <SelectValue placeholder="All Departments" />
                   </SelectTrigger>
                   <SelectContent>
@@ -307,9 +300,8 @@ export default function StudentsPage() {
                     ))}
                   </SelectContent>
                 </Select>
-                {/* Year Filter */}
                 <Select value={yearFilter} onValueChange={setYearFilter}>
-                  <SelectTrigger className="w-full lg:w-32 h-10 border-slate-300 focus:ring-sky-500 rounded-lg">
+                  <SelectTrigger className="w-full lg:w-32 h-10 border-slate-200 focus:ring-sky-500 rounded-lg">
                     <SelectValue placeholder="All Years" />
                   </SelectTrigger>
                   <SelectContent>
@@ -326,36 +318,35 @@ export default function StudentsPage() {
           </CardContent>
         </Card>
 
-        {/* Student Tabs - Updated Tabs UI and Content Structure */}
+        {/* Tabs Section */}
         <Tabs defaultValue="all" className="space-y-6">
           <TabsList className="bg-slate-100 p-1 h-auto rounded-full">
             <TabsTrigger 
                 value="all" 
-                className="rounded-full data-[state=active]:bg-sky-600 data-[state=active]:text-white data-[state=active]:shadow-md transition text-slate-700 hover:text-slate-900"
+                className="rounded-full data-[state=active]:bg-sky-600 data-[state=active]:text-white data-[state=active]:shadow-sm transition text-slate-700 hover:text-slate-900"
             >
                 All Students ({filteredStudents.length})
             </TabsTrigger>
             <TabsTrigger 
                 value="placed" 
-                className="rounded-full data-[state=active]:bg-sky-600 data-[state=active]:text-white data-[state=active]:shadow-md transition text-slate-700 hover:text-slate-900"
+                className="rounded-full data-[state=active]:bg-sky-600 data-[state=active]:text-white data-[state=active]:shadow-sm transition text-slate-700 hover:text-slate-900"
             >
                 Placed ({placedStudents.length})
             </TabsTrigger>
             <TabsTrigger 
                 value="active" 
-                className="rounded-full data-[state=active]:bg-sky-600 data-[state=active]:text-white data-[state=active]:shadow-md transition text-slate-700 hover:text-slate-900"
+                className="rounded-full data-[state=active]:bg-sky-600 data-[state=active]:text-white data-[state=active]:shadow-sm transition text-slate-700 hover:text-slate-900"
             >
                 In Process ({activeStudents.length})
             </TabsTrigger>
             <TabsTrigger 
                 value="unplaced" 
-                className="rounded-full data-[state=active]:bg-sky-600 data-[state=active]:text-white data-[state=active]:shadow-md transition text-slate-700 hover:text-slate-900"
+                className="rounded-full data-[state=active]:bg-sky-600 data-[state=active]:text-white data-[state=active]:shadow-sm transition text-slate-700 hover:text-slate-900"
             >
                 Unplaced ({unplacedStudents.length})
             </TabsTrigger>
           </TabsList>
 
-          {/* List View for Students (Single Column) */}
           <TabsContent value="all" className="space-y-4">
             <div className="grid gap-4">
               {filteredStudents.map((student) => (
@@ -389,7 +380,6 @@ export default function StudentsPage() {
           </TabsContent>
         </Tabs>
 
-        {/* Student Details Dialog */}
         <StudentDetailsDialog student={selectedStudent} onClose={() => setSelectedStudent(null)} />
       </div>
     )
