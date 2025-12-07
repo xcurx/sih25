@@ -41,6 +41,7 @@ model Student {
   certificates Certificate[]
   projects Project[]
   nofiications Notification[]
+  Feedbacks Feedback[]
 }
 
 model Faculty {
@@ -143,6 +144,7 @@ model Internship {
   salary String?
   performanceReview String?
   certificateRel Certificate?
+  feedbacks Feedback[]
 }
 
 model Certificate {
@@ -186,6 +188,17 @@ model Notification {
 
   facultyId String?
   facultyRel Faculty? @relation(fields: [facultyId], references: [id])
+}
+
+model Feedback {
+  id String @id @default(cuid())
+  internshipId String
+  internshipRel Internship @relation(fields: [internshipId], references: [id])
+  studentId String
+  studentRel Student @relation(fields: [studentId], references: [id])
+  feedbackText String
+  description String
+  createdAt DateTime @default(now())
 }
 
 enum Status {

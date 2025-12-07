@@ -137,6 +137,12 @@ const CustomEmployerCard = ({ company, onViewDetails, companyInfo }: CustomEmplo
                         Last interaction: {lastInteraction}
                     </div>
                     <div className="flex gap-2">
+                        <Link href={`/employers/${company.id}/feedbacks`}>
+                            <Button variant="outline" size="sm" className="rounded-full text-amber-600 border-amber-300 hover:bg-amber-50">
+                                <MessageSquare className="h-4 w-4 mr-2" />
+                                Feedbacks
+                            </Button>
+                        </Link>
                         <Button variant="outline" size="sm" className="rounded-full text-slate-700 border-slate-300 hover:bg-slate-100">
                             Contact
                         </Button>
