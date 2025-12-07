@@ -230,10 +230,7 @@ export default function EmployersPage() {
           <h1 className="text-3xl font-bold text-slate-800">Employer Management</h1>
           <p className="text-base text-slate-500 mt-1">Manage company partnerships and employer relationships.</p>
         </div>
-        <Button className="bg-sky-600 hover:bg-sky-700 rounded-full shadow-lg transition duration-200">
-          <Plus className="mr-2 h-4 w-4" />
-          Add New Employer
-        </Button>
+        
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

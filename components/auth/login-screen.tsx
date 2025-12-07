@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge"
 import { Building2, Globe, GraduationCap, Loader2, Mail, Phone, Shield, ShieldCheck, Sparkles, Type } from "lucide-react"
 import LandingHeader from "../layout/LandingHeader"
+import Footer from "../layout/Footer"
 
 const roleOptions = [
   { value: "student", label: "Student / Alumnus" },
@@ -142,7 +143,7 @@ export function LoginScreen() {
             className="pointer-events-none absolute inset-0 opacity-40"
             style={{ backgroundImage: "radial-gradient(circle at 1px 1px, rgba(14,165,233,0.25) 1px, transparent 0)", backgroundSize: "40px 40px" }}
           />
-          <div className="relative space-y-6">
+          <div className="relative flex h-full flex-col gap-6">
             <Badge className="bg-sky-100 text-sky-800" variant="outline">
               Digital Campus Enablement
             </Badge>
@@ -181,6 +182,43 @@ export function LoginScreen() {
                 </div>
               ))}
             </dl>
+
+            <div className="grid gap-3 rounded-2xl border border-white/60 bg-white/80 p-5 text-sm text-slate-700">
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Operational safeguards</p>
+              <div className="grid gap-2 sm:grid-cols-3">
+                <div className="flex items-center gap-2 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">
+                  <Shield className="h-4 w-4 text-sky-600" aria-hidden="true" />
+                  Role-based access
+                </div>
+                <div className="flex items-center gap-2 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">
+                  <Globe className="h-4 w-4 text-sky-600" aria-hidden="true" />
+                  24x7 availability
+                </div>
+                <div className="flex items-center gap-2 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">
+                  <Sparkles className="h-4 w-4 text-sky-600" aria-hidden="true" />
+                  Accessibility-ready
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-auto grid gap-3 rounded-2xl border border-white/60 bg-white/80 p-5 text-sm text-slate-700">
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Service status & support</p>
+              <div className="grid gap-2 sm:grid-cols-2">
+                <div className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">
+                  <p className="text-xs text-slate-500">Uptime</p>
+                  <p className="text-sm font-semibold text-slate-800">99.4% last 30 days</p>
+                </div>
+                <div className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">
+                  <p className="text-xs text-slate-500">Support window</p>
+                  <p className="text-sm font-semibold text-slate-800">Mon–Sat · 9:00–18:00</p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2 text-xs text-slate-600">
+                <span className="rounded-full bg-slate-100 px-3 py-1">Data residency: India</span>
+                <span className="rounded-full bg-slate-100 px-3 py-1">Encrypted at rest</span>
+                <span className="rounded-full bg-slate-100 px-3 py-1">24x7 monitoring</span>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -321,6 +359,8 @@ export function LoginScreen() {
           </div>
         </section>
       </main>
+
+      <Footer />
     </div>
   )
 }
