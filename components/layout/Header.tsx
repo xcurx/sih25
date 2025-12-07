@@ -101,20 +101,13 @@ export default function Header() {
 
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4">
-          <Link href="/" aria-label="Go to main landing page" className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="rounded-full border border-slate-200 p-3">
-                <Shield className="h-6 w-6 text-slate-600" />
-              </div>
-              <div className="rounded-full border border-slate-200 p-3">
-                <GraduationCap className="h-6 w-6 text-sky-600" />
-              </div>
+          <Link href="/" aria-label="Go to main landing page" className="flex items-center gap-3">
+            <div className="rounded-full border border-slate-200 p-3">
+              <Shield className="h-7 w-7 text-sky-700" />
             </div>
-
             <div className="text-left">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-500">Government of India</p>
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Gov Placement Portal</p>
-              <p className="text-base font-semibold text-slate-900">National Internship & Placement Mission</p>
+              <p className="text-lg font-semibold text-slate-900 leading-tight">Opportunet</p>
+              <p className="text-xs font-medium text-slate-500">National internship & Placement Mission</p>
             </div>
           </Link>
 
