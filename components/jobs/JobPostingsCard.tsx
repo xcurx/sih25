@@ -33,6 +33,7 @@ import {
   MoreHorizontal,
   Trash2,
   Users,
+  Sparkles,
 } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
@@ -194,6 +195,12 @@ export default function JobPostingCard({ job }: { job: Opportunity }) {
             </Button>
           </Link>
           <ApplicationsDialog opportunity={job} />
+          <Link href={`/job-postings/${job.id}/recommended-students`}>
+            <Button variant="outline" className="rounded-full border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100 hover:border-purple-300">
+              <Sparkles className="h-4 w-4 mr-2" />
+              View Recommended Students
+            </Button>
+          </Link>
         </div>
       </CardContent>
     </Card>

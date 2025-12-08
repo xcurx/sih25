@@ -244,6 +244,8 @@ model MatchedStudent {
   opportunityId String
   opportunityRel Opportunity @relation(fields: [opportunityId], references: [id])
   status MatchStatus @default(pending)
+  emailSent Boolean @default(false)
+  createdAt DateTime @default(now())
 
   @@unique([studentId, opportunityId])
 }
