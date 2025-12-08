@@ -274,8 +274,8 @@ export default function StudentsPage() {
         </section>
 
         {/* Search and Filter Card */}
-        <Card className="shadow-lg border-slate-200 rounded-xl bg-white">
-          <CardContent className="p-6">
+        <Card className="shadow-lg border-slate-100 rounded-xl">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex flex-col lg:flex-row gap-4 items-center">
               <div className="flex-1 relative w-full">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />

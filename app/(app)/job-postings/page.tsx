@@ -143,14 +143,13 @@ export default function JobPostingsPage() {
                             placeholder="Search jobs or companies..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            // Changed height to h-12 for consistency, adjusted border
-                            className="pl-10 h-12 border-slate-200 focus:border-sky-500 rounded-lg transition" 
+                            className="pl-10 h-10 border-slate-200 focus:border-sky-500 rounded-lg transition" 
                         />
                     </div>
-                    {/* Select Dropdown (Fixed width on medium screens, h-12 height) */}
+                    {/* Select Dropdown (Fixed width on medium screens, h-10 height) */}
                     <Select value={statusFilter} onValueChange={setStatusFilter}>
                         <SelectTrigger 
-                            className="w-full md:w-48 h-12 border-slate-200 focus:ring-sky-500 rounded-lg hover:bg-sky-50 hover:border-sky-300"
+                            className="w-full md:w-48 h-10 border-slate-200 focus:ring-sky-500 rounded-lg hover:bg-sky-50 hover:border-sky-300"
                         >
                             <SelectValue placeholder="Filter by status" />
                         </SelectTrigger>

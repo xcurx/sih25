@@ -204,7 +204,7 @@ export default function InterviewsPage() {
                             />
                         </div>
                         <Select value={statusFilter} onValueChange={setStatusFilter}>
-                            <SelectTrigger className="w-full lg:w-48 rounded-2xl border-slate-200 hover:bg-sky-50 hover:border-sky-300">
+                            <SelectTrigger className="!h-12 w-full lg:w-48 rounded-2xl border-slate-200 hover:bg-sky-50 hover:border-sky-300">
                                 <SelectValue placeholder="All Status" />
                             </SelectTrigger>
                             <SelectContent>
