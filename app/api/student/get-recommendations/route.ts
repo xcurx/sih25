@@ -1,6 +1,6 @@
 import { auth } from "@/auth"
 import { Opportunity, PrismaClient } from "@/lib/generated/prisma"
-import axios from "axios"
+import axios, { AxiosError } from "axios"
 import { NextResponse } from "next/server"
 
 interface RecommendationResponse {
@@ -53,10 +53,30 @@ export const GET = async () => {
             }
         })
 
+        if (!student) {
+            return NextResponse.json({ error: "Student profile not found." }, { status: 404 })
+        }
+
+        const missingFields: string[] = []
+        if (!student.branch) missingFields.push("branch")
+        if (!student.batch) missingFields.push("batch")
+        if (!student.skills || student.skills.length === 0) missingFields.push("skills")
+
+        if (missingFields.length > 0) {
+            return NextResponse.json(
+                {
+                    error: `Please complete your profile (${missingFields.join(
+                        ", "
+                    )}) to receive recommendations.`,
+                },
+                { status: 400 }
+            )
+        }
+
         const res = await axios.post(`${process.env.RECOMMENDATION_API_URL}/api/recommendations`, {
-            department: student?.branch,
-            batch: student?.batch?.toString(),
-            skills: student?.skills,
+            department: student.branch,
+            batch: student.batch?.toString(),
+            skills: student.skills ?? [],
         })
 
         console.log("Recommendations response:", res.data);
@@ -105,14 +125,30 @@ export const GET = async () => {
             take: 20, 
         })
 
-        const recommendedOpportunities: RecommendedOpportunity[] = recommendations.map((r:any, index:number) => {
-            return {
-                ...r, job_id: undefined, opportunity: opportunities[index], job_type: undefined, location: undefined
-            }
-        });
+        const opportunityMap = new Map(opportunities.map((opp) => [opp.id, opp]))
 
-        return NextResponse.json( recommendedOpportunities, { status: 200 } )
+        const recommendedOpportunities: RecommendedOpportunity[] = recommendations
+            .map((rec) => {
+                const opportunity = opportunityMap.get(rec.job_id)
+                if (!opportunity) return null
+                const { job_id, job_type, location, ...rest } = rec
+                return {
+                    ...rest,
+                    opportunity,
+                }
+            })
+            .filter((rec): rec is RecommendedOpportunity => rec !== null)
+
+        return NextResponse.json(recommendedOpportunities, { status: 200 })
     } catch (error) {
-        return NextResponse.json({ error }, { status: 500 })
+        console.error("Student recommendations error:", error)
+        if (axios.isAxiosError(error)) {
+            const message = error.response?.data ?? error.message
+            return NextResponse.json(
+                { error: "Recommendation service failed", details: message },
+                { status: error.response?.status || 502 }
+            )
+        }
+        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
     }
 }

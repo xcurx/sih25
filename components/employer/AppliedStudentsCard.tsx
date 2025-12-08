@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Calendar } from "@/components/ui/calendar"
+import { Input } from "@/components/ui/input"
 import { disabledDates } from "@/lib/data"
 import type { ApplicationStatus, Student } from "@/lib/types"
 import axios from "axios"
@@ -56,6 +57,7 @@ export default function AppliedStudentCard({
   const [apStatus, setApStatus] = useState<ApplicationStatus>(status);
   const [showCalendarDialog, setShowCalendarDialog] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [selectedTime, setSelectedTime] = useState<string>("");
 
   const handleReview = () => {
     if (status === "applied") {
@@ -73,18 +75,33 @@ export default function AppliedStudentCard({
       toast.error("Please select an interview date.");
       return;
     }
+    if (!selectedTime) {
+      toast.error("Please select an interview time.");
+      return;
+    }
+
+    const [hours, minutes] = selectedTime.split(":").map(Number);
+    if (Number.isNaN(hours) || Number.isNaN(minutes)) {
+      toast.error("Invalid interview time selected.");
+      return;
+    }
+
+    const interviewDateTime = new Date(selectedDate);
+    interviewDateTime.setHours(hours, minutes, 0, 0);
 
     setLoading(true);
     try {
       const res = await axios.patch(`/api/employer/application/shortlist`, {
         apId: id, 
-        interviewDate: selectedDate.toISOString()
+        interviewDateTime: interviewDateTime.toISOString(),
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
       }, { withCredentials: true })
       if (res.status === 200) {
         toast.success("Student shortlisted successfully.");
         setApStatus("shortlisted");
         setShowCalendarDialog(false);
         setSelectedDate(undefined);
+        setSelectedTime("");
       } else {
         toast.error("Failed to shortlist student.");
       }
@@ -257,6 +274,15 @@ export default function AppliedStudentCard({
               })}</span>
             </div>
           )}
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-slate-700">Select Time</p>
+            <Input 
+              type="time" 
+              value={selectedTime}
+              onChange={(event) => setSelectedTime(event.target.value)}
+              className="rounded-2xl border-slate-200"
+            />
+          </div>
           <DialogFooter className="gap-2 sm:gap-0">
             <div className="space-x-2 w-full flex">
               <Button 
@@ -265,6 +291,7 @@ export default function AppliedStudentCard({
                 onClick={() => {
                   setShowCalendarDialog(false);
                   setSelectedDate(undefined);
+                  setSelectedTime("");
                 }}
               >
                 Cancel
