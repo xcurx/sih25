@@ -122,7 +122,7 @@ export default function StudentReviewPage() {
               <div className="mt-2 flex items-center gap-2 text-white/80">
                 <GraduationCap className="h-4 w-4" />
                 <span>{student.branch}</span>
-                <span className="text-white/50">GÇó</span>
+                <span className="text-white/50">â€¢</span>
                 <span>Year {(student.batch as number) - new Date().getFullYear() + 5}</span>
               </div>
             </div>
