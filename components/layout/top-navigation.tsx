@@ -132,7 +132,7 @@ export function TopNavigation() {
       <div className="mx-auto flex w-full items-center gap-4 px-4 py-3">
         <Link href="/dashboard" className="flex items-center gap-2 text-slate-900">
           <Image
-            src="./Logo_Saksham.png"
+            src="/Logo_Saksham.png"
             alt="Saksham"
             width={36}
             height={36}
