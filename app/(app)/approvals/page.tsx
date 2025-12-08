@@ -9,7 +9,6 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import type { ApprovalApplication } from "@/lib/types"
 import axios from "axios"
@@ -24,14 +23,16 @@ import {
 } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { toast } from "sonner"
 
 export default function ApprovalPage() {
   const { data: session, status } = useSession()
   const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
   const [departmentFilter, setDepartmentFilter] = useState("all")
+  const [sortOption, setSortOption] = useState("date-latest")
+  const [searchExpanded, setSearchExpanded] = useState(false)
+  const [activeTab, setActiveTab] = useState("all")
   const [applications, setApplications] = useState<ApprovalApplication[]>([])
   const [selectedApplication, setSelectedApplication] = useState<ApprovalApplication | null>(null)
   const [showDetailsDialog, setShowDetailsDialog] = useState(false)
@@ -41,6 +42,7 @@ export default function ApprovalPage() {
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState(false)
   const router = useRouter()
+  const searchPopupRef = useRef<HTMLDivElement>(null)
 
   const getApprovals = async () => {
     setLoading(true)
@@ -95,22 +97,44 @@ export default function ApprovalPage() {
     setShowDetailsDialog(false)
   }
 
-  const filteredApplications = applications.filter((app) => {
-    const matchesSearch =
-      app.opportunityRel.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      app.opportunityRel.companyRel?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      app.studentRel?.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredAndSortedApplications = applications
+    .filter((app) => {
+      const matchesSearch =
+        app.opportunityRel.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        app.opportunityRel.companyRel?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        app.studentRel?.name.toLowerCase().includes(searchTerm.toLowerCase())
 
-    const matchesStatus = statusFilter === "all" || (statusFilter === "applied" ? app.mentorApproved === false : app.mentorApproved === true)
+      const matchesTab = 
+        activeTab === "all" || 
+        (activeTab === "pending" && app.mentorApproved === false && app.status === "applied") ||
+        (activeTab === "approved" && app.mentorApproved === true && app.status === "applied") ||
+        (activeTab === "shortlisted" && app.status === "shortlisted") ||
+        (activeTab === "rejected" && app.status === "rejected")
 
-    const matchesDepartment =
-      departmentFilter === "all" || app.studentRel?.branch === departmentFilter
+      const matchesDepartment =
+        departmentFilter === "all" || app.studentRel?.branch === departmentFilter
 
-    return matchesSearch && matchesStatus && matchesDepartment
-  })
+      return matchesSearch && matchesTab && matchesDepartment
+    })
+    .sort((a, b) => {
+      switch (sortOption) {
+        case "a-z":
+          return (a.studentRel?.name || "").localeCompare(b.studentRel?.name || "")
+        case "z-a":
+          return (b.studentRel?.name || "").localeCompare(a.studentRel?.name || "")
+        case "date-latest":
+          return new Date(b.appliedAt).getTime() - new Date(a.appliedAt).getTime()
+        case "date-oldest":
+          return new Date(a.appliedAt).getTime() - new Date(b.appliedAt).getTime()
+        default:
+          return 0
+      }
+    })
 
-  const pendingApplications = filteredApplications.filter((app) => app.mentorApproved === false)
-  const reviewedApplications = filteredApplications.filter((app) => app.mentorApproved === true)
+  const pendingApplications = applications.filter((app) => app.mentorApproved === false && app.status === "applied")
+  const approvedApplications = applications.filter((app) => app.mentorApproved === true && app.status === "applied")
+  const shortlistedApplications = applications.filter((app) => app.status === "shortlisted")
+  const rejectedApplications = applications.filter((app) => app.status === "rejected")
 
   const departments = Array.from(new Set(applications.map((app) => app.studentRel?.branch).filter(Boolean)))
 
@@ -119,6 +143,22 @@ export default function ApprovalPage() {
       getApprovals()
     }
   }, [status])
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchPopupRef.current && !searchPopupRef.current.contains(event.target as Node)) {
+        setSearchExpanded(false)
+      }
+    }
+
+    if (searchExpanded) {
+      document.addEventListener("mousedown", handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [searchExpanded])
 
   if (status === "loading" || loading) {
     return <Loader />
@@ -130,9 +170,9 @@ export default function ApprovalPage() {
   }
 
   return (
-    <div className="p-6 max-w-7xl w-full mx-auto space-y-8">
+    <div className="w-full">
       {/* Hero Section with Stats - matching other dashboards */}
-      <section className="relative overflow-hidden rounded-[32px] border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 shadow space-y-6">
+      <section className="relative overflow-hidden bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 space-y-6 max-w-7xl mx-auto">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.08),transparent_55%)]" />
         <div className="relative space-y-4">
           <div>
@@ -147,7 +187,7 @@ export default function ApprovalPage() {
         {/* Stats Cards inside gradient */}
         <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Card 1: Total Pending */}
-          <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
+          <Card className="border-slate-200 bg-white/90  rounded-xl ">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-slate-500">Total Pending</CardTitle>
               <div className="rounded-full p-2 bg-red-50 text-red-600">
@@ -161,192 +201,212 @@ export default function ApprovalPage() {
           </Card>
           
           {/* Card 2: Reviewed Applications */}
-          <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
+          <Card className="border-slate-200 bg-white/90  rounded-xl ">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-slate-500">Reviewed</CardTitle>
+              <CardTitle className="text-sm font-medium text-slate-500">Approved</CardTitle>
               <div className="rounded-full p-2 bg-emerald-50 text-emerald-600">
                 <CheckCircle className="h-4 w-4" />
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-semibold text-slate-900">{reviewedApplications.length}</div>
+              <div className="text-2xl font-semibold text-slate-900">{approvedApplications.length}</div>
               <p className="text-xs text-slate-500">Mentor approved</p>
             </CardContent>
           </Card>
           
-          {/* Card 3: All Applications */}
-          <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
+          {/* Card 3: Shortlisted Applications */}
+          <Card className="border-slate-200 bg-white/90 rounded-xl ">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-slate-500">All Applications</CardTitle>
-              <div className="rounded-full p-2 bg-sky-50 text-sky-600">
+              <CardTitle className="text-sm font-medium text-slate-500">Shortlisted</CardTitle>
+              <div className="rounded-full p-2 bg-blue-50 text-blue-600">
                 <FileText className="h-4 w-4" />
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-semibold text-slate-900">{applications.length}</div>
-              <p className="text-xs text-slate-500">Total received</p>
+              <div className="text-2xl font-semibold text-slate-900">{shortlistedApplications.length}</div>
+              <p className="text-xs text-slate-500">By employer</p>
             </CardContent>
           </Card>
           
-          {/* Card 4: Recent Submissions */}
-          <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
+          {/* Card 4: Rejected Applications */}
+          <Card className="border-slate-200 bg-white/90 rounded-xl">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-slate-500">Recent</CardTitle>
-              <div className="rounded-full p-2 bg-sky-50 text-sky-600">
-                <Calendar className="h-4 w-4" />
+              <CardTitle className="text-sm font-medium text-slate-500">Rejected</CardTitle>
+              <div className="rounded-full p-2 bg-red-50 text-red-600">
+                <XCircle className="h-4 w-4" />
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-semibold text-slate-900">
-                {applications.filter(app => {
-                  const weekAgo = new Date()
-                  weekAgo.setDate(weekAgo.getDate() - 7)
-                  return new Date(app.appliedAt) > weekAgo
-                }).length}
-              </div>
-              <p className="text-xs text-slate-500">Last 7 days</p>
+              <div className="text-2xl font-semibold text-slate-900">{rejectedApplications.length}</div>
+              <p className="text-xs text-slate-500">Not selected</p>
             </CardContent>
           </Card>
         </div>
       </section>
 
-      {/* Search and Filter */}
-      <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
-        <CardContent className="p-6">
-          <div className="flex flex-col lg:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-              <Input
-                placeholder="Search by student, company, or job title..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 h-10 border-slate-200 focus:border-sky-600 rounded-lg transition"
-              />
+      {/* Sticky Filter Bar */}
+      <div className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          {/* Main Filter Row */}
+          <div className="flex items-center gap-3">
+            {/* Tabs */}
+            <div className="flex items-center bg-slate-100 rounded-full p-1">
+              <button
+                onClick={() => setActiveTab("all")}
+                className={`px-3 py-2 rounded-full text-sm font-medium transition whitespace-nowrap ${
+                  activeTab === "all"
+                    ? "bg-sky-600 text-white shadow-sm"
+                    : "text-slate-700 hover:text-slate-900"
+                }`}
+              >
+                All ({applications.length})
+              </button>
+              <button
+                onClick={() => setActiveTab("pending")}
+                className={`px-3 py-2 rounded-full text-sm font-medium transition whitespace-nowrap ${
+                  activeTab === "pending"
+                    ? "bg-sky-600 text-white shadow-sm"
+                    : "text-slate-700 hover:text-slate-900"
+                }`}
+              >
+                Pending ({pendingApplications.length})
+              </button>
+              <button
+                onClick={() => setActiveTab("approved")}
+                className={`px-3 py-2 rounded-full text-sm font-medium transition whitespace-nowrap ${
+                  activeTab === "approved"
+                    ? "bg-sky-600 text-white shadow-sm"
+                    : "text-slate-700 hover:text-slate-900"
+                }`}
+              >
+                Approved ({approvedApplications.length})
+              </button>
+              <button
+                onClick={() => setActiveTab("shortlisted")}
+                className={`px-3 py-2 rounded-full text-sm font-medium transition whitespace-nowrap ${
+                  activeTab === "shortlisted"
+                    ? "bg-sky-600 text-white shadow-sm"
+                    : "text-slate-700 hover:text-slate-900"
+                }`}
+              >
+                Shortlisted ({shortlistedApplications.length})
+              </button>
+              <button
+                onClick={() => setActiveTab("rejected")}
+                className={`px-3 py-2 rounded-full text-sm font-medium transition whitespace-nowrap ${
+                  activeTab === "rejected"
+                    ? "bg-sky-600 text-white shadow-sm"
+                    : "text-slate-700 hover:text-slate-900"
+                }`}
+              >
+                Rejected ({rejectedApplications.length})
+              </button>
             </div>
-            <div className="flex gap-4 w-full lg:w-auto">
-              <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-                <SelectTrigger className="w-full lg:w-48 h-10 border-slate-200 focus:ring-sky-600 rounded-lg">
-                  <SelectValue placeholder="All Departments" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Departments</SelectItem>
-                  {departments.map((dept) => (
-                    <SelectItem key={dept} value={dept as string}>
-                      {dept}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full lg:w-40 h-10 border-slate-200 focus:ring-sky-600 rounded-lg">
-                  <SelectValue placeholder="All Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="applied">Pending</SelectItem>
-                  <SelectItem value="reviewed">Reviewed</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+
+            {/* Circular Search Button */}
+            <button
+              onClick={() => setSearchExpanded(!searchExpanded)}
+              className={`h-10 w-10 rounded-full flex items-center justify-center transition ${
+                searchExpanded
+                  ? "bg-sky-600 text-white shadow-md"
+                  : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+              }`}
+            >
+              <Search className="h-4 w-4" />
+            </button>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            {/* Department Filter */}
+            <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+              <SelectTrigger className="w-[180px] h-10 border-slate-200 focus:ring-sky-600 rounded-lg">
+                <SelectValue placeholder="All Departments" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Departments</SelectItem>
+                {departments.map((dept) => (
+                  <SelectItem key={dept} value={dept as string}>
+                    {dept}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Sort Filter */}
+            <Select value={sortOption} onValueChange={setSortOption}>
+              <SelectTrigger className="w-[180px] h-10 border-slate-200 focus:ring-sky-600 rounded-lg">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="date-latest">Date: Latest First</SelectItem>
+                <SelectItem value="date-oldest">Date: Oldest First</SelectItem>
+                <SelectItem value="a-z">Name: A–Z</SelectItem>
+                <SelectItem value="z-a">Name: Z–A</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-        </CardContent>
-      </Card>
 
-      {/* Applications Tabs */}
-      <Tabs defaultValue="all" className="space-y-6">
-        <TabsList className="bg-slate-100 p-1 h-auto rounded-full">
-          <TabsTrigger 
-            value="all" 
-            className="rounded-full data-[state=active]:bg-sky-600 data-[state=active]:text-white data-[state=active]:shadow-sm transition text-slate-700 hover:text-slate-900"
-          >
-            All ({filteredApplications.length})
-          </TabsTrigger>
-          <TabsTrigger 
-            value="pending" 
-            className="rounded-full data-[state=active]:bg-sky-600 data-[state=active]:text-white data-[state=active]:shadow-sm transition text-slate-700 hover:text-slate-900"
-          >
-            Pending ({pendingApplications.length})
-          </TabsTrigger>
-          <TabsTrigger 
-            value="reviewed" 
-            className="rounded-full data-[state=active]:bg-sky-600 data-[state=active]:text-white data-[state=active]:shadow-sm transition text-slate-700 hover:text-slate-900"
-          >
-            Reviewed ({reviewedApplications.length})
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="all" className="space-y-4">
-          {filteredApplications.length > 0 ? (
-            filteredApplications.map((app) => (
-              <ApplicationApprovalCard
-                key={app.id}
-                application={app}
-                onViewDetails={() => {
-                  setSelectedApplication(app)
-                  setShowDetailsDialog(true)
-                }}
-                onApprove={() => openActionDialog(app, "approve")}
-                onReject={() => openActionDialog(app, "reject")}
-              />
-            ))
-          ) : (
-            <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
-              <CardContent className="p-12 text-center">
-                <FileText className="h-12 w-12 mx-auto text-slate-400 mb-4" />
-                <p className="text-slate-500">No applications found matching the filters</p>
-              </CardContent>
-            </Card>
+          {/* Search Popup - Appears Below Filter Row */}
+          {searchExpanded && (
+            <div 
+              ref={searchPopupRef}
+              className="mt-3 animate-in slide-in-from-top-2 duration-200"
+            >
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Input
+                  placeholder="Search by student, company, or job title..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  autoFocus
+                  className="pl-10 pr-10 h-10 border-slate-200 focus:border-sky-600 rounded-lg"
+                />
+                {searchTerm && (
+                  <button
+                    onClick={() => setSearchTerm("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  >
+                    <XCircle className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+            </div>
           )}
-        </TabsContent>
+        </div>
+      </div>
 
-        <TabsContent value="pending" className="space-y-4">
-          {pendingApplications.length > 0 ? (
-            pendingApplications.map((app) => (
-              <ApplicationApprovalCard
-                key={app.id}
-                application={app}
-                onViewDetails={() => {
-                  setSelectedApplication(app)
-                  setShowDetailsDialog(true)
-                }}
-                onApprove={() => openActionDialog(app, "approve")}
-                onReject={() => openActionDialog(app, "reject")}
-              />
-            ))
-          ) : (
-            <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
-              <CardContent className="p-12 text-center">
-                <CheckCircle className="h-12 w-12 mx-auto text-emerald-500 mb-4" />
-                <p className="text-slate-500">No pending applications right now!</p>
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
-
-        <TabsContent value="reviewed" className="space-y-4">
-          {reviewedApplications.length > 0 ? (
-            reviewedApplications.map((app) => (
-              <ApplicationApprovalCard
-                key={app.id}
-                application={app}
-                onViewDetails={() => {
-                  setSelectedApplication(app)
-                  setShowDetailsDialog(true)
-                }}
-                onApprove={() => openActionDialog(app, "approve")}
-                onReject={() => openActionDialog(app, "reject")}
-              />
-            ))
-          ) : (
-            <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
-              <CardContent className="p-12 text-center">
-                <AlertCircle className="h-12 w-12 mx-auto text-amber-500 mb-4" />
-                <p className="text-slate-500">No applications have been reviewed yet.</p>
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
-      </Tabs>
+      {/* Applications List */}
+      <div className="space-y-4 mt-6 max-w-7xl mx-auto px-6 pb-8">
+        {filteredAndSortedApplications.length > 0 ? (
+          filteredAndSortedApplications.map((app) => (
+            <ApplicationApprovalCard
+              key={app.id}
+              application={app}
+              onViewDetails={() => {
+                setSelectedApplication(app)
+                setShowDetailsDialog(true)
+              }}
+              onApprove={() => openActionDialog(app, "approve")}
+              onReject={() => openActionDialog(app, "reject")}
+            />
+          ))
+        ) : (
+          <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
+            <CardContent className="p-12 text-center">
+              <FileText className="h-12 w-12 mx-auto text-slate-400 mb-4" />
+              <p className="text-slate-500">
+                {activeTab === "pending" && pendingApplications.length === 0
+                  ? "No pending applications right now!"
+                  : activeTab === "approved" && approvedApplications.length === 0
+                  ? "No approved applications yet."
+                  : activeTab === "shortlisted" && shortlistedApplications.length === 0
+                  ? "No shortlisted applications yet."
+                  : activeTab === "rejected" && rejectedApplications.length === 0
+                  ? "No rejected applications yet."
+                  : "No applications found matching the filters"}
+              </p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
 
       {/* Application Details Dialog */}
       <ApplicationDetailsDialog

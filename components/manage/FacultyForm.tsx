@@ -72,7 +72,7 @@ export function FacultyForm() {
     <Card className="border-slate-200 bg-white/95 shadow-lg">
       <CardHeader>
         <div className="flex flex-col gap-3">
-          <Badge variant="secondary" className="w-fit gap-2 rounded-full bg-indigo-50 text-indigo-700">
+          <Badge variant="secondary" className="w-fit gap-2 rounded-full bg-sky-50 text-sky-600">
             <UserPlus className="h-4 w-4" />
             Faculty access
           </Badge>
@@ -128,7 +128,7 @@ export function FacultyForm() {
             <Button
               type="submit"
               disabled={loading}
-              className="rounded-full bg-indigo-600 text-white hover:bg-indigo-700"
+              className="rounded-full bg-sky-600 text-white hover:bg-sky-700"
             >
               {loading ? "Saving..." : "Create faculty"}
             </Button>

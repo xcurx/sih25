@@ -104,7 +104,7 @@ export default function StudentProfilePage() {
 
   return (
     <div className="relative p-6 max-w-6xl w-full mx-auto space-y-6">
-      <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]" />
+      {/* <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]" /> */}
       <div className="absolute top-0 left-1/4 -z-10 h-64 w-64 rounded-full bg-sky-100 opacity-50 blur-3xl" />
       <div className="absolute bottom-0 right-1/4 -z-10 h-64 w-64 rounded-full bg-blue-100 opacity-50 blur-3xl" />
 
@@ -254,49 +254,7 @@ export default function StudentProfilePage() {
             </CardContent>
           </Card>
 
-          {student.projects && student.projects.length > 0 && (
-            <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold text-slate-900 flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-slate-600" />
-                  Projects ({student.projects.length})
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {student.projects.map((project) => (
-                  <div key={project.id} className="rounded-2xl border border-slate-200 bg-white p-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <h4 className="font-semibold text-slate-900">{project.title}</h4>
-                      <div className="flex gap-2">
-                        {project.githubUrl && (
-                          <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
-                            <Button variant="ghost" size="sm" className="rounded-full h-8 w-8 p-0">
-                              <Github className="h-4 w-4" />
-                            </Button>
-                          </a>
-                        )}
-                        {project.liveUrl && (
-                          <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">
-                            <Button variant="ghost" size="sm" className="rounded-full h-8 w-8 p-0">
-                              <ExternalLink className="h-4 w-4" />
-                            </Button>
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                    <p className="text-sm text-slate-600 mb-3">{project.description}</p>
-                    <div className="flex flex-wrap gap-2">
-                      {project.technologies.map((tech, index) => (
-                        <Badge key={index} variant="outline" className="rounded-full text-xs">
-                          {tech}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          )}
+         
 
           {student.certificates && student.certificates.length > 0 && (
             <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-lg">
@@ -408,6 +366,52 @@ export default function StudentProfilePage() {
               </CardContent>
             </Card>
           )}
+
+           {student.projects && student.projects.length > 0 && (
+            <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-slate-600" />
+                  Projects ({student.projects.length})
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {student.projects.map((project) => (
+                  <div key={project.id} className="rounded-2xl border border-slate-200 bg-white p-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <h4 className="font-semibold text-slate-900">{project.title}</h4>
+                      <div className="flex gap-2">
+                        {project.githubUrl && (
+                          <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
+                            <Button variant="ghost" size="sm" className="rounded-full h-8 w-8 p-0">
+                              <Github className="h-4 w-4" />
+                            </Button>
+                          </a>
+                        )}
+                        {project.liveUrl && (
+                          <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">
+                            <Button variant="ghost" size="sm" className="rounded-full h-8 w-8 p-0">
+                              <ExternalLink className="h-4 w-4" />
+                            </Button>
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-sm text-slate-600 mb-3">{project.description}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {project.technologies.map((tech, index) => (
+                        <Badge key={index} variant="outline" className="rounded-full text-xs">
+                          {tech}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+
+
         </div>
       </div>
     </div>
