@@ -2,17 +2,42 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowUpRight, BarChart3, Briefcase, Calendar, CheckCircle, FileText, MapPin, Sparkles, Users } from "lucide-react"
+import { ArrowUpRight, Briefcase, Calendar, CheckCircle, FileText } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { Opportunity, Student } from "@/lib/types"
 import axios from "axios"
 import Loader from "../loader/Loader"
+import Link from "next/link"
+
+interface DashboardStats {
+  activeJobs: number
+  totalApplications: number
+  interviewsScheduled: number
+  offers: number
+  shortlisted: number
+  thisWeekApplications: number
+}
+
+interface JobPipeline {
+  id: string
+  title: string
+  totalApplications: number
+  applied: number
+  reviewed: number
+  shortlisted: number
+  rejected: number
+  accepted: number
+}
 
 export default function EmployerDashboard() {
   const [students, setStudents] = useState<Student[]>([])
   const [opportunities, setOpportunities] = useState<Opportunity[]>([])
+  const [stats, setStats] = useState<DashboardStats | null>(null)
+  const [pipeline, setPipeline] = useState<JobPipeline[]>([])
   const [loadingStudents, setLoadingStudents] = useState(true)
   const [loadingOpportunities, setLoadingOpportunities] = useState(true)
+  const [loadingStats, setLoadingStats] = useState(true)
+  const [loadingPipeline, setLoadingPipeline] = useState(true)
 
   const getStudents = async () => {
     setLoadingStudents(true)
@@ -42,28 +67,64 @@ export default function EmployerDashboard() {
     }
   }
 
+  const getStats = async () => {
+    setLoadingStats(true)
+    try {
+      const res = await axios.get("/api/employer/dashboard/stats", { withCredentials: true })
+      if (res.status === 200) {
+        setStats(res.data.stats)
+      }
+    } catch (error) {
+      console.error("Error fetching dashboard stats:", error)
+    } finally {
+      setLoadingStats(false)
+    }
+  }
+
+  const getPipeline = async () => {
+    setLoadingPipeline(true)
+    try {
+      const res = await axios.get("/api/employer/dashboard/pipeline", { withCredentials: true })
+      if (res.status === 200) {
+        setPipeline(res.data.pipeline)
+      }
+    } catch (error) {
+      console.error("Error fetching pipeline data:", error)
+    } finally {
+      setLoadingPipeline(false)
+    }
+  }
+
   useEffect(() => {
     getStudents()
     getOpportunities()
+    getStats()
+    getPipeline()
   }, [])
+
+  // Filter to get unique students by ID
+  const uniqueStudents = useMemo(() => {
+    const seen = new Set<string>()
+    return students.filter(student => {
+      if (seen.has(student.id)) {
+        return false
+      }
+      seen.add(student.id)
+      return true
+    })
+  }, [students])
 
   const quickStats = useMemo(
     () => [
-      { label: "Active jobs", value: opportunities.length, icon: Briefcase, caption: "Currently published" },
-      { label: "Applications", value: students.length, icon: FileText, caption: "Awaiting review" },
-      { label: "Interview queue", value: "0", icon: Calendar, caption: "Schedule interviews" },
-      { label: "Offers", value: "0", icon: CheckCircle, caption: "This campaign" },
+      { label: "Active jobs", value: stats?.activeJobs ?? 0, icon: Briefcase, caption: "Currently published" },
+      { label: "Applications", value: stats?.totalApplications ?? 0, icon: FileText, caption: `${stats?.thisWeekApplications ?? 0} this week` },
+      { label: "Interview queue", value: stats?.interviewsScheduled ?? 0, icon: Calendar, caption: "Schedule interviews" },
+      { label: "Offers", value: stats?.offers ?? 0, icon: CheckCircle, caption: `${stats?.shortlisted ?? 0} shortlisted` },
     ],
-    [opportunities.length, students.length],
+    [stats],
   )
 
   const heroStats = quickStats
-
-    // Helper to calculate statistics
-    const totalApplications = students.length;
-    const totalInterviewsScheduled = 0; // Assuming this data needs to be fetched separately, defaulting to 0
-    const totalHired = 0; // Assuming this data needs to be fetched separately, defaulting to 0
-    const activeJobs = opportunities.filter(job => job.status === 'active').length; 
 
   return (
     <div className="relative space-y-8">
@@ -137,12 +198,12 @@ export default function EmployerDashboard() {
           </CardHeader>
           <CardContent className="space-y-4">
             {loadingStudents && <Loader />}
-            {!loadingStudents && students.length === 0 && (
+            {!loadingStudents && uniqueStudents.length === 0 && (
               <p className="text-sm text-center text-slate-500">No applications yet.</p>
             )}
-            {students.slice(0, 4).map((student, index) => (
+            {uniqueStudents.slice(0, 4).map((student) => (
               <div
-                key={`${student.id}-${index}`}
+                key={student.id}
                 className="flex flex-col gap-4 rounded-2xl border border-slate-100 bg-slate-50/70 p-4 transition hover:border-sky-200 hover:bg-white md:flex-row md:items-center"
               >
                 <div className="flex items-center gap-3">
@@ -169,14 +230,11 @@ export default function EmployerDashboard() {
                     </Badge>
                   ))}
                 </div>
-                <div className="flex gap-2">
+                <Link href={`/students/${student.id}`}>
                   <Button size="sm" variant="ghost" className="rounded-full text-slate-600 hover:bg-slate-100">
                     Profile
                   </Button>
-                  <Button size="sm" className="rounded-full bg-sky-600 text-white hover:bg-sky-500">
-                    Schedule
-                  </Button>
-                </div>
+                </Link>
               </div>
             ))}
           </CardContent>
@@ -188,34 +246,34 @@ export default function EmployerDashboard() {
             <CardDescription>Realtime view of your job postings</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {loadingOpportunities && <Loader />}
-            {!loadingOpportunities && opportunities.length === 0 && (
+            {loadingPipeline && <Loader />}
+            {!loadingPipeline && pipeline.length === 0 && (
               <p className="text-sm text-center text-slate-500">No job postings yet.</p>
             )}
-            {opportunities.slice(0, 4).map((job) => (
+            {pipeline.slice(0, 4).map((job) => (
               <div key={job.id} className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="text-sm font-semibold text-slate-900">{job.title}</p>
                     <p className="text-xs text-slate-500">
-                      {job.location} · {job.type}
+                      {job.totalApplications} total applications
                     </p>
                   </div>
-                  <Badge variant={job.status === "active" ? "secondary" : "outline"} className="rounded-full">
-                    {job.status}
+                  <Badge variant="secondary" className="rounded-full">
+                    active
                   </Badge>
                 </div>
                 <div className="mt-4 grid grid-cols-3 gap-4 text-center">
                   <div>
-                    <p className="text-lg font-semibold text-slate-900">{job._count.applications}</p>
+                    <p className="text-lg font-semibold text-slate-900">{job.applied + job.reviewed}</p>
                     <p className="text-xs text-slate-500">Applications</p>
                   </div>
                   <div>
-                    <p className="text-lg font-semibold text-slate-900">0</p>
+                    <p className="text-lg font-semibold text-slate-900">{job.shortlisted}</p>
                     <p className="text-xs text-slate-500">Shortlisted</p>
                   </div>
                   <div>
-                    <p className="text-lg font-semibold text-slate-900">0</p>
+                    <p className="text-lg font-semibold text-slate-900">{job.accepted}</p>
                     <p className="text-xs text-slate-500">Offers</p>
                   </div>
                 </div>
@@ -224,28 +282,6 @@ export default function EmployerDashboard() {
             </CardContent>
           </Card>
         </div>
-
-        <Card className="border-slate-200 bg-white/90 shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-xl text-slate-900">Campus coverage</CardTitle>
-            <CardDescription>Top institutes engaged this cycle</CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {students.slice(0, 6).map((student, index) => (
-              <div key={`${student.id}-${index}`} className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
-                <p className="text-sm font-semibold text-slate-900">{"Institute"}</p>
-                <p className="text-xs text-slate-500">{student.branch}</p>
-                <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs text-slate-600">
-                  <MapPin className="h-3.5 w-3.5 text-sky-500" aria-hidden="true" />
-                  {"Across India"}
-                </div>
-              </div>
-            ))}
-            {!loadingStudents && students.length === 0 && (
-              <p className="text-sm text-slate-500">Invite institutes to start capturing insights.</p>
-            )}
-          </CardContent>
-        </Card>
 
         <Card className="border-slate-200 bg-gradient-to-r from-sky-100 via-white to-blue-50">
           <CardContent className="flex flex-col gap-4 p-6 text-slate-700 sm:flex-row sm:items-center sm:justify-between">
