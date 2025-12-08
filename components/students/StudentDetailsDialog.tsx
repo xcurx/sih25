@@ -2,11 +2,15 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Card, CardContent } from "@/components/ui/card"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import type { Student } from "@/lib/types"
 import {
-  GraduationCap
+  GraduationCap,
+  Mail,
+  Phone,
+  Star,
+  Code2
 } from "lucide-react"
 
 export default function StudentDetailsDialog({
@@ -20,172 +24,111 @@ export default function StudentDetailsDialog({
 
   return (
     <Dialog open={!!student} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center space-x-2">
-            <GraduationCap className="h-5 w-5" />
-            <span>{student.name} - Student Profile</span>
-          </DialogTitle>
-          <DialogDescription>
-            {student.branch} • Year {`${4-(student.batch-2025)}`} • CGPA: {student.cgpa}
-          </DialogDescription>
+      <DialogContent className="max-w-2xl rounded-3xl border-slate-200 bg-white/95 backdrop-blur-sm overflow-hidden">
+        <DialogHeader className="sr-only">
+          <DialogTitle>{student.name} - Quick View</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
-          {/* Basic Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Personal Information</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-start space-x-6">
-                <Avatar className="h-20 w-20">
-                  <AvatarImage src={"/placeholder.svg"} alt={student.name} />
-                  <AvatarFallback className="text-xl">
-                    {student.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Email</label>
-                    <p>{student.email}</p>
+        {/* Hero Header */}
+        <div className="relative -mx-6 -mt-6 mb-6 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-sky-500 via-blue-500 to-blue-600" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.2),transparent_50%)]" />
+          
+          <div className="relative px-6 py-8">
+            <div className="flex items-center gap-5">
+              <Avatar className="h-20 w-20 ring-4 ring-white/30 ring-offset-2 ring-offset-sky-500">
+                <AvatarImage src={"/placeholder.svg"} alt={student.name} />
+                <AvatarFallback className="bg-white/20 text-white text-2xl font-semibold backdrop-blur-sm">
+                  {student.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <h2 className="text-2xl font-semibold text-white">{student.name}</h2>
+                <div className="mt-1 flex items-center gap-2 text-white/80">
+                  <GraduationCap className="h-4 w-4" />
+                  <span>{student.branch}</span>
+                  <span className="text-white/50">•</span>
+                  <span>Year {`${4-(student.batch-2025)}`}</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30">
+                <Star className="h-5 w-5 text-yellow-300 fill-yellow-300" />
+                <div>
+                  <p className="text-xl font-bold text-white">{student.cgpa}</p>
+                  <p className="text-xs text-white/70">CGPA</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-5 max-h-[50vh] overflow-y-auto px-1">
+          {/* Contact Information */}
+          <Card className="rounded-2xl border-slate-200 bg-slate-50/50">
+            <CardContent className="p-5">
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-3">Contact Information</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-white border border-slate-100">
+                  <div className="p-2 rounded-full bg-sky-50">
+                    <Mail className="h-4 w-4 text-sky-600" />
                   </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Phone</label>
-                    <p>{student.phone}</p>
+                  <div className="min-w-0">
+                    <p className="text-xs text-slate-400">Email</p>
+                    <p className="text-sm font-medium text-slate-700 truncate">{student.email}</p>
                   </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Department</label>
-                    <p>{student.branch}</p>
+                </div>
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-white border border-slate-100">
+                  <div className="p-2 rounded-full bg-sky-50">
+                    <Phone className="h-4 w-4 text-sky-600" />
                   </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Year</label>
-                    <p>Year {`${4-(student.batch-2025)}`}</p>
+                  <div className="min-w-0">
+                    <p className="text-xs text-slate-400">Phone</p>
+                    <p className="text-sm font-medium text-slate-700">{student.phone}</p>
                   </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Academic Details */}
+          <Card className="rounded-2xl border-slate-200 bg-slate-50/50">
+            <CardContent className="p-5">
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-3">Academic Details</h3>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-3 rounded-xl bg-white border border-slate-100">
+                  <p className="text-xs text-slate-400 mb-1">Department</p>
+                  <p className="text-sm font-medium text-slate-700">{student.branch}</p>
+                </div>
+                <div className="p-3 rounded-xl bg-white border border-slate-100">
+                  <p className="text-xs text-slate-400 mb-1">Year</p>
+                  <p className="text-sm font-medium text-slate-700">Year {`${4-(student.batch-2025)}`}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Skills */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Technical Skills</CardTitle>
-            </CardHeader>
-            <CardContent>
+          <Card className="rounded-2xl border-slate-200 bg-slate-50/50">
+            <CardContent className="p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <Code2 className="h-4 w-4 text-slate-400" />
+                <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">Technical Skills</h3>
+              </div>
               <div className="flex flex-wrap gap-2">
                 {student.skills.map((skill, index) => (
-                  <Badge key={index} variant="secondary">
+                  <Badge 
+                    key={index} 
+                    className="bg-gradient-to-r from-sky-50 to-blue-50 text-sky-700 border-sky-200 rounded-full px-3 py-1 text-xs font-medium"
+                  >
                     {skill}
                   </Badge>
                 ))}
               </div>
             </CardContent>
           </Card>
-
-          {/* Projects */}
-          {/* <Card>
-            <CardHeader>
-              <CardTitle>Projects ({student.projects.length})</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {student.projects.map((project) => (
-                <div key={project.id} className="p-4 border rounded-lg">
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-semibold">{project.title}</h3>
-                    <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                      <Calendar className="h-4 w-4" />
-                      <span>
-                        {project.startDate} - {project.endDate || "Present"}
-                      </span>
-                    </div>
-                  </div>
-                  <p className="text-muted-foreground mb-3">{project.description}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {project.technologies.map((tech, index) => (
-                      <Badge key={index} variant="outline">
-                        {tech}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card> */}
-
-          {/* Certifications */}
-          {/* {student.certifications.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Certifications ({student.certifications.length})</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {student.certifications.map((cert) => (
-                  <div key={cert.id} className="flex items-start space-x-4 p-4 border rounded-lg">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                      <Award className="h-5 w-5 text-primary" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold">{cert.name}</h3>
-                      <p className="text-muted-foreground">{cert.issuer}</p>
-                      <p className="text-sm text-muted-foreground">Issued: {cert.issueDate}</p>
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          )} */}
-
-          {/* Job Preferences */}
-          {/* <Card>
-            <CardHeader>
-              <CardTitle>Job Preferences</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Job Types</label>
-                  <div className="flex flex-wrap gap-2 mt-1">
-                    {student.preferences.jobTypes.map((type, index) => (
-                      <Badge key={index} variant="secondary">
-                        {type}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Preferred Locations</label>
-                  <div className="flex flex-wrap gap-2 mt-1">
-                    {student.preferences.locations.map((location, index) => (
-                      <Badge key={index} variant="secondary">
-                        {location}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Salary Range</label>
-                <p>
-                  ₹{student.preferences.salaryRange.min.toLocaleString()} - ₹
-                  {student.preferences.salaryRange.max.toLocaleString()} per annum
-                </p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Preferred Industries</label>
-                <div className="flex flex-wrap gap-2 mt-1">
-                  {student.preferences.industries.map((industry, index) => (
-                    <Badge key={index} variant="secondary">
-                      {industry}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            </CardContent>
-          </Card> */}
         </div>
       </DialogContent>
     </Dialog>

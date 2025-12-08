@@ -4,7 +4,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import type { Application, Interview, InterviewApplication } from "@/lib/types"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import type { Application, Interview, InterviewApplication, InterviewStatus } from "@/lib/types"
 import {
   Building2,
   Calendar,
@@ -12,8 +13,15 @@ import {
   ExternalLink,
   Eye,
   MapPin,
-  Video
+  Video,
+  CheckCircle2,
+  XCircle
 } from "lucide-react"
+import axios from "axios"
+import Link from "next/link"
+import { useSession } from "next-auth/react"
+import { useState } from "react"
+import { toast } from "sonner"
 
 
 
@@ -24,20 +32,27 @@ export default function InterviewCard({
   application: InterviewApplication
   onViewDetails: (application: InterviewApplication) => void
 }) {
+  const { data: session } = useSession()
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [pendingAction, setPendingAction] = useState<"completed" | "accepted" | "rejected" | null>(null)
+  const [submitting, setSubmitting] = useState(false)
+  const iStatus: InterviewStatus = application.interviewRel?.status ?? "scheduled"
   const isUpcoming = application.interviewRel?.scheduledAt
     ? new Date(application.interviewRel.scheduledAt) > new Date()
     : false
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: InterviewStatus) => {
     switch (status) {
-      case "shortlisted":
-        return <Badge className="bg-emerald-500">Shortlisted</Badge>
-      case "interviewed":
-        return <Badge className="bg-blue-500">Interviewed</Badge>
+      case "scheduled":
+        return <Badge className="bg-sky-500">Scheduled</Badge>
+      case "completed":
+        return <Badge className="bg-blue-500">Completed</Badge>
       case "accepted":
         return <Badge className="bg-green-500">Accepted</Badge>
       case "rejected":
         return <Badge className="bg-red-500">Rejected</Badge>
+      case "canceled":
+        return <Badge className="bg-slate-400">Canceled</Badge>
       default:
         return <Badge variant="secondary">{status}</Badge>
     }
@@ -79,6 +94,40 @@ export default function InterviewCard({
     ? formatDateTime(application.interviewRel.scheduledAt)
     : null
 
+  const isEmployer = session?.user?.role === "employer"
+  const isPast = application.interviewRel?.scheduledAt
+    ? new Date(application.interviewRel.scheduledAt) <= new Date()
+    : false
+
+  const handleAction = async (action: "completed" | "accepted" | "rejected") => {
+    setPendingAction(action)
+    setConfirmOpen(true)
+  }
+
+  const onConfirm = async () => {
+    if (!pendingAction || !application.interviewRel?.id) return
+    setSubmitting(true)
+    try {
+      const res = await axios.patch(`/api/employer/interview/action/${application.interviewRel.id}`, { action: pendingAction }, { withCredentials: true })
+      if (res.status === 200) {
+        toast.success(`Interview ${pendingAction} successfully`)
+        // Optimistic UI: update local interview status
+        if (application.interviewRel) {
+          (application as any).interviewRel.status = pendingAction
+        }
+      } else {
+        toast.error(res.data?.message || "Failed to update interview")
+      }
+    } catch (error: any) {
+      const message = error?.response?.data?.message || "Failed to update interview"
+      toast.error(message)
+    } finally {
+      setSubmitting(false)
+      setConfirmOpen(false)
+      setPendingAction(null)
+    }
+  }
+
   return (
     <Card className={`group relative overflow-hidden rounded-3xl border-slate-200 bg-white/90 shadow-lg transition-all hover:shadow-xl hover:border-sky-200 ${isUpcoming ? "ring-2 ring-sky-200" : ""}`}>
       {/* Subtle gradient overlay on hover */}
@@ -112,7 +161,7 @@ export default function InterviewCard({
             </div>
           </div>
           <div className="flex flex-col items-end gap-2">
-            {getStatusBadge(application.status)}
+            {getStatusBadge(iStatus)}
             {isUpcoming && (
               <Badge className="rounded-full border-amber-200 bg-amber-100 text-amber-700 hover:bg-amber-100">
                 <Clock className="h-3 w-3 mr-1" />
@@ -133,7 +182,11 @@ export default function InterviewCard({
                 <Video className={`h-5 w-5 ${isUpcoming ? "text-sky-600" : "text-slate-600"}`} />
               </div>
               <h4 className="font-semibold text-slate-900">
-                {isUpcoming ? "Scheduled Interview" : "Interview Completed"}
+                {iStatus === "scheduled" && (isUpcoming ? "Scheduled Interview" : "Interview")}
+                {iStatus === "completed" && "Interview Completed"}
+                {iStatus === "accepted" && "Candidate Accepted"}
+                {iStatus === "rejected" && "Candidate Rejected"}
+                {iStatus === "canceled" && "Interview Canceled"}
               </h4>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -183,9 +236,20 @@ export default function InterviewCard({
             className="flex-1 w-full rounded-full border-slate-200 hover:bg-slate-50"
           >
             <Eye className="mr-2 h-4 w-4" />
-            View Details
+            Quick View
           </Button>
-          {application.interviewRel?.interviewLink && isUpcoming && application.status === "shortlisted" && (
+          {application.interviewRel && (
+            <Link href={`/interviews/${application.interviewRel.id}`} className="flex-1 w-full">
+              <Button 
+                variant="outline"
+                className="w-full rounded-full border-sky-200 text-sky-700 hover:bg-sky-50"
+              >
+                <ExternalLink className="mr-2 h-4 w-4" />
+                Full Details
+              </Button>
+            </Link>
+          )}
+          {application.interviewRel?.interviewLink && isUpcoming && iStatus === "scheduled" && (
             <Button
               className="flex-1 w-full rounded-full bg-gradient-to-r from-sky-600 to-blue-600 text-white hover:from-sky-700 hover:to-blue-700 shadow-md"
               asChild
@@ -200,8 +264,76 @@ export default function InterviewCard({
               </a>
             </Button>
           )}
+          {/* Employer-only actions after scheduled time */}
+          {(iStatus !== "accepted" && iStatus !== "rejected" && iStatus !== "canceled") && isEmployer && isPast && (
+            <div className="flex-1 flex w-full gap-2">
+              {iStatus === "scheduled" && (
+                <Button 
+                  disabled={submitting}
+                  onClick={() => handleAction("completed")}
+                  className="flex-1 w-full rounded-full bg-gradient-to-r from-emerald-600 to-emerald-500 text-white hover:from-emerald-700 hover:to-emerald-600"
+                >
+                  <CheckCircle2 className="mr-2 h-4 w-4" />
+                  Mark Done
+                </Button>
+              )}
+              {iStatus === "completed" && (
+                <>
+                  <Button 
+                    disabled={submitting}
+                    onClick={() => handleAction("accepted")}
+                    className="flex-1 w-full rounded-full bg-gradient-to-r from-sky-600 to-blue-600 text-white hover:from-sky-700 hover:to-blue-700"
+                  >
+                    Accept
+                  </Button>
+                  <Button 
+                    disabled={submitting}
+                    onClick={() => handleAction("rejected")}
+                    variant="outline"
+                    className="flex-1 w-full rounded-full border-red-300 text-red-700 hover:bg-red-50"
+                  >
+                    <XCircle className="mr-2 h-4 w-4" />
+                    Reject
+                  </Button>
+                </>
+              )}
+            </div>
+          )}
         </div>
       </CardContent>
+      {/* Confirmation Dialog */}
+      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <DialogContent className="rounded-3xl">
+          <DialogHeader>
+            <DialogTitle className="text-slate-900">
+              {pendingAction === "completed" && "Mark interview as completed?"}
+              {pendingAction === "accepted" && "Accept this candidate?"}
+              {pendingAction === "rejected" && "Reject this candidate?"}
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-slate-600">
+            {pendingAction === "completed" && "This will mark the interview as done. You can then accept or reject the candidate."}
+            {pendingAction === "accepted" && "This will mark the application as accepted. The candidate will be notified."}
+            {pendingAction === "rejected" && "This will mark the application as rejected. The candidate will be notified."}
+          </p>
+          <DialogFooter className="gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setConfirmOpen(false)}
+              className="rounded-full border-slate-200"
+            >
+              Cancel
+            </Button>
+            <Button 
+              disabled={submitting}
+              onClick={onConfirm}
+              className="rounded-full bg-gradient-to-r from-sky-600 to-blue-600 text-white hover:from-sky-700 hover:to-blue-700"
+            >
+              Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   )
 }

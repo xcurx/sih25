@@ -1,21 +1,27 @@
+"use client"
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { AlertCircle, Briefcase, Calendar, CheckCircle, Clock, FileText, GraduationCap, TrendingUp, Users, Building2 } from "lucide-react"
 import { Progress } from "../ui/progress"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts"
+import { useEffect, useState } from "react"
+import axios from "axios"
+import Loader from "@/components/loader/Loader"
 
-import { mockJobs, mockStudents } from "@/lib/mock-data"
+interface DashboardStats {
+  studentsCount: number
+  pendingApprovalsCount: number
+  placementRate: number
+  interviewsThisWeek: number
+}
 
-const chartData = [
-  { name: "Jan", applications: 12, placements: 8 },
-  { name: "Feb", applications: 19, placements: 12 },
-  { name: "Mar", applications: 15, placements: 10 },
-  { name: "Apr", applications: 22, placements: 18 },
-  { name: "May", applications: 28, placements: 20 },
-  { name: "Jun", applications: 35, placements: 25 },
-]
+interface PieData {
+  placed: number
+  inProcess: number
+  notApplied: number
+}
 
 const pieData = [
   { name: "Placed", value: 65, color: "#10b981" },
@@ -33,6 +39,46 @@ const ACCENT_COLORS = {
 
 
 export default function FacultyDashboard() {
+  const [stats, setStats] = useState<DashboardStats | null>(null)
+  const [pieData, setPieData] = useState<{ name: string; value: number; color: string }[]>([])
+  const [chartData, setChartData] = useState<ChartDataPoint[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const res = await axios.get("/api/faculty/dashboard-stats", {
+          withCredentials: true,
+        })
+        if (res.status === 200) {
+          setStats(res.data.stats)
+          setChartData(res.data.chartData)
+
+          const total = res.data.pieData.placed + res.data.pieData.inProcess + res.data.pieData.notApplied
+          const placedPercent = total > 0 ? Math.round((res.data.pieData.placed / total) * 100) : 0
+          const inProcessPercent = total > 0 ? Math.round((res.data.pieData.inProcess / total) * 100) : 0
+          const notAppliedPercent = total > 0 ? 100 - placedPercent - inProcessPercent : 0
+
+          setPieData([
+            { name: "Placed", value: placedPercent, color: "#10b981" },
+            { name: "In Process", value: inProcessPercent, color: "#3b82f6" },
+            { name: "Not Applied", value: notAppliedPercent, color: "#ef4444" },
+          ])
+        }
+      } catch (error) {
+        console.error("Failed to fetch dashboard stats:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchDashboardData()
+  }, [])
+
+  if (loading) {
+    return <Loader />
+  }
+
   return (
     <div className="space-y-8">
       {/* Hero Section with Stats */}

@@ -24,15 +24,20 @@ import {
   Menu,
   Settings,
   ShieldCheck,
+  Sparkles,
   UserCheck,
+  UserPlus,
   Users,
 } from "lucide-react"
+import { Notifications } from "./notifications"
 
 const navigationItems = {
   student: [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { name: "Browse Jobs", href: "/jobs", icon: Briefcase },
+    { name: "Recommendations", href: "/recommendation", icon: Sparkles },
     { name: "My Applications", href: "/applications", icon: FileText },
+    { name: "Internships", href: "/internships", icon: Briefcase },
     { name: "Profile", href: "/profile", icon: Users },
     { name: "Interviews", href: "/interviews", icon: Calendar },
   ],
@@ -47,12 +52,14 @@ const navigationItems = {
     { name: "Job Postings", href: "/job-postings", icon: Briefcase },
     { name: "Students", href: "/students", icon: GraduationCap },
     { name: "Employers", href: "/employers", icon: Building2 },
+    { name: "Manage", href: "/manage", icon: UserPlus },
     { name: "Analytics", href: "/analytics", icon: BarChart3 },
     { name: "Settings", href: "/settings", icon: Settings },
   ],
   employer: [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { name: "Applications", href: "/company/applications", icon: FileText },
+    { name: "Internships", href: "/company/internships", icon: Briefcase },
     { name: "Interviews", href: "/interviews", icon: Calendar },
   ],
 }
@@ -68,8 +75,8 @@ export function TopNavigation() {
   const navItems = navigationItems[session.user.role] || []
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200 bg-gradient-to-r from-white via-sky-50 to-white/80 shadow-sm backdrop-blur">
-      <div className="mx-auto flex w-full max-w-6xl items-center gap-4 px-4 py-3">
+    <header className="sticky w-full flex justify-center top-0 z-50 border-b border-slate-200 bg-gradient-to-r from-white via-sky-50 to-white/80 shadow-sm backdrop-blur">
+      <div className="mx-auto flex w-full items-center gap-4 px-4 py-3">
         <Link href="/dashboard" className="flex items-center gap-2 text-slate-900">
           <div className="rounded-full bg-sky-100 p-2 shadow-inner shadow-white/60">
             <ShieldCheck className="h-5 w-5 text-sky-600" aria-hidden="true" />
@@ -101,6 +108,11 @@ export function TopNavigation() {
         </nav>
 
         <div className="ml-auto flex items-center gap-3">
+          {/* Notifications for student, employer, and faculty */}
+          {(session.user.role === "student" || session.user.role === "employer" || session.user.role === "faculty") && (
+            <Notifications />
+          )}
+          
           <div className="hidden text-right sm:flex sm:flex-col">
             <span className="text-sm font-semibold text-slate-900">{session.user.name}</span>
             <span className="text-xs uppercase tracking-[0.2em] text-slate-500">

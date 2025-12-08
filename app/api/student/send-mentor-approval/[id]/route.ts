@@ -35,6 +35,20 @@ export const POST = async (req: NextRequest, context: { params: Promise<{ id: st
             }
         });
 
+        const student = await prisma.student.findUnique({
+            where: { id: session.user.id },
+        })
+
+        const notification = await prisma.notification.create({
+            data: {
+                facultyId: student?.mentorId,
+                title: "Mentor Approval Needed",
+                message: `A new application for the opportunity "${opportunity.title}" requires your approval.`,
+                redirectUrl: `/applications/${application.id}`,
+                type: "new_approval"
+            }
+        });
+
         return NextResponse.json({ message: "Mentor approval request sent successfully", application }, { status: 200 });
     } catch (error) {
         return NextResponse.json({ message: "Internal Server Error", error }, { status: 500 });

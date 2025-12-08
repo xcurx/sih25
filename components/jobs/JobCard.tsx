@@ -5,7 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Opportunity } from "@/lib/generated/prisma"
 import { JobCardProps } from "@/lib/props"
 import axios from "axios"
-import { Briefcase, Building2, Calendar, Clock, DollarSign, Layers, MapPin, Star, Users } from "lucide-react"
+import { Briefcase, Building2, Calendar, Clock, DollarSign, ExternalLink, Layers, MapPin, Star, Users } from "lucide-react"
+import Link from "next/link"
 import { useState } from "react"
 import { toast } from "sonner"
 
@@ -172,12 +173,15 @@ export default function JobCard({ job, setJobs }: JobCardProps) {
             </span>
           </div>
           <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-            <Button 
-              variant="outline" 
-              className="rounded-full border-slate-200 hover:bg-slate-50"
-            >
-              View Details
-            </Button>
+            <Link href={`/jobs/${job.id}`}>
+              <Button 
+                variant="outline" 
+                className="rounded-full border-slate-200 hover:bg-slate-50"
+              >
+                <ExternalLink className="h-4 w-4 mr-2" />
+                View Details
+              </Button>
+            </Link>
             {!job.applied && (
               <Button 
                 disabled={isExpired || sendingApproval}

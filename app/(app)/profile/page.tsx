@@ -1,36 +1,55 @@
 "use client"
 
+import { useEffect, useState } from "react"
+import { useSession } from "next-auth/react"
+import { redirect } from "next/navigation"
+import axios from "axios"
 import Loader from "@/components/loader/Loader"
 import Certificates from "@/components/profileTabs/Certificates"
-import Documents from "@/components/profileTabs/Documents"
+import Resume from "@/components/profileTabs/Resume"
 import Overview from "@/components/profileTabs/Overview"
 import Preferences from "@/components/profileTabs/Preferences"
 import Projects from "@/components/profileTabs/Projects"
 import Settings from "@/components/profileTabs/Settings"
+import Experience from "@/components/profileTabs/Experience"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { mockStudents } from "@/lib/mock-data"
-import type { Student } from "@/lib/types"
 import {
   Award,
   Briefcase,
   Code,
-  Download,
+  FileText,
   Edit,
   Settings as SettingsIcon,
   User
 } from "lucide-react"
-import { useSession } from "next-auth/react"
-import { redirect } from "next/navigation"
-import { useState } from "react"
 
 export default function ProfilePage() {
-  const { data:session,status } = useSession()
-  const [student, setStudent] = useState<Student>(mockStudents[0])
+  const { data: session, status } = useSession()
   const [isEditing, setIsEditing] = useState(false)
+  const [resume, setResume] = useState<string | null>(null)
+  const [loadingResume, setLoadingResume] = useState(true)
+
+  useEffect(() => {
+    async function fetchStudentResume() {
+      try {
+        const res = await axios.get("/api/student/resume", { withCredentials: true })
+        setResume(res.data?.resume || null)
+      } catch (error) {
+        // If API fails, just set null
+        setResume(null)
+      } finally {
+        setLoadingResume(false)
+      }
+    }
+
+    if (session?.user?.role === "student") {
+      fetchStudentResume()
+    }
+  }, [session?.user])
 
   if (status === "loading") {
-      return <Loader/>
+    return <Loader />
   }
 
   if (session?.user?.role !== "student") {
@@ -55,10 +74,14 @@ export default function ProfilePage() {
       </div>
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6 bg-slate-100/60 rounded-2xl">
+        <TabsList className="grid w-full grid-cols-7 bg-slate-100/60 rounded-2xl">
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <User className="h-4 w-4" />
             Overview
+          </TabsTrigger>
+          <TabsTrigger value="experience" className="flex items-center gap-2">
+            <Briefcase className="h-4 w-4" />
+            Experience
           </TabsTrigger>
           <TabsTrigger value="projects" className="flex items-center gap-2">
             <Code className="h-4 w-4" />
@@ -69,12 +92,12 @@ export default function ProfilePage() {
             Certificates
           </TabsTrigger>
           <TabsTrigger value="preferences" className="flex items-center gap-2">
-            <Briefcase className="h-4 w-4" />
+            <FileText className="h-4 w-4" />
             Preferences
           </TabsTrigger>
           <TabsTrigger value="documents" className="flex items-center gap-2">
-            <Download className="h-4 w-4" />
-            Documents
+            <FileText className="h-4 w-4" />
+            Resume
           </TabsTrigger>
           <TabsTrigger value="settings" className="flex items-center gap-2">
             <SettingsIcon className="h-4 w-4" />
@@ -83,12 +106,12 @@ export default function ProfilePage() {
         </TabsList>
 
         <Overview isEditing={isEditing} />
-        <Projects/>
-        <Certificates/>
+        <Experience />
+        <Projects />
+        <Certificates />
         <Preferences isEditing />
-        <Documents/>
-        <Settings/>
-       
+        <Resume resume={resume} onResumeUpdate={setResume} />
+        <Settings />
       </Tabs>
     </div>
   )

@@ -47,6 +47,16 @@ export const POST = async (req: NextRequest, context: { params: Promise<{ id: st
             }
         })
 
+        const notification = await prisma.notification.create({
+            data: {
+                employerId: opportunity.employerId,
+                title: "New Application Received",
+                message: `A new application has been submitted for your opportunity: ${opportunity.title}`,
+                redirectUrl: `/company/applications/${opportunity.id}`,
+                type: "new_application",
+            }
+        })
+
         return NextResponse.json({ message: "Application submitted successfully", application }, { status: 200 });
     } catch (error) {
         return NextResponse.json({ message: "Internal Server Error", error }, { status: 500 });
