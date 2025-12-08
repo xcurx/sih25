@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { Student } from "@/lib/generated/prisma"
+import type { StudentResume } from "@/lib/types"
 import {
   Award,
   ArrowLeft,
@@ -25,9 +26,13 @@ import { useParams, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import axios from "axios"
 
+type ReviewStudent = Student & {
+  resumes: StudentResume[]
+}
+
 export default function StudentReviewPage() {
   const { data: session, status } = useSession()
-  const [student, setStudent] = useState<Student | null>(null)
+  const [student, setStudent] = useState<ReviewStudent | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
   const { id } = useParams()
@@ -75,6 +80,9 @@ export default function StudentReviewPage() {
     )
   }
 
+
+  const primaryResume = student.resumes && student.resumes.length > 0 ? student.resumes[0].resumeUrl : null
+
   return (
     <div className="relative space-y-8">
       <div
@@ -114,7 +122,7 @@ export default function StudentReviewPage() {
               <div className="mt-2 flex items-center gap-2 text-white/80">
                 <GraduationCap className="h-4 w-4" />
                 <span>{student.branch}</span>
-                <span className="text-white/50">â€¢</span>
+                <span className="text-white/50">GÇó</span>
                 <span>Year {(student.batch as number) - new Date().getFullYear() + 5}</span>
               </div>
             </div>
@@ -147,10 +155,12 @@ export default function StudentReviewPage() {
             <MessageSquare className="mr-2 h-4 w-4" />
             Contact
           </Button>
-          {student.resume && (
-            <Button className="rounded-full bg-white text-sky-600 hover:bg-white/90">
-              <Download className="mr-2 h-4 w-4" />
-              Download Resume
+          {primaryResume && (
+            <Button className="rounded-full bg-white text-sky-600 hover:bg-white/90" asChild>
+              <a href={primaryResume} target="_blank" rel="noopener noreferrer">
+                <Download className="mr-2 h-4 w-4" />
+                Download Resume
+              </a>
             </Button>
           )}
         </div>
@@ -305,3 +315,6 @@ export default function StudentReviewPage() {
     </div>
   )
 }
+
+
+

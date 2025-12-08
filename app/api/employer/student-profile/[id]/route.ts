@@ -23,7 +23,15 @@ export const GET = async (req: NextRequest, context: { params: Promise<{ id: str
                 batch: true,
                 branch: true,
                 cgpa: true,
-                resume: true,
+                resumes: {
+                    orderBy: { uploadedAt: "desc" },
+                    select: {
+                        id: true,
+                        name: true,
+                        resumeUrl: true,
+                        uploadedAt: true,
+                    },
+                },
                 phone: true,
                 skills: true,
             }

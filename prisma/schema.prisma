@@ -32,7 +32,7 @@ model Student {
   cgpa Float?
   phone String?
   skills String[]
-  resume String?
+  resumes Resume[]
   linkedin String?
   github String?
   applications Application[]
@@ -221,6 +221,17 @@ model Feedback {
   feedbackText String
   description String
   createdAt DateTime @default(now())
+}
+
+model Resume {
+  id String @id @default(cuid())
+  studentId String
+  studentRel Student @relation(fields: [studentId], references: [id])
+  resumeUrl String
+  name String
+  uploadedAt DateTime @default(now())
+
+  @@unique([studentId, name])
 }
 
 enum Status {

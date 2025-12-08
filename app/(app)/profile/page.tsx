@@ -14,6 +14,7 @@ import Settings from "@/components/profileTabs/Settings"
 import Experience from "@/components/profileTabs/Experience"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import type { StudentResume } from "@/lib/types"
 import {
   Award,
   Briefcase,
@@ -27,19 +28,18 @@ import {
 export default function ProfilePage() {
   const { data: session, status } = useSession()
   const [isEditing, setIsEditing] = useState(false)
-  const [resume, setResume] = useState<string | null>(null)
-  const [loadingResume, setLoadingResume] = useState(true)
+  const [resumes, setResumes] = useState<StudentResume[]>([])
+  const [loadingResumes, setLoadingResumes] = useState(true)
 
   useEffect(() => {
     async function fetchStudentResume() {
       try {
         const res = await axios.get("/api/student/resume", { withCredentials: true })
-        setResume(res.data?.resume || null)
+        setResumes(res.data?.resumes || [])
       } catch (error) {
-        // If API fails, just set null
-        setResume(null)
+        setResumes([])
       } finally {
-        setLoadingResume(false)
+        setLoadingResumes(false)
       }
     }
 
@@ -110,7 +110,11 @@ export default function ProfilePage() {
         <Projects />
         <Certificates />
         <Preferences isEditing />
-        <Resume resume={resume} onResumeUpdate={setResume} />
+        <Resume
+          resumes={resumes}
+          onResumesChange={setResumes}
+          isLoading={loadingResumes}
+        />
         <Settings />
       </Tabs>
     </div>

@@ -137,8 +137,8 @@ export function LoginScreen() {
       
       <LandingHeader />
 
-      <main className="mx-auto flex min-h-[calc(100vh-140px)] w-full max-w-none flex-col gap-6 px-3 py-8 sm:px-4 lg:max-w-6xl lg:flex-row lg:items-start lg:gap-8">
-        <section className="relative order-2 mb-10 flex-1 overflow-hidden rounded-3xl border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-6 text-slate-900 shadow-2xl sm:p-7 lg:order-1 lg:mb-0 lg:p-8" id="main-content">
+      <main className="mx-auto flex min-h-[calc(100vh-140px)] max-w-6xl flex-col px-4 py-12 lg:flex-row lg:items-start lg:gap-10">
+        <section className="relative mb-10 flex-1 overflow-hidden rounded-3xl border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 text-slate-900 shadow-2xl lg:mb-0" id="main-content">
           <div
             className="pointer-events-none absolute inset-0 opacity-40"
             style={{ backgroundImage: "radial-gradient(circle at 1px 1px, rgba(14,165,233,0.25) 1px, transparent 0)", backgroundSize: "40px 40px" }}

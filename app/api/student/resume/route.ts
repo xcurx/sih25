@@ -5,89 +5,113 @@ import { deleteFromCloudinary, getPublicIdFromUrl } from "../../upload/route"
 
 const prisma = new PrismaClient()
 
+const unauthorized = NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
 export const GET = async () => {
-    const session = await auth()
+  const session = await auth()
 
-    if (!session || session.user.role != "student") {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+  if (!session || session.user.role !== "student") {
+    return unauthorized
+  }
 
-    try {
-        const student = await prisma.student.findUnique({
-            where: { id: session.user.id },
-            select: { resume: true },
-        })
+  try {
+    const resumes = await prisma.resume.findMany({
+      where: { studentId: session.user.id },
+      orderBy: { uploadedAt: "desc" },
+    })
 
-        return NextResponse.json({ resume: student?.resume || null })
-    } catch (error) {
-        return NextResponse.json({ error: "Failed to get resume" }, { status: 500 })
-    }
+    return NextResponse.json({ resumes })
+  } catch (error) {
+    console.error("Failed to fetch resumes:", error)
+    return NextResponse.json({ error: "Failed to get resumes" }, { status: 500 })
+  }
 }
 
-export const PUT = async (request: Request) => {
-    const session = await auth()
+const generateUniqueName = async (studentId: string, desired?: string) => {
+  const baseName = (desired ?? "Resume").trim() || "Resume"
+  let candidate = baseName
+  let suffix = 1
 
-    if (!session || session.user.role != "student") {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-
-    try {
-        const { url } = await request.json()
-
-        const student = await prisma.student.findUnique({
-            where: { id: session.user.id },
-            select: { resume: true },
-        })
-
-        // delete old resume from Cloudinary if exists
-        if (student?.resume) {
-            const publicId = getPublicIdFromUrl(student.resume)
-            if (publicId) {
-                await deleteFromCloudinary(publicId)
-            }
-        }
-
-        await prisma.student.update({
-            where: { id: session.user.id },
-            data: { resume: url },
-        })
-
-        return NextResponse.json({ message: "Resume updated successfully" })
-    } catch (error) {
-        return NextResponse.json({ error: "Failed to update resume" }, { status: 500 })
-    }
+  while (true) {
+    const exists = await prisma.resume.findFirst({
+      where: { studentId, name: candidate },
+      select: { id: true },
+    })
+    if (!exists) return candidate
+    candidate = `${baseName} (${suffix++})`
+  }
 }
 
-export const DELETE = async () => {
-    const session = await auth()
+export const POST = async (request: Request) => {
+  const session = await auth()
 
-    if (!session || session.user.role != "student") {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  if (!session || session.user.role !== "student") {
+    return unauthorized
+  }
+
+  try {
+    const { url, name } = await request.json()
+
+    if (!url) {
+      return NextResponse.json({ error: "Resume URL is required" }, { status: 400 })
     }
 
-    try {
-        const student = await prisma.student.findUnique({
-            where: { id: session.user.id },
-            select: { resume: true },
-        })
+    const uniqueName = await generateUniqueName(session.user.id, name)
 
-        if (student?.resume) {
-            const publicId = getPublicIdFromUrl(student.resume)
-            if (publicId) {
-                const res = await deleteFromCloudinary(publicId)
-                if (!res.success) {
-                    return NextResponse.json({ error: "Failed to delete resume from storage" }, { status: 500 })
-                }
-            }
-        }
+    const resume = await prisma.resume.create({
+      data: {
+        studentId: session.user.id,
+        resumeUrl: url,
+        name: uniqueName,
+      },
+    })
 
-        await prisma.student.update({
-            where: { id: session.user.id },
-            data: { resume: null },
-        })
+    return NextResponse.json({ resume })
+  } catch (error) {
+    console.error("Failed to upload resume:", error)
+    return NextResponse.json({ error: "Failed to save resume" }, { status: 500 })
+  }
+}
 
-        return NextResponse.json({ message: "Resume deleted successfully" })
-    } catch (error) {
-        return NextResponse.json({ error: "Failed to delete resume" }, { status: 500 })
+export const DELETE = async (request: Request) => {
+  const session = await auth()
+
+  if (!session || session.user.role !== "student") {
+    return unauthorized
+  }
+
+  try {
+    const { resumeId } = await request.json()
+
+    if (!resumeId) {
+      return NextResponse.json({ error: "Resume ID is required" }, { status: 400 })
     }
+
+    const resume = await prisma.resume.findFirst({
+      where: {
+        id: resumeId,
+        studentId: session.user.id,
+      },
+    })
+
+    if (!resume) {
+      return NextResponse.json({ error: "Resume not found" }, { status: 404 })
+    }
+
+    const publicId = getPublicIdFromUrl(resume.resumeUrl)
+    if (publicId) {
+      const result = await deleteFromCloudinary(publicId)
+      if (!result.success) {
+        console.error("Failed to delete resume from Cloudinary", result.error)
+        return NextResponse.json({ error: "Failed to delete resume from storage" }, { status: 500 })
+      }
+    }
+
+    await prisma.resume.delete({ where: { id: resume.id } })
+
+    return NextResponse.json({ message: "Resume deleted successfully", resumeId })
+  } catch (error) {
+    console.error("Failed to delete resume:", error)
+    return NextResponse.json({ error: "Failed to delete resume" }, { status: 500 })
+  }
 }

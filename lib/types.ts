@@ -1,3 +1,10 @@
+export interface StudentResume {
+  id: string
+  name: string
+  resumeUrl: string
+  uploadedAt: string
+}
+
 export interface Student {
   id: string
   name: string
@@ -7,12 +14,12 @@ export interface Student {
   batch: number
   cgpa: number
   avatar?: string
-  resume?: string
   skills: string[]
   projects: Project[]
   certifications: Certification[]
   preferences: JobPreferences
   applications: Application[]
+  resumes?: StudentResume[]
 }
 
 export interface Project {
@@ -112,7 +119,7 @@ export interface StudentApplication {
   status: "applied" | "under_review" | "shortlisted" | "rejected" | "accepted"
   appliedAt: string
   coverLetter?: string
-  studentRel: Omit<Student, "applications" | "preferences" | "projects" | "certifications" | "skills" | "resume" | "avatar">
+  studentRel: Omit<Student, "applications" | "preferences" | "projects" | "certifications" | "skills" | "resumes" | "avatar">
 }
 export interface Interview {
   id: string
@@ -268,7 +275,6 @@ export interface StudentProfile {
   branch?: string
   batch?: number
   cgpa?: number
-  resume?: string
   skills: string[]
   github?: string
   linkedin?: string
@@ -276,6 +282,7 @@ export interface StudentProfile {
   internships: StudentProfileInternship[]
   projects: StudentProfileProject[]
   certificates: StudentProfileCertificate[]
+  resumes?: StudentResume[]
 }
 
 export interface StudentProfileStats {

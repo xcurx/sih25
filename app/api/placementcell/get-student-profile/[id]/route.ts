@@ -46,6 +46,9 @@ export const GET = async (req: NextRequest, context: { params: Promise<{ id:stri
                 },
                 projects: true,
                 certificates: true,
+                resumes: {
+                    orderBy: { uploadedAt: "desc" },
+                },
             },
         })
 

@@ -123,12 +123,8 @@ export default function Header() {
       </div>
 
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-white shadow-sm backdrop-blur">
-        <div className="mx-auto flex max-w-6xl flex-nowrap items-center justify-between gap-2 px-4 py-3 sm:gap-3">
-          <Link
-            href="/"
-            aria-label="Go to main landing page"
-            className="group flex min-w-0 items-center gap-3 rounded-full bg-white/80 px-3 py-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow"
-          >
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
+          <Link href="/" aria-label="Go to main landing page" className="group flex items-center gap-3 rounded-full bg-white/80 px-3 py-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow">
             <Image
               src="/Logo_Saksham.png"
               alt="Saksham"
@@ -137,9 +133,9 @@ export default function Header() {
               priority
               className="rounded-full object-cover"
             />
-            <div className="min-w-0 text-left">
+            <div className="text-left">
               <p className="text-lg font-semibold leading-tight text-slate-900">Saksham</p>
-              <p className="truncate text-xs font-medium text-slate-500">National Internship & Placement Mission</p>
+              <p className="text-xs font-medium text-slate-500">National Internship & Placement Mission</p>
             </div>
           </Link>
 
