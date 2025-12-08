@@ -1,12 +1,10 @@
-"use client"
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Clock, TrendingUp, Users } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { AlertCircle, Briefcase, Calendar, CheckCircle, Clock, FileText, GraduationCap, TrendingUp, Users, Building2 } from "lucide-react"
+import { Progress } from "../ui/progress"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts"
-import { useEffect, useState } from "react"
-import axios from "axios"
-import Loader from "@/components/loader/Loader"
 
 import { mockJobs, mockStudents } from "@/lib/mock-data"
 
@@ -33,66 +31,8 @@ const ACCENT_COLORS = {
     GRID: "#f1f5f9",
 }
 
-interface PieData {
-  placed: number
-  inProcess: number
-  notApplied: number
-}
-
-interface ChartDataPoint {
-  name: string
-  applications: number
-  placements: number
-}
-
-const ACCENT_COLORS = {
-  APPLICATIONS: "#3b82f6",
-  PLACEMENTS: "#10b981",
-  BACKGROUND: "#e0f2fe",
-  TEXT: "#0f172a",
-}
 
 export default function FacultyDashboard() {
-  const [stats, setStats] = useState<DashboardStats | null>(null)
-  const [pieData, setPieData] = useState<{ name: string; value: number; color: string }[]>([])
-  const [chartData, setChartData] = useState<ChartDataPoint[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const res = await axios.get("/api/faculty/dashboard-stats", {
-          withCredentials: true,
-        })
-        if (res.status === 200) {
-          setStats(res.data.stats)
-          setChartData(res.data.chartData)
-
-          const total = res.data.pieData.placed + res.data.pieData.inProcess + res.data.pieData.notApplied
-          const placedPercent = total > 0 ? Math.round((res.data.pieData.placed / total) * 100) : 0
-          const inProcessPercent = total > 0 ? Math.round((res.data.pieData.inProcess / total) * 100) : 0
-          const notAppliedPercent = total > 0 ? 100 - placedPercent - inProcessPercent : 0
-
-          setPieData([
-            { name: "Placed", value: placedPercent, color: "#10b981" },
-            { name: "In Process", value: inProcessPercent, color: "#3b82f6" },
-            { name: "Not Applied", value: notAppliedPercent, color: "#ef4444" },
-          ])
-        }
-      } catch (error) {
-        console.error("Failed to fetch dashboard stats:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchDashboardData()
-  }, [])
-
-  if (loading) {
-    return <Loader />
-  }
-
   return (
     <div className="space-y-8">
       {/* Hero Section with Stats */}
@@ -168,7 +108,10 @@ export default function FacultyDashboard() {
         </div>
       </section>
 
+      {/* Analytics & Distribution - Two column layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        {/* Placement Trends Card (Bar Chart) */}
         <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
           <CardHeader className="border-b border-slate-100 pb-4">
             <CardTitle className="text-lg text-slate-900">Placement Trends</CardTitle>
@@ -191,6 +134,7 @@ export default function FacultyDashboard() {
           </CardContent>
         </Card>
 
+        {/* Student Status Distribution Card (Pie Chart) */}
         <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
           <CardHeader className="border-b border-slate-100 pb-4">
             <CardTitle className="text-lg text-slate-900">Student Status Distribution</CardTitle>
