@@ -12,6 +12,7 @@ export default function Header() {
   const [isReading, setIsReading] = useState(false);
   const [accessibilityMessage, setAccessibilityMessage] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
 
   const navLinks = [
@@ -32,6 +33,10 @@ export default function Header() {
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   function handleScreenReaderNarration() {
     if (typeof window === "undefined") return;
@@ -71,8 +76,10 @@ export default function Header() {
     setAccessibilityMessage("Font size reset to default");
   };
 
+  if (!mounted) return null;
+
   return (
-    <div style={{ fontSize: `${fontScale}rem` }}>
+    <div style={{ fontSize: `${fontScale}rem` }} suppressHydrationWarning>
       <div className="bg-gradient-to-r from-sky-800 via-sky-700 to-sky-800 text-white text-xs tracking-wide shadow-sm">
         <div className="mx-auto flex max-w-[1280px] flex-wrap items-center justify-between gap-3 px-4 py-2">
           <div className="flex items-center gap-3 font-semibold">
