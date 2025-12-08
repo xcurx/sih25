@@ -22,7 +22,7 @@ import {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-2xl border border-white/70 bg-white p-4 shadow-sm min-h-[88px]">
+    <div className="flex flex-col items-center justify-center rounded-2xl border border-white/70 bg-white p-4 shadow-sm min-h-[88px] transition-transform duration-300 hover:-translate-y-1 hover:shadow-md">
       <dt className="text-xs uppercase tracking-[0.18em] text-slate-500">{label}</dt>
       <dd className="mt-2 text-2xl font-semibold text-slate-900">{value}</dd>
     </div>
@@ -31,12 +31,12 @@ function Stat({ label, value }: { label: string; value: string }) {
 
 function Benefit({ icon: Icon, title, desc }: { icon: any; title: string; desc: string }) {
   return (
-    <Card className="rounded-2xl border border-white/60 bg-white/95 shadow-sm">
-      <CardHeader className="flex items-start gap-3">
-        <div className="rounded-md bg-sky-50 p-2">
+    <Card className="rounded-2xl border border-white/60 bg-white/95 text-left shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
+      <CardHeader className="flex items-start gap-4 pb-4">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-sky-50">
           <Icon className="h-5 w-5 text-sky-600" />
         </div>
-        <div>
+        <div className="space-y-1">
           <CardTitle className="text-base font-semibold text-slate-900">{title}</CardTitle>
           <CardDescription className="text-sm text-slate-600">{desc}</CardDescription>
         </div>
@@ -48,7 +48,7 @@ function Benefit({ icon: Icon, title, desc }: { icon: any; title: string; desc: 
 function FAQRow({ q, a }: { q: string; a: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="rounded-lg border border-slate-100 bg-white p-4">
+    <div className="rounded-lg border border-slate-100 bg-white p-4 transition-transform duration-300 hover:-translate-y-1 hover:shadow-md">
       <button
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
@@ -78,7 +78,16 @@ export default function InstituteSection() {
     <section id="institutes" className="py-10">
       <div className="mx-auto max-w-7xl px-4">
         <div className="mb-10 space-y-6">
-          <div className="rounded-3xl bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 shadow-2xl">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 shadow-2xl">
+            <div
+              className="pointer-events-none absolute inset-0 opacity-35"
+              style={{
+                backgroundImage:
+                  "radial-gradient(circle at 1px 1px, rgba(14,165,233,0.14) 1px, transparent 0)",
+                backgroundSize: "32px 32px",
+              }}
+              aria-hidden
+            />
             <div className="flex flex-col items-center gap-5 text-center">
               <div className="rounded-full bg-sky-100 p-3">
                 <Building2 className="h-6 w-6 text-sky-600" />
@@ -112,27 +121,35 @@ export default function InstituteSection() {
             </div>
           </div>
 
-          <aside className="rounded-2xl border border-white/60 bg-white/95 p-6 text-center shadow-md">
-            <p className="text-xs font-semibold uppercase tracking-widest text-sky-600">Why institutes choose us</p>
-            <div className="mt-4 space-y-3 text-sm text-slate-700">
-              <div className="flex flex-col items-center gap-1">
-                <ShieldCheck className="h-5 w-5 text-sky-600" />
-                <p className="font-semibold text-slate-900">Data governance</p>
-                <p className="text-xs text-slate-600">Controlled sharing, audit logs, and institute-level permissions.</p>
+          <aside className="rounded-2xl border border-white/60 bg-white/95 p-6 text-center shadow-md transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
+            <div className="grid gap-4 sm:grid-cols-2 sm:text-center">
+              <div className="mx-auto max-w-sm">
+                <p className="text-xs font-semibold uppercase tracking-widest text-sky-600">Why institutes choose us</p>
+                <ul className="mt-4 space-y-3 text-sm text-slate-700">
+                  <li className="flex items-center justify-center gap-2">
+                    <ShieldCheck className="h-4 w-4 text-sky-600" />
+                    <span>Data governance & audit trails</span>
+                  </li>
+                  <li className="flex items-center justify-center gap-2">
+                    <BarChart3 className="h-4 w-4 text-sky-600" />
+                    <span>Actionable placement analytics</span>
+                  </li>
+                  <li className="flex items-center justify-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-sky-600" />
+                    <span>Structured, verified rosters</span>
+                  </li>
+                </ul>
               </div>
 
-              <div className="flex flex-col items-center gap-1">
-                <BarChart3 className="h-5 w-5 text-sky-600" />
-                <p className="font-semibold text-slate-900">Actionable analytics</p>
-                <p className="text-xs text-slate-600">Shortlist quality, pipeline health, and conversion reports.</p>
-              </div>
-
-              <hr className="my-3 border-slate-100" />
-
-              <div className="space-y-1 text-xs text-slate-600">
-                <p className="font-semibold text-slate-900">Contact</p>
-                <p>placements@nation.org</p>
-                <p>Mon–Fri, 09:00 — 18:00</p>
+              <div className="mx-auto max-w-xs rounded-xl border border-slate-100 bg-white p-4 text-sm text-slate-700">
+                <p className="text-xs font-semibold uppercase tracking-widest text-sky-600">Need help?</p>
+                <p className="mt-2 text-slate-900">Mon–Fri, 09:00 — 18:00</p>
+                <p className="mt-3 flex items-center justify-center gap-2 text-slate-700">
+                  <Phone className="h-4 w-4 text-sky-600" /> +91 011 4000 1122
+                </p>
+                <p className="mt-2 flex items-center justify-center gap-2 text-slate-700">
+                  <Mail className="h-4 w-4 text-sky-600" /> placements@nation.org
+                </p>
               </div>
             </div>
           </aside>
@@ -146,78 +163,81 @@ export default function InstituteSection() {
             <Benefit
               icon={Users}
               title="Centralised student management"
-              desc="Verified rosters, role-based access and delegated permissioning make campus operations auditable and simple."
+              desc="Verified rosters, role-based access, and delegated permissions keep campus ops auditable."
             />
             <Benefit
               icon={BarChart3}
               title="Data-first analytics"
-              desc="Placement dashboards, conversion funnels and institute-level KPIs so officers can make decisions, not guess."
+              desc="Dashboards, funnels, and KPIs give officers clarity instead of guesswork."
             />
             <Benefit
               icon={CheckCircle}
               title="Employer trust & compliance"
-              desc="Structured role posting with eligibility filters reduces frivolous contact and increases interview show-rates."
+              desc="Structured postings with eligibility filters reduce noise and lift show-rates."
             />
           </div>
         </div>
 
-        <div className="mb-10 space-y-6">
-          <Card className="rounded-2xl border border-white/60 bg-white/95 text-center shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold text-slate-900">Success stories</CardTitle>
-              <CardDescription className="text-sm text-slate-600">How institutes improved placements using the mission.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-5 text-sm text-slate-700">
-                <div className="space-y-1">
-                  <p className="font-semibold">Govt. Polytechnic — Ahmedabad</p>
-                  <p>Onboarded in 6 weeks; 40% uplift in role matches due to structured eligibility and skill-badges.</p>
-                </div>
+        <div className="mb-8 space-y-6">
+          <div className="grid gap-6 md:grid-cols-2">
+            <Card className="rounded-2xl border border-white/60 bg-white/95 text-center shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold text-slate-900">Success stories</CardTitle>
+                <CardDescription className="text-sm text-slate-600">How institutes improved placements using the mission.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-5 text-sm text-slate-700">
+                  <div className="space-y-1">
+                    <p className="font-semibold">Govt. Polytechnic — Ahmedabad</p>
+                    <p>Onboarded in 6 weeks; 40% uplift in role matches due to structured eligibility and skill-badges.</p>
+                  </div>
 
-                <div className="space-y-1">
-                  <p className="font-semibold">City Engineering College</p>
-                  <p>Reduced manual shortlisting by 70% using profile-strength scoring and mock-interview funnels.</p>
-                </div>
+                  <div className="space-y-1">
+                    <p className="font-semibold">City Engineering College</p>
+                    <p>Reduced manual shortlisting by 70% using profile-strength scoring and mock-interview funnels.</p>
+                  </div>
 
-                <div className="pt-2">
-                  <p className="text-sm text-slate-600">Institute rating</p>
-                  <div className="mt-2 flex items-center justify-center gap-2">
-                    <div className="flex items-center gap-1">
-                      {[1, 2, 3, 4, 5].map((s) => {
-                        const active = ratingHover !== null ? s <= ratingHover : s <= 5;
-                        return (
-                          <Star
-                            key={s}
-                            onMouseEnter={() => setRatingHover(s)}
-                            onMouseLeave={() => setRatingHover(null)}
-                            className={`h-5 w-5 ${active ? "text-amber-500" : "text-slate-300"}`}
-                          />
-                        );
-                      })}
+                  <div className="pt-2">
+                    <p className="text-sm text-slate-600">Institute rating</p>
+                    <div className="mt-2 flex items-center justify-center gap-2">
+                      <div className="flex items-center gap-1">
+                        {[1, 2, 3, 4, 5].map((s) => {
+                          const active = ratingHover !== null ? s <= ratingHover : s <= 5;
+                          return (
+                            <Star
+                              key={s}
+                              onMouseEnter={() => setRatingHover(s)}
+                              onMouseLeave={() => setRatingHover(null)}
+                              className={`h-5 w-5 ${active ? "text-amber-500" : "text-slate-300"}`}
+                            />
+                          );
+                        })}
+                      </div>
+                      <div className="text-sm text-slate-600">4.6 (based on institutional feedback)</div>
                     </div>
-                    <div className="text-sm text-slate-600">4.6 (based on institutional feedback)</div>
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          <Card className="rounded-2xl border border-white/60 bg-white/95 text-center shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold text-slate-900">Programmes for institutes</CardTitle>
-              <CardDescription className="text-sm text-slate-600">Training, onboarding, and data governance support packages.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-3 text-sm text-slate-700">
-                <li><strong>Placement officer training:</strong> Workshops & SOPs for campus teams.</li>
-                <li><strong>Rosters & verification:</strong> Secure roster ingestion pipelines for large cohorts.</li>
-                <li><strong>Data audits:</strong> Periodic privacy & access reviews to maintain compliance.</li>
-              </ul>
-            </CardContent>
-          </Card>
+            <Card className="rounded-2xl border border-white/60 bg-white/95 text-center shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold text-slate-900">Programmes for institutes</CardTitle>
+                <CardDescription className="text-sm text-slate-600">Training, onboarding, and data governance support packages.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3 text-sm text-slate-700">
+                  <li><strong>Placement officer training:</strong> Workshops & SOPs for campus teams.</li>
+                  <li><strong>Rosters & verification:</strong> Secure roster ingestion pipelines for large cohorts.</li>
+                  <li><strong>Data audits:</strong> Periodic privacy & access reviews to maintain compliance.</li>
+                  <li><strong>Outreach playbooks:</strong> Templates for employer collaboration and JD intake.</li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl border border-white/60 bg-white/95 p-6 text-center shadow-sm">
+            <div className="rounded-2xl border border-white/60 bg-white/95 p-6 text-center shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
               <p className="text-xs font-semibold uppercase tracking-widest text-sky-600">Quick facts</p>
               <div className="mt-3 space-y-2 text-sm text-slate-700">
                 <p><strong>Verification:</strong> Institute authority verified</p>
@@ -226,7 +246,7 @@ export default function InstituteSection() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-white/60 bg-white/95 p-6 text-center shadow-sm">
+            <div className="rounded-2xl border border-white/60 bg-white/95 p-6 text-center shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
               <p className="text-xs font-semibold uppercase tracking-widest text-sky-600">Need help?</p>
               <div className="mt-3 space-y-1 text-sm text-slate-700">
                 <p className="font-semibold">placements@nation.org</p>
@@ -236,7 +256,7 @@ export default function InstituteSection() {
           </div>
         </div>
 
-        <div className="mb-10 text-center">
+        <div className="mb-8 text-center">
           <h3 className="text-2xl font-semibold text-slate-900">Frequently asked questions</h3>
           <p className="mt-2 text-sm text-slate-600">Questions institutes commonly ask about onboarding, data, and employer engagement.</p>
 
@@ -248,7 +268,7 @@ export default function InstituteSection() {
           </div>
         </div>
 
-        <div className="mb-16 rounded-2xl border border-white/60 bg-white/95 p-8 text-center shadow-sm">
+        <div className="mb-8 rounded-2xl border border-white/60 bg-white/95 p-8 text-center shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-md">
           <h4 className="text-xl font-semibold text-slate-900">Ready to onboard your institute?</h4>
           <p className="mt-2 text-sm text-slate-600">Request an onboarding call and a tailored integration plan for rosters & reports.</p>
           <div className="mt-4 flex flex-wrap justify-center gap-3">

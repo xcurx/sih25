@@ -213,7 +213,7 @@ export default function MissionSection() {
           </Card>
 
           <div className="rounded-2xl border border-white/60 bg-white/95 p-6 shadow-sm lg:col-span-3">
-            <p className="text-xs font-semibold uppercase tracking-widest text-sky-600">Quick resources</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-sky-600 text-center">Quick resources</p>
             <div className="mt-3 grid gap-3 text-sm text-slate-700 sm:grid-cols-3">
               <Link href="/resources#onboard" className="rounded-lg border border-slate-100 bg-white p-3 text-left hover:text-slate-900">Institute onboarding guide</Link>
               <Link href="/resources#api" className="rounded-lg border border-slate-100 bg-white p-3 text-left hover:text-slate-900">Employer API docs</Link>
