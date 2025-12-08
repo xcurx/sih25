@@ -12,7 +12,7 @@ import {
   Building2,
   Calendar,
   Clock,
-  DollarSign,
+  
   ExternalLink,
   Layers,
   Linkedin,
@@ -165,7 +165,7 @@ export default function OpportunityDetailPage() {
                   <span className="capitalize">{opportunity.type}</span>
                 </div>
                 <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-4 py-2 text-sm font-semibold text-emerald-700">
-                  <DollarSign className="h-4 w-4" />
+                
                   <span>₹{opportunity.salary?.toLocaleString()}</span>
                 </div>
                 <Badge

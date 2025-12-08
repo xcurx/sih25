@@ -24,7 +24,6 @@ import {
   Building2,
   Calendar,
   Clock,
-  DollarSign,
   Edit,
   ExternalLink,
   Eye,
@@ -98,7 +97,6 @@ export default function JobPostingCard({ job }: { job: Opportunity }) {
                   <span className="capitalize">{job.type}</span>
                 </div>
                 <div className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1.5 text-sm font-semibold text-emerald-700">
-                  <DollarSign className="h-3.5 w-3.5" />
                   <span>₹{job.salary}</span>
                 </div>
               </div>

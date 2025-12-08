@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Opportunity } from "@/lib/generated/prisma"
 import { JobCardProps } from "@/lib/props"
 import axios from "axios"
-import { Briefcase, Building2, Calendar, Clock, DollarSign, ExternalLink, Layers, MapPin, Star, Users } from "lucide-react"
+import { Briefcase, Building2, Calendar, Clock, ExternalLink, Layers, MapPin, Star, Users } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -79,7 +79,7 @@ export default function JobCard({ job, setJobs }: JobCardProps) {
                   <span className="capitalize">{job.type}</span>
                 </div>
                 <div className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1.5 text-sm font-semibold text-emerald-700">
-                  <DollarSign className="h-3.5 w-3.5" />
+                  
                   <span>₹{job.salary}</span>
                 </div>
               </div>

@@ -179,7 +179,7 @@ export default function StudentInternshipsPage() {
                   </span>
                   {opportunity.salary && (
                     <span className="inline-flex items-center gap-1">
-                      <DollarSign className="h-4 w-4 text-slate-400" />
+                    ₹ 
                       {opportunity.salary}
                     </span>
                   )}
