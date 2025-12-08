@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import type { Application, Interview } from "@/lib/types"
+import axios from "axios"
+import { useEffect, useState } from "react"
 import {
   Building2,
   Calendar,
@@ -23,6 +25,11 @@ interface InterviewApplication extends Application {
   interviewRel?: Interview
 }
 
+type QuestionAnswer = {
+  question: string
+  answer: string
+}
+
 export default function InterviewDetailsDialog({
   application,
   onClose,
@@ -30,6 +37,16 @@ export default function InterviewDetailsDialog({
   application: InterviewApplication | null
   onClose: () => void
 }) {
+  const [prepQA, setPrepQA] = useState<QuestionAnswer[] | null>(null)
+  const [generatingPrep, setGeneratingPrep] = useState(false)
+  const [prepError, setPrepError] = useState<string | null>(null)
+
+  useEffect(() => {
+    setPrepQA(null)
+    setPrepError(null)
+    setGeneratingPrep(false)
+  }, [application?.id])
+
   if (!application) return null
 
   const isUpcoming = application.interviewRel?.scheduledAt
@@ -55,6 +72,27 @@ export default function InterviewDetailsDialog({
   const interviewDateTime = application.interviewRel?.scheduledAt
     ? formatDateTime(application.interviewRel.scheduledAt)
     : null
+
+  const handleGeneratePrep = async () => {
+    setGeneratingPrep(true)
+    setPrepError(null)
+    try {
+      const payload = {
+        jobTitle: application.opportunityRel.title,
+        companyName: application.opportunityRel.companyRel?.name,
+        jobDescription: application.opportunityRel.description,
+        skills: application.opportunityRel.skillsRequired || [],
+        requirements: application.opportunityRel.requirements || [],
+      }
+      const res = await axios.post("/api/interview/generate-qa", payload, { withCredentials: true })
+      setPrepQA(res.data.questions ?? [])
+    } catch (error: any) {
+      const message = error?.response?.data?.message || "Failed to generate interview prep."
+      setPrepError(message)
+    } finally {
+      setGeneratingPrep(false)
+    }
+  }
 
   return (
     <Dialog open={!!application} onOpenChange={onClose}>
@@ -268,6 +306,50 @@ export default function InterviewDetailsDialog({
                 )}
             </CardContent>
           </Card>
+
+          {/* AI Interview Prep */}
+          {isUpcoming && (
+            <Card className="border-slate-200 rounded-3xl shadow-lg bg-white/90">
+              <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <CardTitle className="flex items-center gap-2 text-slate-900">
+                  <Building2 className="h-5 w-5 text-sky-600" />
+                  AI Interview Prep
+                </CardTitle>
+                <Button
+                  onClick={handleGeneratePrep}
+                  disabled={generatingPrep}
+                  className="rounded-full bg-gradient-to-r from-sky-600 to-blue-600 text-white hover:from-sky-700 hover:to-blue-700"
+                >
+                  {generatingPrep ? "Generating..." : prepQA ? "Regenerate Questions" : "Generate Questions"}
+                </Button>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {prepError && (
+                  <p className="text-sm text-red-600 bg-red-50 rounded-2xl border border-red-100 p-3">
+                    {prepError}
+                  </p>
+                )}
+                {prepQA ? (
+                  <div className="space-y-4">
+                    {prepQA.map((qa, index) => (
+                      <div
+                        key={index}
+                        className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4"
+                      >
+                        <p className="text-xs font-semibold text-slate-500 mb-1">Question {index + 1}</p>
+                        <p className="text-sm font-semibold text-slate-900 mb-2">{qa.question}</p>
+                        <p className="text-sm text-slate-600 leading-relaxed">{qa.answer}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-slate-600">
+                    Generate five targeted questions with model answers tailored to this role's description.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
           {/* Application Information */}
           <Card className="border-slate-200 rounded-3xl shadow-lg bg-white/90">
