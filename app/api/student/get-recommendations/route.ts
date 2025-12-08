@@ -1,5 +1,5 @@
 import { auth } from "@/auth"
-import { Opportunity, PrismaClient } from "@/lib/generated/prisma"
+import { Opportunity, PrismaClient, Status } from "@/lib/generated/prisma"
 import axios, { AxiosError } from "axios"
 import { NextResponse } from "next/server"
 
@@ -30,7 +30,32 @@ interface RecommendedOpportunity {
         batch: string;
         requirements: string[];
     }
-    opportunity: Opportunity;
+    opportunity: {
+        id: string;
+        title: string;
+        type: string;
+        applicationDeadline: Date;
+        location: string;
+        postedAt: Date;
+        companyRel: {
+            id: string;
+            name: string;
+        };
+        skillsRequired: string[];
+        employerRel: {
+            id: string;
+            name: string;
+        };
+        additionalInfo: string | null;
+        description: string;
+        salary: string | null;
+        status: Status;
+        eligibleDepartments: string[];
+        requirements: string[];
+        _count: {
+            applications: number;
+        };
+    };
 }
     
 
