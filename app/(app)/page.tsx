@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import Image from "next/image"
 import { redirect } from "next/navigation"
 import { auth } from "@/auth"
 import { Button } from "@/components/ui/button"
@@ -97,18 +98,20 @@ function PublicLanding() {
       <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4 lg:px-6">
           <Link href="/" aria-label="Go to main landing" className="flex items-center gap-3">
-            <div className="rounded-full bg-sky-100 p-3 ring-2 ring-sky-200">
-              <ShieldCheck className="h-6 w-6 text-sky-700" aria-hidden="true" />
-            </div>
+            <Image
+              src="/Logo_Saksham.png"
+              alt="Saksham"
+              width={40}
+              height={40}
+              priority
+              className="rounded-full object-cover"
+            />
             <div className="text-left">
-              <p className="text-lg font-semibold leading-tight text-slate-900">Opportunet</p>
-              <p className="text-xs font-medium text-slate-500">National internship & Placement Mission</p>
+              <p className="text-lg font-semibold leading-tight text-slate-900">Saksham</p>
+              <p className="text-xs font-medium text-slate-500">National Internship & Placement Mission</p>
             </div>
           </Link>
           <div className="flex items-center gap-3">
-            <Button variant="ghost" asChild>
-              <Link href="/resources/policy">Policy Desk</Link>
-            </Button>
             <Button className="bg-sky-600 text-white hover:bg-sky-500" asChild>
               <Link href="/sign-in">
                 Launch Portal
@@ -122,42 +125,38 @@ function PublicLanding() {
       <main className="space-y-0">
         <section className="relative overflow-hidden bg-gradient-to-br from-white via-sky-50 to-blue-50 text-slate-900">
           <div
-            className="absolute right-0 top-0 h-full w-[48%] min-w-[320px] bg-[url('https://images.unsplash.com/photo-1528744598421-b7b93e12df0b?auto=format&fit=crop&w=1600&q=80')] bg-cover bg-center opacity-45"
+            className="absolute right-0 top-0 hidden h-full w-[48%] min-w-[320px] bg-[url('https://images.unsplash.com/photo-1528744598421-b7b93e12df0b?auto=format&fit=crop&w=1600&q=80')] bg-cover bg-center opacity-45 lg:block"
             aria-hidden="true"
           />
-          <div className="absolute inset-0 opacity-35" aria-hidden="true" style={{
-            backgroundImage:
-              "radial-gradient(circle at 20% 20%, rgba(59,130,246,0.14) 0, rgba(255,255,255,0) 32%), radial-gradient(circle at 80% 0%, rgba(14,165,233,0.12) 0, rgba(255,255,255,0) 30%)",
-          }} />
-          <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 lg:grid-cols-[1.1fr,0.9fr] lg:px-6">
-            <div className="relative space-y-6">
+          <div
+            className="absolute inset-0 opacity-35"
+            aria-hidden="true"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle at 20% 20%, rgba(59,130,246,0.14) 0, rgba(255,255,255,0) 32%), radial-gradient(circle at 80% 0%, rgba(14,165,233,0.12) 0, rgba(255,255,255,0) 30%)",
+            }}
+          />
+          <div className="mx-auto flex max-w-5xl flex-col items-center gap-10 px-4 py-16 text-center lg:px-6">
+            <div className="relative w-full max-w-3xl space-y-6">
               <Badge className="bg-sky-100 text-sky-800" variant="outline">
                 Official · Secure · Student-first
               </Badge>
               <h1 className="text-4xl font-bold leading-tight tracking-tight lg:text-5xl">
                 One official gateway for internships and placements across India.
               </h1>
-              <p className="max-w-3xl text-lg text-slate-700">
+              <p className="mx-auto max-w-3xl text-lg text-slate-700 lg:mx-auto">
                 Digitised workflows, verified records, and transparent employer engagement keep institutes compliant
                 and students protected from first application to final offer.
               </p>
-              <div className="flex flex-col gap-4 text-sm sm:flex-row">
+              <div className="flex flex-col items-center gap-4 text-sm sm:flex-row sm:justify-center">
                 <Button size="lg" className="bg-sky-600 text-white hover:bg-sky-500" asChild>
                   <Link href="/register-company">
                     Register your Company
                     <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
                   </Link>
                 </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-sky-200 text-sky-700 hover:bg-sky-50"
-                  asChild
-                >
-                  <Link href="/#updates">View Latest Advisory</Link>
-                </Button>
               </div>
-              <div className="flex flex-wrap gap-3 text-sm text-slate-700">
+              <div className="flex flex-wrap justify-center gap-3 text-sm text-slate-700">
                 <div className="flex items-center gap-2 rounded-full bg-white px-4 py-2 ring-1 ring-slate-200">
                   <Sparkles className="h-4 w-4 text-sky-600" aria-hidden="true" />
                   Central + state institutes onboarded
@@ -167,45 +166,44 @@ function PublicLanding() {
                   Verified employers & secure offers
                 </div>
               </div>
-            </div>
-
-            <div className="relative">
-              <div className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-xl backdrop-blur">
-                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Mission metrics</p>
-                <div className="mt-4 grid gap-4 sm:grid-cols-3">
-                  {heroStats.map((stat) => (
-                    <div key={stat.label} className="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-center">
-                      <p className="text-sm text-slate-600">{stat.label}</p>
-                      <p className="text-3xl font-semibold text-slate-900">{stat.value}</p>
-                      <p className="text-[11px] uppercase tracking-[0.25em] text-slate-400">{stat.detail}</p>
+              <div className="relative w-full max-w-4xl">
+                <div className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-xl backdrop-blur">
+                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Mission metrics</p>
+                  <div className="mt-4 grid gap-4 sm:grid-cols-3">
+                    {heroStats.map((stat) => (
+                      <div key={stat.label} className="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-center">
+                        <p className="text-sm text-slate-600">{stat.label}</p>
+                        <p className="text-3xl font-semibold text-slate-900">{stat.value}</p>
+                        <p className="text-[11px] uppercase tracking-[0.25em] text-slate-400">{stat.detail}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-5 grid gap-3 border-t border-slate-100 pt-4 text-sm text-slate-600 sm:grid-cols-3">
+                    <div className="flex items-center gap-2">
+                      <LineChart className="h-4 w-4 text-sky-600" aria-hidden="true" />
+                      Real-time dashboards
                     </div>
-                  ))}
-                </div>
-                <div className="mt-5 grid gap-3 border-t border-slate-100 pt-4 text-sm text-slate-600 sm:grid-cols-3">
-                  <div className="flex items-center gap-2">
-                    <LineChart className="h-4 w-4 text-sky-600" aria-hidden="true" />
-                    Real-time dashboards
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Briefcase className="h-4 w-4 text-sky-600" aria-hidden="true" />
-                    PSU + private drives
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4 text-sky-600" aria-hidden="true" />
-                    Inclusive outreach
+                    <div className="flex items-center gap-2">
+                      <Briefcase className="h-4 w-4 text-sky-600" aria-hidden="true" />
+                      PSU + private drives
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Users className="h-4 w-4 text-sky-600" aria-hidden="true" />
+                      Inclusive outreach
+                    </div>
                   </div>
                 </div>
+                <div className="pointer-events-none absolute -left-8 -top-8 h-24 w-24 rounded-full bg-sky-200/40 blur-3xl" aria-hidden />
+                <div className="pointer-events-none absolute -right-6 bottom-6 h-20 w-20 rounded-full bg-white/70 blur-2xl" aria-hidden />
               </div>
-              <div className="pointer-events-none absolute -left-8 -top-8 h-24 w-24 rounded-full bg-sky-200/40 blur-3xl" aria-hidden />
-              <div className="pointer-events-none absolute -right-6 bottom-6 h-20 w-20 rounded-full bg-white/70 blur-2xl" aria-hidden />
             </div>
           </div>
         </section>
 
         <section className="bg-white">
           <div className="mx-auto max-w-6xl px-4 py-14 lg:px-6">
-            <div className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-              <div className="max-w-3xl space-y-2">
+            <div className="mb-10 flex flex-col gap-4 text-center lg:flex-row lg:items-end lg:justify-between lg:text-left">
+              <div className="max-w-3xl space-y-2 lg:text-left">
                 <Badge className="bg-sky-100 text-sky-800" variant="outline">
                   Aligned with mission landings
                 </Badge>
@@ -214,7 +212,7 @@ function PublicLanding() {
                   A blue-white surface, typography, and spacing consistent with other (landings) pages while adding the depth needed for day-to-day operations.
                 </p>
               </div>
-              <div className="flex gap-3 text-sm text-slate-600">
+              <div className="flex flex-wrap justify-center gap-3 text-sm text-slate-600 lg:justify-end">
                 <div className="flex items-center gap-2 rounded-full bg-slate-100 px-3 py-2">
                   <ShieldCheck className="h-4 w-4 text-sky-600" aria-hidden />
                   Verified ecosystem
@@ -253,7 +251,7 @@ function PublicLanding() {
 
         <section className="border-y border-slate-200 bg-gradient-to-br from-sky-50 via-white to-blue-50">
           <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 lg:grid-cols-[1.2fr,1fr] lg:px-6">
-            <div className="space-y-4">
+            <div className="space-y-4 text-center lg:text-left">
               <Badge className="bg-slate-100 text-slate-700" variant="outline">
                 Analytics & compliance
               </Badge>
@@ -293,14 +291,11 @@ function PublicLanding() {
 
         <section id="updates" className="bg-white">
           <div className="mx-auto max-w-6xl px-4 py-14 lg:px-6">
-            <div className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="mb-10 flex flex-col gap-4 text-center lg:flex-row lg:items-center lg:justify-between lg:text-left">
               <div>
                 <h2 className="text-3xl font-bold text-slate-900">Circulars & updates</h2>
                 <p className="text-base text-slate-600">Never miss an advisory or drive notification.</p>
               </div>
-              <Button variant="outline" className="border-sky-200 text-sky-700 hover:bg-sky-50" asChild>
-                <Link href="/resources">Browse resource library</Link>
-              </Button>
             </div>
             <div className="grid gap-6 md:grid-cols-3">
               {updates.map((update) => (
@@ -333,14 +328,6 @@ function PublicLanding() {
                   Start now
                   <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
                 </Link>
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-sky-200 text-sky-700 hover:bg-sky-50"
-                asChild
-              >
-                <Link href="/sign-in">Request guided onboarding</Link>
               </Button>
             </div>
           </div>

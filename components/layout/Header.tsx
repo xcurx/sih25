@@ -123,8 +123,12 @@ export default function Header() {
       </div>
 
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-white shadow-sm backdrop-blur">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
-          <Link href="/" aria-label="Go to main landing page" className="group flex items-center gap-3 rounded-full bg-white/80 px-3 py-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow">
+        <div className="mx-auto flex max-w-6xl flex-nowrap items-center justify-between gap-2 px-4 py-3 sm:gap-3">
+          <Link
+            href="/"
+            aria-label="Go to main landing page"
+            className="group flex min-w-0 items-center gap-3 rounded-full bg-white/80 px-3 py-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow"
+          >
             <Image
               src="/Logo_Saksham.png"
               alt="Saksham"
@@ -133,9 +137,9 @@ export default function Header() {
               priority
               className="rounded-full object-cover"
             />
-            <div className="text-left">
+            <div className="min-w-0 text-left">
               <p className="text-lg font-semibold leading-tight text-slate-900">Saksham</p>
-              <p className="text-xs font-medium text-slate-500">National Internship & Placement Mission</p>
+              <p className="truncate text-xs font-medium text-slate-500">National Internship & Placement Mission</p>
             </div>
           </Link>
 
@@ -163,9 +167,13 @@ export default function Header() {
             })}
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             <Link href="/sign-in" className="group">
-              <Button className="rounded-full border border-sky-200 bg-sky-600/90 px-5 text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-sky-600 hover:shadow" variant="default">
+              <Button
+                size="sm"
+                className="whitespace-nowrap rounded-full border border-sky-200 bg-sky-600/90 px-4 text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-sky-600 hover:shadow"
+                variant="default"
+              >
                 <GraduationCap className="mr-2 h-4 w-4" aria-hidden="true" />
                 Sign in
               </Button>

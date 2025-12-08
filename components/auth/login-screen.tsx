@@ -137,8 +137,8 @@ export function LoginScreen() {
       
       <LandingHeader />
 
-      <main className="mx-auto flex min-h-[calc(100vh-140px)] max-w-6xl flex-col px-4 py-12 lg:flex-row lg:items-start lg:gap-10">
-        <section className="relative mb-10 flex-1 overflow-hidden rounded-3xl border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 text-slate-900 shadow-2xl lg:mb-0" id="main-content">
+      <main className="mx-auto flex min-h-[calc(100vh-140px)] w-full max-w-none flex-col gap-6 px-3 py-8 sm:px-4 lg:max-w-6xl lg:flex-row lg:items-start lg:gap-8">
+        <section className="relative order-2 mb-10 flex-1 overflow-hidden rounded-3xl border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-6 text-slate-900 shadow-2xl sm:p-7 lg:order-1 lg:mb-0 lg:p-8" id="main-content">
           <div
             className="pointer-events-none absolute inset-0 opacity-40"
             style={{ backgroundImage: "radial-gradient(circle at 1px 1px, rgba(14,165,233,0.25) 1px, transparent 0)", backgroundSize: "40px 40px" }}
@@ -222,8 +222,8 @@ export function LoginScreen() {
           </div>
         </section>
 
-        <section className="w-full max-w-lg lg:self-stretch">
-          <div className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white/95 px-8 py-10 shadow-[0_30px_90px_rgba(15,23,42,0.15)]">
+        <section className="order-1 w-full lg:order-2 lg:self-stretch lg:flex-1">
+          <div className="relative flex h-full w-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white/95 px-6 py-8 shadow-[0_30px_90px_rgba(15,23,42,0.15)] sm:px-7 sm:py-9 lg:px-8 lg:py-10">
             <div className="pointer-events-none absolute -top-14 -right-16 h-48 w-48 rounded-full bg-sky-200/30 blur-3xl" />
             <div className="pointer-events-none absolute bottom-0 left-6 h-24 w-24 rounded-full bg-cyan-100/60 blur-2xl" />
             <div className="relative flex h-full flex-col space-y-8">
