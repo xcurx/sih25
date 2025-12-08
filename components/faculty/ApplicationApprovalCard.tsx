@@ -10,7 +10,7 @@ import {
     Building2,
     Calendar,
     CheckCircle,
-    ExternalLink,
+    Eye,
     FileText,
     GraduationCap,
     Mail,
@@ -18,7 +18,6 @@ import {
     Phone,
     XCircle
 } from "lucide-react"
-import Link from "next/link"
 
 const getStudentInitials = (name: string | undefined): string => {
     if (!name) return "NA";
@@ -43,12 +42,15 @@ const getStatusBadge = (status: string) => {
     }
 }
 
+// ✅ Added onViewDetails prop to the interface
 export function ApplicationApprovalCard({
     application,
+    onViewDetails,
     onApprove,
     onReject,
 }: {
     application: ApprovalApplication
+    onViewDetails: () => void  // ✅ Added this line
     onApprove: () => void
     onReject: () => void
 }) {
@@ -171,15 +173,15 @@ export function ApplicationApprovalCard({
                 )}
 
                 <div className="flex items-center pt-4 border-t border-slate-100 gap-3">
-                    <Link href={`/applications/${application.id}`} className="flex-1">
-                        <Button 
-                            variant="outline" 
-                            className="w-full border-slate-300 text-slate-700 hover:bg-blue-50 hover:text-blue-700"
-                        >
-                            <ExternalLink className="mr-2 h-4 w-4" />
-                            View Full Details
-                        </Button>
-                    </Link>
+                    {/* ✅ Changed from Link to Button with onClick handler */}
+                    <Button 
+                        variant="outline" 
+                        className="flex-1 border-slate-300 text-slate-700 hover:bg-blue-50 hover:text-blue-700"
+                        onClick={onViewDetails}
+                    >
+                        <Eye className="mr-2 h-4 w-4" />
+                        View Details
+                    </Button>
                     
                     {isPendingForFacultyReview ? (
                         <>
