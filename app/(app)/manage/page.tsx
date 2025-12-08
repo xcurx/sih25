@@ -80,8 +80,8 @@ export default function ManagePage() {
   }
 
   return (
-    <div className="space-y-10 p-6">
-      <section className="rounded-3xl border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 shadow">
+    <div className="space-y-6 sm:space-y-8 lg:space-y-10 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-6xl mx-auto">
+      <section className="rounded-2xl sm:rounded-3xl border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-4 sm:p-6 lg:p-8 shadow">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="space-y-3">
             <Badge className="w-fit gap-2 rounded-full bg-sky-600/10 text-sky-800">
@@ -109,12 +109,12 @@ export default function ManagePage() {
         </div>
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
         <StudentForm />
         <FacultyForm />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
         <CompanyForm onCompaniesUpdate={handleCompaniesUpdate} />
         <EmployerForm
           companies={companies}

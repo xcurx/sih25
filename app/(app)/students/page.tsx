@@ -197,9 +197,9 @@ export default function StudentsPage() {
     }
 
     return (
-      <div className="p-6 max-w-7xl w-full mx-auto space-y-8">
+      <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 max-w-6xl w-full mx-auto space-y-6 sm:space-y-8">
         {/* Hero Section with Stats - matching employer dashboard style */}
-        <section className="relative overflow-hidden rounded-[32px] border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 shadow space-y-6">
+        <section className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-4 sm:p-6 lg:p-8 shadow space-y-6">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.08),transparent_55%)]" />
           <div className="relative space-y-4">
             <div>
@@ -218,7 +218,7 @@ export default function StudentsPage() {
           </div>
 
           {/* Stats Cards inside gradient */}
-          <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
             <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-slate-500">Total Students</CardTitle>
@@ -274,7 +274,7 @@ export default function StudentsPage() {
         </section>
 
         {/* Search and Filter Card */}
-        <Card className="shadow-lg border-slate-100 rounded-xl">
+        <Card className="shadow-lg border-slate-100 rounded-xl sm:rounded-2xl">
           <CardContent className="p-4 sm:p-6">
             <div className="flex flex-col lg:flex-row gap-4 items-center">
               <div className="flex-1 relative w-full">
@@ -347,31 +347,31 @@ export default function StudentsPage() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="all" className="space-y-4">
-            <div className="grid gap-4">
+          <TabsContent value="all" className="space-y-3 sm:space-y-4">
+            <div className="grid gap-3 sm:gap-4">
               {filteredStudents.map((student) => (
                 <CustomStudentCard key={student.id} student={student} onViewDetails={setSelectedStudent} />
               ))}
             </div>
           </TabsContent>
 
-          <TabsContent value="placed" className="space-y-4">
-            <div className="grid gap-4">
+          <TabsContent value="placed" className="space-y-3 sm:space-y-4">
+            <div className="grid gap-3 sm:gap-4">
               {placedStudents.map((student) => (
                 <CustomStudentCard key={student.id} student={student} onViewDetails={setSelectedStudent} />
               ))}
             </div>
           </TabsContent>
 
-          <TabsContent value="active" className="space-y-4">
-            <div className="grid gap-4">
+          <TabsContent value="active" className="space-y-3 sm:space-y-4">
+            <div className="grid gap-3 sm:gap-4">
               {activeStudents.map((student) => (
                 <CustomStudentCard key={student.id} student={student} onViewDetails={setSelectedStudent} />
               ))}
             </div>
           </TabsContent>
 
-          <TabsContent value="unplaced" className="space-y-4">
+          <TabsContent value="unplaced" className="space-y-3 sm:space-y-4">
             <div className="grid gap-4">
               {unplacedStudents.map((student) => (
                 <CustomStudentCard key={student.id} student={student} onViewDetails={setSelectedStudent} />

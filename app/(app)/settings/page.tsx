@@ -84,20 +84,16 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="space-y-8 p-6 max-w-4xl mx-auto">
+    <div className="space-y-6 sm:space-y-8 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-4xl mx-auto">
       {/* Header Section */}
-      <section className="space-y-3">
-        <div className="flex items-center gap-2">
-          <div className="p-2.5 bg-sky-100 rounded-lg">
-            <SettingsIcon className="h-6 w-6 text-sky-600" />
+      <section className="space-y-3 sm:space-y-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+          <div className="p-2 sm:p-2.5 bg-sky-100 rounded-lg">
+            <SettingsIcon className="h-5 sm:h-6 w-5 sm:w-6 text-sky-600" />
           </div>
           <div>
-            {/* <Badge className="gap-2 rounded-full bg-sky-600/10 text-sky-800 mb-2">
-              <Shield className="h-3 w-3" />
-              Placement Cell Settings
-            </Badge> */}
-            <h1 className="text-3xl font-semibold text-slate-900">Settings</h1>
-            <p className="text-sm text-slate-600 mt-1">
+            <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900">Settings</h1>
+            <p className="text-xs sm:text-sm text-slate-600 mt-1">
               Manage your account security and preferences
             </p>
           </div>
@@ -105,7 +101,7 @@ export default function SettingsPage() {
       </section>
 
       {/* Tabs */}
-      <Tabs defaultValue="security" className="space-y-6">
+      <Tabs defaultValue="security" className="space-y-4 sm:space-y-6">
         <TabsList className="bg-slate-100 rounded-full p-1 h-auto border border-slate-200">
           <TabsTrigger 
             value="security" 
@@ -136,7 +132,7 @@ export default function SettingsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handlePasswordChange} className="space-y-4">
+              <form onSubmit={handlePasswordChange} className="space-y-3 sm:space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="current-password" className="text-slate-700 font-medium">
                     Current Password *

@@ -219,10 +219,10 @@ export default function EmployersPage() {
   }
 
   return (
-    <div className="p-6 max-w-7xl w-full mx-auto space-y-8">
+    <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 max-w-6xl w-full mx-auto space-y-6 sm:space-y-8">
       
       {/* Hero Section with Stats - matching employer dashboard style */}
-      <section className="relative overflow-hidden rounded-[32px] border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 shadow space-y-6">
+      <section className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-4 sm:p-6 lg:p-8 shadow space-y-6">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.08),transparent_55%)]" />
         <div className="relative space-y-4">
           <div>
@@ -241,7 +241,7 @@ export default function EmployersPage() {
         </div>
 
         {/* Stats Cards inside gradient */}
-        <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
           {/* Partner Companies */}
           <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -301,16 +301,16 @@ export default function EmployersPage() {
       </section>
 
       {/* Search and Filter */}
-      <Card className="shadow-lg border-slate-200 rounded-xl bg-white">
-        <CardContent className="p-6">
-          <div className="flex flex-col md:flex-row gap-4 items-center">
+      <Card className="shadow-lg border-slate-100 rounded-xl sm:rounded-2xl bg-white">
+        <CardContent className="p-4 sm:p-6">
+          <div className="flex flex-col md:flex-row gap-3 sm:gap-4 items-center">
             <div className="flex-1 relative w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
                 placeholder="Search employers by name or contact..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 h-10 border-slate-200 focus:border-sky-500 rounded-lg transition"
+                className="pl-10 h-10 border-slate-200 focus:border-sky-500 rounded-lg transition w-full"
               />
             </div>
             <Select value={industryFilter} onValueChange={setIndustryFilter}>
@@ -331,7 +331,7 @@ export default function EmployersPage() {
       </Card>
 
       {/* Employer Cards - Using Custom List Structure */}
-      <div className="grid gap-4">
+      <div className="grid gap-3 sm:gap-4">
         {filteredEmployers.map((company) => (
           <CustomEmployerCard
             key={company.id}

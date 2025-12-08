@@ -1,3 +1,6 @@
+"use client"
+
+import { useSession } from "next-auth/react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -6,7 +9,9 @@ import { ArrowUpRight, Calendar, CheckCircle2, FileText, GraduationCap, Layers, 
 import { mockJobs, mockStudents } from "@/lib/mock-data"
 
 export default function StudentDashboard() {
+  const { data: session } = useSession()
   const student = mockStudents[0]
+  const userName = session?.user?.name || student.name
   const recentJobs = mockJobs.slice(0, 4)
 
   const focusAreas = [
@@ -34,7 +39,7 @@ export default function StudentDashboard() {
         <div className="relative space-y-4">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">Student Dashboard</p>
-            <h1 className="mt-3 text-3xl font-semibold text-slate-900">Good day, {student.name}</h1>
+            <h1 className="mt-3 text-3xl font-semibold text-slate-900">Good day, {userName}</h1>
             <p className="mt-2 text-sm text-slate-600">
               Track your placement journey and stay ahead of every deadline.
             </p>

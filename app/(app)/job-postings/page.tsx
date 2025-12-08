@@ -84,10 +84,10 @@ export default function JobPostingsPage() {
     }
 
     return (
-      <div className="p-6 max-w-7xl w-full mx-auto space-y-8">
+      <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 max-w-6xl w-full mx-auto space-y-6 sm:space-y-8">
         
         {/* NEW GRADIENT HEADER SECTION */}
-        <section className="relative overflow-hidden rounded-[32px] border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 shadow-lg">
+        <section className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-4 sm:p-6 lg:p-8 shadow-lg">
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.08),transparent_55%)]" />
 
             <div className="relative space-y-6">
@@ -110,7 +110,7 @@ export default function JobPostingsPage() {
                 </div>
 
                 {/* STATS CARDS (Reorganized from original body) */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
                     {uiStats.map((stat) => (
                         <Card 
                             key={stat.title} 
@@ -133,7 +133,7 @@ export default function JobPostingsPage() {
         </section>
 
         {/* Search and Filter - Adjusted height, fixed width, and border styling */}
-        <Card className="shadow-lg border-slate-100 rounded-xl">
+        <Card className="shadow-lg border-slate-100 rounded-xl sm:rounded-2xl">
             <CardContent className="p-4 sm:p-6">
                 <div className="flex flex-col md:flex-row gap-4 items-center">
                     {/* Search Input (Flex-1 width) */}
@@ -194,7 +194,7 @@ export default function JobPostingsPage() {
                 </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="all" className="space-y-4">
+            <TabsContent value="all" className="space-y-3 sm:space-y-4">
                 {filteredJobs.length > 0 ? (
                     filteredJobs.map((job) => (
                         <JobPostingCard key={job.id} job={job} />
@@ -208,19 +208,19 @@ export default function JobPostingsPage() {
                 )}
             </TabsContent>
 
-            <TabsContent value="active" className="space-y-4">
+            <TabsContent value="active" className="space-y-3 sm:space-y-4">
                 {activeJobs.map((job) => (
                     <JobPostingCard key={job.id} job={job} />
                 ))}
             </TabsContent>
 
-            <TabsContent value="draft" className="space-y-4">
+            <TabsContent value="draft" className="space-y-3 sm:space-y-4">
                 {draftJobs.map((job) => (
                     <JobPostingCard key={job.id} job={job} />
                 ))}
             </TabsContent>
 
-            <TabsContent value="closed" className="space-y-4">
+            <TabsContent value="closed" className="space-y-3 sm:space-y-4">
                 {closedJobs.map((job) => (
                     <JobPostingCard key={job.id} job={job} />
                 ))}
