@@ -15,10 +15,8 @@ import {
   DollarSign,
   ExternalLink,
   FileText,
-  Linkedin,
   Mail,
   MapPin,
-  User,
   Video,
   XCircle,
 } from "lucide-react"
@@ -322,16 +320,16 @@ export default function InterviewDetailPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex flex-wrap items-center gap-3">
-                <div className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-4 py-2 text-sm text-slate-700">
-                  <MapPin className="h-4 w-4 text-slate-500" />
+                <div className="inline-flex items-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-semibold text-sky-800">
+                  <MapPin className="h-4 w-4 text-sky-600" />
                   <span>{opportunity.location}</span>
                 </div>
-                <div className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-4 py-2 text-sm text-slate-700">
-                  <Briefcase className="h-4 w-4 text-slate-500" />
+                <div className="inline-flex items-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-semibold text-sky-800">
+                  <Briefcase className="h-4 w-4 text-sky-600" />
                   <span className="capitalize">{opportunity.type}</span>
                 </div>
-                <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-4 py-2 text-sm font-semibold text-emerald-700">
-                  <DollarSign className="h-4 w-4" />
+                <div className="inline-flex items-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-semibold text-sky-800">
+                  <DollarSign className="h-4 w-4 text-sky-600" />
                   <span>₹{opportunity.salary?.toLocaleString()}</span>
                 </div>
               </div>
@@ -369,17 +367,23 @@ export default function InterviewDetailPage() {
             <CardHeader>
               <CardTitle className="text-lg font-semibold text-slate-900">Quick Actions</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="flex flex-col gap-5 justify-around">
               <Link href={`/applications/${interview.applicationRel.id}`}>
-                <Button variant="outline" className="w-full rounded-full justify-start">
-                  <FileText className="h-4 w-4 mr-2" />
-                  View Application
+                <Button
+                  variant="outline"
+                  className="w-full h-11 rounded-full justify-start gap-2 border-slate-300 text-slate-900 hover:border-sky-300 hover:bg-sky-50"
+                >
+                  <FileText className="h-4 w-4 text-sky-700" />
+                  <span className="font-semibold">View Application</span>
                 </Button>
               </Link>
               <Link href={`/jobs/${opportunity.id}`}>
-                <Button variant="outline" className="w-full rounded-full justify-start">
-                  <Briefcase className="h-4 w-4 mr-2" />
-                  View Job Posting
+                <Button
+                  variant="outline"
+                  className="w-full h-11 rounded-full justify-start gap-2 border-slate-300 text-slate-900 hover:border-sky-300 hover:bg-sky-50"
+                >
+                  <Briefcase className="h-4 w-4 text-sky-700" />
+                  <span className="font-semibold">View Job Posting</span>
                 </Button>
               </Link>
             </CardContent>
@@ -449,48 +453,6 @@ export default function InterviewDetailPage() {
                     Visit Website
                   </a>
                 )}
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Recruiter Card */}
-          {opportunity.employerRel && (
-            <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold text-slate-900">Interviewer</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="rounded-full bg-gradient-to-br from-sky-100 to-blue-100 p-3">
-                    <User className="h-5 w-5 text-sky-600" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-slate-900">{opportunity.employerRel.name}</h4>
-                    {opportunity.employerRel.position && (
-                      <p className="text-sm text-slate-600">{opportunity.employerRel.position}</p>
-                    )}
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <a
-                    href={`mailto:${opportunity.employerRel.email}`}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-200"
-                  >
-                    <Mail className="h-3.5 w-3.5" />
-                    Email
-                  </a>
-                  {opportunity.employerRel.linkedin && (
-                    <a
-                      href={opportunity.employerRel.linkedin}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-3 py-1.5 text-sm text-blue-700 hover:bg-blue-200"
-                    >
-                      <Linkedin className="h-3.5 w-3.5" />
-                      LinkedIn
-                    </a>
-                  )}
-                </div>
               </CardContent>
             </Card>
           )}

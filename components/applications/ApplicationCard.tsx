@@ -48,26 +48,26 @@ export default function ApplicationCard({
   const getStatusColor = (status: ApplicationStatus) => {
       switch (status) {
         case "mentor_approval_needed":
-          return "bg-yellow-400"
+          return "bg-amber-100 text-amber-800 border border-amber-200"
         case "applied":
-          return "bg-blue-400"
+          return "bg-sky-100 text-sky-800 border border-sky-200"
         case "reviewed":
-          return "bg-indigo-400"
+          return "bg-blue-100 text-blue-800 border border-blue-200"
         case "shortlisted":
-          return "bg-emerald-500"
+          return "bg-emerald-100 text-emerald-800 border border-emerald-200"
         case "interviewed":
-          return "bg-amber-500"
+          return "bg-amber-100 text-amber-800 border border-amber-200"
         case "rejected":
-          return "bg-rose-500"
+          return "bg-red-100 text-red-800 border border-red-200"
         case "accepted":
-          return "bg-green-500"
+          return "bg-sky-200 text-sky-900 border border-sky-300"
         default:
-          return "secondary"
+          return "bg-slate-100 text-slate-800 border border-slate-200"
       }
   }
 
   return (
-    <Card className="group relative overflow-hidden rounded-3xl border-slate-200 bg-white/90 shadow-lg transition-all hover:shadow-xl hover:border-sky-200">
+    <Card className="group relative overflow-hidden rounded-3xl border-slate-200 bg-white/90 shadow-lg transition-all hover:shadow-xl hover:border-slate-200">
       {/* Subtle gradient overlay on hover */}
       <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity group-hover:opacity-100 bg-gradient-to-br from-sky-50/50 to-transparent" />
       
@@ -80,17 +80,17 @@ export default function ApplicationCard({
             <div className="flex-1 min-w-0">
               <div className="flex flex-col space-y-2 mb-2">
                 <CardTitle className="text-xl font-bold text-slate-900">{application.opportunityRel.title}</CardTitle>
-                <CardDescription className="text-base font-semibold text-slate-700">
+                <CardDescription className="text-base font-semibold text-slate-800">
                   {application.opportunityRel.companyRel?.name}
                 </CardDescription>
               </div>
               <div className="flex flex-wrap items-center gap-2 mb-3">
-                <div className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1.5 text-sm text-slate-700">
-                  <Calendar className="h-3.5 w-3.5 text-slate-500" />
+                <div className="inline-flex items-center gap-1 rounded-full bg-sky-50 px-3 py-1.5 text-sm text-sky-700 border border-sky-100">
+                  <Calendar className="h-3.5 w-3.5 text-sky-600" />
                   <span>Applied: {new Date(application.appliedAt).toLocaleDateString()}</span>
                 </div>
-                <div className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1.5 text-sm text-slate-700">
-                  <FileText className="h-3.5 w-3.5 text-slate-500" />
+                <div className="inline-flex items-center gap-1 rounded-full bg-sky-50 px-3 py-1.5 text-sm text-sky-700 border border-sky-100">
+                  <FileText className="h-3.5 w-3.5 text-sky-600" />
                   <span className="capitalize">{application.opportunityRel.type}</span>
                 </div>
               </div>
@@ -101,7 +101,7 @@ export default function ApplicationCard({
             </div>
           </div>
           <div className="flex flex-col items-end gap-2">
-            <Badge className={`flex items-center gap-2 rounded-full px-4 py-1 text-sm ${getStatusColor(application.status)} text-white border-none shadow-sm`}>
+            <Badge className={`flex items-center gap-2 rounded-full px-4 py-2 ${getStatusColor(application.status)} shadow-sm`}> 
               {getStatusIcon(application.status)}
               <span className="capitalize font-medium">
                 {application.status === "mentor_approval_needed"
@@ -168,7 +168,7 @@ export default function ApplicationCard({
             {application.opportunityRel.skillsRequired.length > 3 && (
               <Badge 
                 variant="outline" 
-                className="text-xs rounded-full border-slate-300 bg-slate-100 text-slate-700"
+                className="text-xs rounded-full border-sky-100 bg-sky-50 text-sky-700"
               >
                 +{application.opportunityRel.skillsRequired.length - 3} more
               </Badge>
@@ -176,10 +176,9 @@ export default function ApplicationCard({
           </div>
           <div className="flex flex-wrap gap-2 w-full sm:w-auto">
             <Button 
-              variant="outline" 
               size="sm" 
               onClick={() => onViewDetails(application)}
-              className="rounded-full border-slate-200 hover:bg-slate-50"
+              className="rounded-full bg-sky-600 text-white hover:bg-sky-700"
             >
               <Eye className="mr-2 h-4 w-4" />
               Quick View
@@ -188,7 +187,7 @@ export default function ApplicationCard({
               <Button 
                 variant="outline" 
                 size="sm"
-                className="rounded-full border-sky-200 text-sky-700 hover:bg-sky-50"
+                className="rounded-full border-sky-200 bg-white text-sky-700 hover:bg-sky-50"
               >
                 <ExternalLink className="mr-2 h-4 w-4" />
                 Full Details
@@ -206,7 +205,7 @@ export default function ApplicationCard({
                 </Button>
                 <Button 
                   size="sm"
-                  className="rounded-full bg-gradient-to-r from-sky-600 to-blue-600 text-white hover:from-sky-700 hover:to-blue-700"
+                  className="rounded-full bg-sky-600 text-white hover:bg-sky-700"
                 >
                   <CheckCircle className="mr-2 h-4 w-4" />
                   Approve

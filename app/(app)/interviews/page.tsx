@@ -4,6 +4,7 @@ import InterviewCard from "@/components/interviews/InterviewCard"
 import InterviewDetailsDialog from "@/components/interviews/InterviewDetailsDialog"
 import Loader from "@/components/loader/Loader"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -190,42 +191,49 @@ export default function InterviewsPage() {
     </div>
 </section>
             
-            {/* Search and Filter */}
-            <Card className="border-slate-200 bg-white/90 shadow-lg rounded-3xl">
-                <CardContent className="p-6">
-                    <div className="flex flex-col lg:flex-row gap-4">
-                        <div className="flex-1 relative">
-                            <Search className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
+            {/* Interviews Tabs */}
+            <Tabs defaultValue="all" className="space-y-6">
+                <div className="rounded-2xl border border-slate-100 bg-white px-4 py-3 md:px-6 md:py-4 shadow-sm flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                    <TabsList className="bg-slate-100/60 rounded-2xl h-auto flex-wrap">
+                        <TabsTrigger value="all" className="data-[state=active]:bg-sky-600 data-[state=active]:text-white">All ({filteredApplications.length})</TabsTrigger>
+                        <TabsTrigger value="upcoming" className="data-[state=active]:bg-sky-600 data-[state=active]:text-white">Upcoming ({upcomingInterviews.length})</TabsTrigger>
+                        <TabsTrigger value="completed" className="data-[state=active]:bg-sky-600 data-[state=active]:text-white">Completed ({completedInterviews.length})</TabsTrigger>
+                    </TabsList>
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3 lg:min-w-[420px] lg:justify-end">
+                        <div className="flex items-center gap-2">
+                            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                <SelectTrigger className="!h-11 w-44 rounded-2xl border-slate-200 bg-slate-50/60 hover:bg-white hover:border-sky-300 text-slate-900">
+                                    <SelectValue placeholder="All Status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Status</SelectItem>
+                                    <SelectItem value="shortlisted">Shortlisted</SelectItem>
+                                    <SelectItem value="interviewed">Interviewed</SelectItem>
+                                    <SelectItem value="accepted">Accepted</SelectItem>
+                                    <SelectItem value="rejected">Rejected</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            {(searchTerm || statusFilter !== "all") && (
+                                <Button
+                                    variant="outline"
+                                    onClick={() => { setSearchTerm(""); setStatusFilter("all") }}
+                                    className="rounded-full border-slate-200 hover:bg-red-50 hover:border-red-300 text-slate-800"
+                                >
+                                    Clear
+                                </Button>
+                            )}
+                        </div>
+                        <div className="flex-1 relative min-w-[240px] lg:min-w-[280px]">
+                            <Search className="absolute left-3 top-3 h-5 w-5 text-slate-500" />
                             <Input
                                 placeholder="Search by job title or company..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="pl-10 h-12 rounded-2xl border-slate-200 focus:border-sky-400 focus:ring-sky-400"
+                                className="pl-10 h-11 rounded-2xl border-slate-200 focus:border-sky-400 focus:ring-sky-400"
                             />
                         </div>
-                        <Select value={statusFilter} onValueChange={setStatusFilter}>
-                            <SelectTrigger className="!h-12 w-full lg:w-48 rounded-2xl border-slate-200 hover:bg-sky-50 hover:border-sky-300">
-                                <SelectValue placeholder="All Status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All Status</SelectItem>
-                                <SelectItem value="shortlisted">Shortlisted</SelectItem>
-                                <SelectItem value="interviewed">Interviewed</SelectItem>
-                                <SelectItem value="accepted">Accepted</SelectItem>
-                                <SelectItem value="rejected">Rejected</SelectItem>
-                            </SelectContent>
-                        </Select>
                     </div>
-                </CardContent>
-            </Card>
-
-            {/* Interviews Tabs */}
-            <Tabs defaultValue="all" className="space-y-6">
-                <TabsList className="bg-slate-100/60 rounded-2xl">
-                    <TabsTrigger value="all" className="data-[state=active]:bg-sky-600 data-[state=active]:text-white">All ({filteredApplications.length})</TabsTrigger>
-                    <TabsTrigger value="upcoming" className="data-[state=active]:bg-sky-600 data-[state=active]:text-white">Upcoming ({upcomingInterviews.length})</TabsTrigger>
-                    <TabsTrigger value="completed" className="data-[state=active]:bg-sky-600 data-[state=active]:text-white">Completed ({completedInterviews.length})</TabsTrigger>
-                </TabsList>
+                </div>
 
                 <TabsContent value="all" className="space-y-4">
                     {filteredApplications.length > 0 ? (

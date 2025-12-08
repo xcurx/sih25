@@ -152,91 +152,93 @@ export default function RecommendationPage() {
       </section>
 
       {/* Search and Filter Bar */}
-      <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
-        <CardContent className="p-6">
-          <div className="flex flex-col lg:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
-              <Input
-                placeholder="Search recommended opportunities..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 h-12 rounded-full border-slate-200 focus:border-sky-400 focus:ring-sky-400"
-              />
-            </div>
-            <div className="flex gap-2">
+      <div className="space-y-4 rounded-2xl border border-slate-100 bg-white px-4 py-3 md:px-6 md:py-4 shadow-sm">
+        <div className="flex flex-col lg:flex-row gap-4">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-3 h-5 w-5 text-slate-500" />
+            <Input
+              placeholder="Search recommended opportunities..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 h-12 rounded-2xl border-slate-200 focus:border-sky-400 focus:ring-sky-400"
+            />
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex items-center gap-2 rounded-full border-slate-200 hover:bg-sky-50 hover:border-sky-300"
+            >
+              <Filter className="h-4 w-4 text-sky-700" />
+              Filters
+              {(selectedType || selectedLocation) && (
+                <Badge className="ml-1 h-5 w-5 rounded-full bg-sky-500 p-0 flex items-center justify-center text-xs">
+                  {[selectedType, selectedLocation].filter(Boolean).length}
+                </Badge>
+              )}
+            </Button>
+            {(searchTerm || selectedType || selectedLocation) && (
               <Button
                 variant="outline"
-                onClick={() => setShowFilters(!showFilters)}
-                className="rounded-full border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                onClick={clearFilters}
+                className="rounded-full border-slate-200 hover:bg-red-50 hover:border-red-300 text-slate-800"
               >
-                <Filter className="h-4 w-4 mr-2" />
-                Filters
-                {(selectedType || selectedLocation) && (
-                  <Badge className="ml-2 h-5 w-5 rounded-full bg-sky-600 p-0 flex items-center justify-center text-xs">
-                    {[selectedType, selectedLocation].filter(Boolean).length}
-                  </Badge>
-                )}
+                Clear All
               </Button>
-              {(searchTerm || selectedType || selectedLocation) && (
-                <Button variant="outline" onClick={clearFilters} className="rounded-full border-slate-300 bg-white text-slate-700 hover:bg-slate-50">
-                  Clear All
-                </Button>
-              )}
-            </div>
+            )}
           </div>
+        </div>
 
-          {showFilters && (
-            <div className="mt-6 pt-6 border-t border-slate-100">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-slate-700">Job Type</Label>
-                  <Select value={selectedType} onValueChange={setSelectedType}>
-                    <SelectTrigger className="rounded-full border-slate-200 bg-slate-50/60 hover:bg-white">
-                      <SelectValue placeholder="All Types" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Types</SelectItem>
-                      <SelectItem value="internship">Internship</SelectItem>
-                      <SelectItem value="full-time">Full-time</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+        {showFilters && (
+          <div className="pt-4 border-t border-slate-200">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-slate-700">Job Type</Label>
+                <Select value={selectedType} onValueChange={setSelectedType}>
+                  <SelectTrigger className="rounded-2xl border-slate-200 bg-slate-50/60 hover:bg-white text-slate-900">
+                    <SelectValue placeholder="All Types" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="internship">Internship</SelectItem>
+                    <SelectItem value="full-time">Full-time</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-slate-700">Location</Label>
-                  <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-                    <SelectTrigger className="rounded-full border-slate-200 bg-slate-50/60 hover:bg-white">
-                      <SelectValue placeholder="All Locations" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Locations</SelectItem>
-                      {allLocations.map((location) => (
-                        <SelectItem key={location} value={location}>
-                          {location}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-slate-700">Location</Label>
+                <Select value={selectedLocation} onValueChange={setSelectedLocation}>
+                  <SelectTrigger className="rounded-2xl border-slate-200 bg-slate-50/60 hover:bg-white text-slate-900">
+                    <SelectValue placeholder="All Locations" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Locations</SelectItem>
+                    {allLocations.map((location) => (
+                      <SelectItem key={location} value={location}>
+                        {location}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-slate-700">Match Quality</Label>
-                  <div className="flex gap-2 pt-2">
-                    <Badge variant="secondary" className="rounded-full bg-emerald-50 text-emerald-700 border-emerald-200">
-                      <CheckCircle2 className="h-3 w-3 mr-1" />
-                      {recommendations.filter(r => r.composite_score > 0.8).length}
-                    </Badge>
-                    <Badge variant="secondary" className="rounded-full bg-sky-50 text-sky-700 border-sky-200">
-                      {recommendations.filter(r => r.composite_score > 0.6 && r.composite_score <= 0.8).length}
-                    </Badge>
-                  </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-slate-700">Match Quality</Label>
+                <div className="flex gap-2 pt-2">
+                  <Badge variant="secondary" className="rounded-full bg-emerald-50 text-emerald-700 border-emerald-200">
+                    <CheckCircle2 className="h-3 w-3 mr-1" />
+                    {recommendations.filter(r => r.composite_score > 0.8).length}
+                  </Badge>
+                  <Badge variant="secondary" className="rounded-full bg-sky-50 text-sky-700 border-sky-200">
+                    {recommendations.filter(r => r.composite_score > 0.6 && r.composite_score <= 0.8).length}
+                  </Badge>
                 </div>
               </div>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </div>
+        )}
+      </div>
 
       {/* Results Summary */}
       <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
