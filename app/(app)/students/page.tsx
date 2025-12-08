@@ -1,5 +1,6 @@
 "use client"
 
+
 import Loader from "@/components/loader/Loader"
 import StudentDetailsDialog from "@/components/students/StudentDetailsDialog"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
