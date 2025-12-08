@@ -69,7 +69,7 @@ export default function Header() {
   return (
     <div style={{ fontSize: `${fontScale}rem` }}>
       <div className="bg-gradient-to-r from-sky-800 via-sky-700 to-sky-800 text-white text-xs tracking-wide shadow-sm">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-2">
+        <div className="mx-auto flex max-w-[1280px] flex-wrap items-center justify-between gap-3 px-4 py-2">
           <div className="flex items-center gap-3 font-semibold">
             <span className="text-lg" role="img" aria-label="India flag">🇮🇳</span>
             Government of India
@@ -77,7 +77,7 @@ export default function Header() {
 
           <div className="flex items-center gap-3">
             <button
-              className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/5 px-3 py-1 text-white/90 transition hover:bg-white/15 hover:text-white"
+              className="group relative inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-white/90 transition after:absolute after:left-3 after:right-3 after:-bottom-1 after:h-px after:origin-left after:scale-x-0 after:bg-white after:opacity-0 after:transition-transform after:duration-300 after:transition-opacity group-hover:after:scale-x-100 group-hover:after:opacity-100"
               onClick={handleScreenReaderNarration}
               disabled={isReading}
             >
@@ -85,45 +85,43 @@ export default function Header() {
               {isReading ? "Narrating..." : "Screen reader"}
             </button>
 
-            <div className="flex items-center gap-2 rounded-full border border-white/25 bg-white/5 px-2 py-1 text-white/80 shadow-inner shadow-white/10">
+            <div className="flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 py-1 text-white/80">
               <button
                 onClick={() => adjustFontScale(-0.05)}
-                className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] transition hover:bg-white/10"
+                className="group relative inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] transition after:absolute after:left-1.5 after:right-1.5 after:-bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:bg-white after:opacity-0 after:transition-transform after:transition-opacity after:duration-300 group-hover:after:scale-x-100 group-hover:after:opacity-100"
                 aria-label="Decrease font size"
               >
                 <Type className="h-3.5 w-3.5" /> A-
               </button>
-              <div className="h-4 w-px bg-white/30" aria-hidden="true" />
               <button
                 onClick={resetFontScale}
-                className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] transition hover:bg-white/10"
+                className="group relative inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] transition after:absolute after:left-1.5 after:right-1.5 after:-bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:bg-white after:opacity-0 after:transition-transform after:transition-opacity after:duration-300 group-hover:after:scale-x-100 group-hover:after:opacity-100"
                 aria-label="Reset font size"
               >
                 <Type className="h-3.5 w-3.5" /> A
               </button>
-              <div className="h-4 w-px bg-white/30" aria-hidden="true" />
               <button
                 onClick={() => adjustFontScale(0.05)}
-                className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] transition hover:bg-white/10"
+                className="group relative inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] transition after:absolute after:left-1.5 after:right-1.5 after:-bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:bg-white after:opacity-0 after:transition-transform after:transition-opacity after:duration-300 group-hover:after:scale-x-100 group-hover:after:opacity-100"
                 aria-label="Increase font size"
               >
                 <Type className="h-3.5 w-3.5" /> A+
               </button>
             </div>
 
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/5 px-3 py-1 text-white/80">
+            <div className="group relative inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-white/80 after:absolute after:left-3 after:right-3 after:-bottom-1 after:h-px after:origin-left after:scale-x-0 after:bg-white after:opacity-0 after:transition-transform after:transition-opacity after:duration-300 group-hover:after:scale-x-100 group-hover:after:opacity-100">
               <Globe className="h-3.5 w-3.5" aria-hidden="true" /> English
             </div>
           </div>
         </div>
 
-        <div className="mx-auto max-w-6xl px-4">
+        <div className="mx-auto max-w-[1280px] px-4">
           <p className="sr-only" aria-live="polite">{accessibilityMessage ?? ""}</p>
         </div>
       </div>
 
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-white shadow-sm backdrop-blur">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
+        <div className="mx-auto flex max-w-[1280px] flex-wrap items-center justify-between gap-3 px-4 py-3">
           <Link href="/" aria-label="Go to main landing page" className="group flex items-center gap-3 rounded-full bg-white/80 px-3 py-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow">
             <Image
               src="/Logo_Saksham.png"

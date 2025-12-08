@@ -134,34 +134,34 @@ export function LoginScreen() {
 
   return (
     <div className="min-h-screen bg-slate-50" style={{ fontSize: `${fontScale}rem` }}>
-      
+
       <LandingHeader />
 
-      <main className="mx-auto flex min-h-[calc(100vh-140px)] max-w-6xl flex-col gap-6 px-4 py-12 lg:flex-row lg:items-start lg:gap-10">
+      <main className="mx-auto flex min-h-[calc(100vh-140px)] max-w-[1280px] flex-col gap-8 px-4 py-12 lg:flex-row lg:items-start lg:gap-12">
         <section className="order-2 relative mb-6 flex-1 overflow-hidden rounded-3xl border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 text-slate-900 shadow-2xl lg:order-1 lg:mb-0" id="main-content">
           <div
             className="pointer-events-none absolute inset-0 opacity-40"
             style={{ backgroundImage: "radial-gradient(circle at 1px 1px, rgba(14,165,233,0.25) 1px, transparent 0)", backgroundSize: "40px 40px" }}
           />
-          <div className="relative flex h-full flex-col gap-6">
+          <div className="relative flex h-full flex-col items-center gap-6 text-center">
             <Badge className="bg-sky-100 text-sky-800" variant="outline">
-              Digital Campus Enablement
+              Digital campus enablement
             </Badge>
-            <h1 className="text-4xl font-bold leading-tight tracking-tight lg:text-5xl">
+            <h1 className="max-w-3xl text-4xl font-bold leading-tight tracking-tight text-slate-900 lg:text-5xl">
               One secure window for internships, placements, and employer partnerships.
             </h1>
-            <p className="max-w-xl text-base text-slate-600">
-              The official mission platform keeps every student opportunity traceable, transparent, and aligned with national skilling priorities.
+            <p className="max-w-2xl text-base text-slate-600">
+              The mission platform keeps every student opportunity traceable, transparent, and aligned with national skilling priorities.
             </p>
 
-            <div className="grid gap-4 rounded-2xl border border-white/50 bg-white/80 p-6 backdrop-blur">
-              <p className="text-sm font-semibold uppercase tracking-widest text-sky-600">
-                Platform Commitments
+            <div className="grid w-full max-w-3xl gap-4 rounded-2xl border border-white/50 bg-white/80 p-6 text-left backdrop-blur">
+              <p className="text-sm font-semibold uppercase tracking-widest text-sky-600 text-center">
+                Platform commitments
               </p>
-              <ul className="space-y-3 text-sm">
+              <ul className="space-y-3 text-sm text-slate-700">
                 <li className="flex items-center gap-2">
                   <ShieldCheck className="h-4 w-4 text-sky-600" aria-hidden="true" />
-                  ISO 27001 aligned data security standards
+                  ISO 27001-aligned data security standards
                 </li>
                 <li className="flex items-center gap-2">
                   <Building2 className="h-4 w-4 text-sky-600" aria-hidden="true" />
@@ -169,12 +169,12 @@ export function LoginScreen() {
                 </li>
                 <li className="flex items-center gap-2">
                   <GraduationCap className="h-4 w-4 text-sky-600" aria-hidden="true" />
-                  Student-centric dashboards & credentialed access
+                  Student-centric dashboards with credentialed access
                 </li>
               </ul>
             </div>
 
-            <dl className="grid gap-4 sm:grid-cols-3">
+            <dl className="grid w-full max-w-3xl gap-4 sm:grid-cols-3">
               {stats.map((stat) => (
                 <div key={stat.label} className="rounded-2xl border border-white/70 bg-white/80 p-4 text-center shadow-sm">
                   <dt className="text-xs uppercase tracking-[0.2em] text-slate-500">{stat.label}</dt>
@@ -183,37 +183,37 @@ export function LoginScreen() {
               ))}
             </dl>
 
-            <div className="grid gap-3 rounded-2xl border border-white/60 bg-white/80 p-5 text-sm text-slate-700">
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Operational safeguards</p>
+            <div className="grid w-full max-w-3xl gap-3 rounded-2xl border border-white/60 bg-white/80 p-5 text-sm text-slate-700">
+              <p className="text-center text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Operational safeguards</p>
               <div className="grid gap-2 sm:grid-cols-3">
-                <div className="flex items-center gap-2 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">
+                <div className="flex items-center justify-center gap-2 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-center">
                   <Shield className="h-4 w-4 text-sky-600" aria-hidden="true" />
                   Role-based access
                 </div>
-                <div className="flex items-center gap-2 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">
+                <div className="flex items-center justify-center gap-2 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-center">
                   <Globe className="h-4 w-4 text-sky-600" aria-hidden="true" />
                   24x7 availability
                 </div>
-                <div className="flex items-center gap-2 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">
+                <div className="flex items-center justify-center gap-2 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-center">
                   <Sparkles className="h-4 w-4 text-sky-600" aria-hidden="true" />
                   Accessibility-ready
                 </div>
               </div>
             </div>
 
-            <div className="mt-auto grid gap-3 rounded-2xl border border-white/60 bg-white/80 p-5 text-sm text-slate-700">
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Service status & support</p>
+            <div className="mt-auto grid w-full max-w-3xl gap-3 rounded-2xl border border-white/60 bg-white/80 p-5 text-sm text-slate-700">
+              <p className="text-center text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Service status & support</p>
               <div className="grid gap-2 sm:grid-cols-2">
-                <div className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">
+                <div className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-center">
                   <p className="text-xs text-slate-500">Uptime</p>
-                  <p className="text-sm font-semibold text-slate-800">99.4% last 30 days</p>
+                  <p className="text-sm font-semibold text-slate-800">99.4% in the last 30 days</p>
                 </div>
-                <div className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">
+                <div className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-center">
                   <p className="text-xs text-slate-500">Support window</p>
                   <p className="text-sm font-semibold text-slate-800">Mon–Sat · 9:00–18:00</p>
                 </div>
               </div>
-              <div className="flex flex-wrap gap-2 text-xs text-slate-600">
+              <div className="flex flex-wrap justify-center gap-2 text-xs text-slate-600">
                 <span className="rounded-full bg-slate-100 px-3 py-1">Data residency: India</span>
                 <span className="rounded-full bg-slate-100 px-3 py-1">Encrypted at rest</span>
                 <span className="rounded-full bg-slate-100 px-3 py-1">24x7 monitoring</span>
@@ -226,12 +226,12 @@ export function LoginScreen() {
           <div className="relative flex h-full w-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white/95 px-6 py-8 shadow-[0_30px_90px_rgba(15,23,42,0.15)] sm:px-7 sm:py-9 lg:px-8 lg:py-10">
             <div className="pointer-events-none absolute -top-14 -right-16 h-48 w-48 rounded-full bg-sky-200/30 blur-3xl" />
             <div className="pointer-events-none absolute bottom-0 left-6 h-24 w-24 rounded-full bg-cyan-100/60 blur-2xl" />
-            <div className="relative flex h-full flex-col space-y-8">
+            <div className="relative flex h-full flex-col space-y-8 text-center">
               <div className="space-y-3">
                 <Badge variant="outline" className="border-sky-200 bg-sky-50 text-sky-700">
                   Secure single sign-on
                 </Badge>
-                <div>
+                <div className="space-y-2">
                   <h2 className="text-3xl font-semibold text-slate-900">Access your mission cockpit</h2>
                   <p className="text-sm text-slate-600">
                     Continue with your institutional credentials to manage applications, interviews, and official notices.
@@ -240,9 +240,9 @@ export function LoginScreen() {
               </div>
 
               <form className="space-y-5" onSubmit={handleSubmit}>
-                <div className="space-y-2">
+                <div className="space-y-2 text-left">
                   <Label htmlFor="email" className="text-sm font-semibold text-slate-700">
-                    Official Email ID
+                    Official email ID
                   </Label>
                   <Input
                     id="email"
@@ -256,7 +256,7 @@ export function LoginScreen() {
                     required
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 text-left">
                   <Label htmlFor="password" className="text-sm font-semibold text-slate-700">
                     Password
                   </Label>
@@ -272,7 +272,7 @@ export function LoginScreen() {
                     required
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 text-left">
                   <Label htmlFor="role" className="text-sm font-semibold text-slate-700">
                     Login as
                   </Label>
@@ -283,7 +283,7 @@ export function LoginScreen() {
                     >
                       <SelectValue placeholder="Select your role" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent align="center">
                       {roleOptions.map((role) => (
                         <SelectItem key={role.value} value={role.value}>
                           {role.label}
@@ -294,7 +294,7 @@ export function LoginScreen() {
                 </div>
                 <Button
                   type="submit"
-                  className="w-full rounded-2xl bg-gradient-to-r from-sky-600 to-blue-600 text-base font-semibold shadow-lg shadow-sky-200 hover:from-sky-500 hover:to-blue-500"
+                  className="group w-full rounded-2xl bg-gradient-to-r from-sky-600 to-blue-600 text-base font-semibold shadow-lg shadow-sky-200 transition hover:-translate-y-0.5 hover:from-sky-500 hover:to-blue-500"
                   disabled={isLoading}
                 >
                   {isLoading ? (
@@ -303,18 +303,20 @@ export function LoginScreen() {
                       Verifying access
                     </>
                   ) : (
-                    "Enter placement mission"
+                    <span className="relative inline-flex items-center justify-center after:absolute after:left-0 after:right-0 after:-bottom-1 after:h-[1px] after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 group-hover:after:scale-x-100">
+                      Enter placement mission
+                    </span>
                   )}
                 </Button>
-                <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-slate-600">
-                  <Link href="/support" className="hover:text-slate-900">
+                <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-slate-600">
+                  <Link href="/support" className="relative inline-flex items-center after:absolute after:left-0 after:right-0 after:-bottom-1 after:h-[1px] after:origin-left after:scale-x-0 after:bg-slate-500 after:transition-transform after:duration-300 hover:text-slate-900 hover:after:scale-x-100">
                     Forgot password?
                   </Link>
                   <span className="text-slate-400">|</span>
-                  <Link href="/#support" className="hover:text-slate-900">
+                  <Link href="/#support" className="relative inline-flex items-center after:absolute after:left-0 after:right-0 after:-bottom-1 after:h-[1px] after:origin-left after:scale-x-0 after:bg-slate-500 after:transition-transform after:duration-300 hover:text-slate-900 hover:after:scale-x-100">
                     Request access
                   </Link>
-                  <span className="text-xs uppercase tracking-[0.25em] text-slate-400">Automatic session lock in 20 mins</span>
+                  <span className="text-xs uppercase tracking-[0.25em] text-slate-400">Session locks after 20 minutes</span>
                 </div>
               </form>
 
@@ -331,7 +333,7 @@ export function LoginScreen() {
                     Sandbox
                   </Badge>
                 </div>
-                <div className="grid gap-2">
+                <div className="grid gap-2 text-left">
                   <p>Student — student@gmail.com — 1234</p>
                   <p>Faculty — f@gmail.com — 1234</p>
                   <p>Placement Cell — cell@gmail.com — 1234</p>
@@ -340,7 +342,7 @@ export function LoginScreen() {
               </div>
 
               <div className="grid gap-4 rounded-2xl border border-sky-100 bg-white/80 p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Mission desk</p>
+                <p className="text-center text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Mission desk</p>
                 <div className="grid gap-3 text-sm text-slate-700">
                   {contactChannels.map((channel) => (
                     <div key={channel.label} className="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50/70 px-3 py-2">
@@ -351,7 +353,7 @@ export function LoginScreen() {
                     </div>
                   ))}
                 </div>
-                <p className="text-xs text-slate-500">
+                <p className="text-center text-xs text-slate-500">
                   Sharing credentials or using public systems without supervision is a punishable offence under institutional and IT Act norms.
                 </p>
               </div>

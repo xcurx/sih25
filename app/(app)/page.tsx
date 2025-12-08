@@ -96,7 +96,7 @@ function PublicLanding() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4 lg:px-6">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-4 lg:px-6">
           <Link href="/" aria-label="Go to main landing" className="flex items-center gap-3">
             <Image
               src="/Logo_Saksham.png"
@@ -112,10 +112,10 @@ function PublicLanding() {
             </div>
           </Link>
           <div className="flex items-center gap-3">
-            <Button className="bg-sky-600 text-white hover:bg-sky-500" asChild>
+            <Button className="inline-flex items-center gap-2 bg-sky-600 text-white leading-none hover:bg-sky-500" asChild>
               <Link href="/sign-in">
                 Launch Portal
-                <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+                <ArrowRight className="h-4 w-4 shrink-0" aria-hidden="true" />
               </Link>
             </Button>
           </div>
@@ -136,7 +136,7 @@ function PublicLanding() {
                 "radial-gradient(circle at 20% 20%, rgba(59,130,246,0.14) 0, rgba(255,255,255,0) 32%), radial-gradient(circle at 80% 0%, rgba(14,165,233,0.12) 0, rgba(255,255,255,0) 30%)",
             }}
           />
-          <div className="mx-auto flex max-w-5xl flex-col items-center gap-10 px-4 py-16 text-center lg:px-6">
+          <div className="mx-auto flex w-full max-w-7xl flex-col items-center gap-10 px-4 py-16 text-center lg:px-6">
             <div className="relative w-full max-w-3xl space-y-6">
               <Badge className="bg-sky-100 text-sky-800" variant="outline">
                 Official · Secure · Student-first
@@ -149,10 +149,14 @@ function PublicLanding() {
                 and students protected from first application to final offer.
               </p>
               <div className="flex flex-col items-center gap-4 text-sm sm:flex-row sm:justify-center">
-                <Button size="lg" className="bg-sky-600 text-white hover:bg-sky-500" asChild>
+                <Button
+                  size="lg"
+                  className="inline-flex items-center gap-2 bg-sky-600 text-white leading-none hover:bg-sky-500"
+                  asChild
+                >
                   <Link href="/register-company">
-                    Register your Company
-                    <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+                    Register your company
+                    <ArrowRight className="h-4 w-4 shrink-0" aria-hidden="true" />
                   </Link>
                 </Button>
               </div>
@@ -178,16 +182,16 @@ function PublicLanding() {
                       </div>
                     ))}
                   </div>
-                  <div className="mt-5 grid gap-3 border-t border-slate-100 pt-4 text-sm text-slate-600 sm:grid-cols-3">
-                    <div className="flex items-center gap-2">
+                  <div className="mt-5 grid gap-3 border-t border-slate-100 pt-4 text-sm text-slate-600 sm:grid-cols-3 sm:items-center sm:text-center">
+                    <div className="flex items-center justify-center gap-2">
                       <LineChart className="h-4 w-4 text-sky-600" aria-hidden="true" />
                       Real-time dashboards
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-center gap-2">
                       <Briefcase className="h-4 w-4 text-sky-600" aria-hidden="true" />
                       PSU + private drives
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-center gap-2">
                       <Users className="h-4 w-4 text-sky-600" aria-hidden="true" />
                       Inclusive outreach
                     </div>
@@ -201,7 +205,7 @@ function PublicLanding() {
         </section>
 
         <section className="bg-white">
-          <div className="mx-auto max-w-6xl px-4 py-14 lg:px-6">
+          <div className="mx-auto w-full max-w-7xl px-4 py-14 lg:px-6">
             <div className="mb-10 flex flex-col gap-4 text-center lg:flex-row lg:items-end lg:justify-between lg:text-left">
               <div className="max-w-3xl space-y-2 lg:text-left">
                 <Badge className="bg-sky-100 text-sky-800" variant="outline">
@@ -213,11 +217,11 @@ function PublicLanding() {
                 </p>
               </div>
               <div className="flex flex-wrap justify-center gap-3 text-sm text-slate-600 lg:justify-end">
-                <div className="flex items-center gap-2 rounded-full bg-slate-100 px-3 py-2">
+                <div className="flex min-w-[180px] items-center justify-center gap-2 rounded-full bg-slate-100 px-3 py-2">
                   <ShieldCheck className="h-4 w-4 text-sky-600" aria-hidden />
                   Verified ecosystem
                 </div>
-                <div className="flex items-center gap-2 rounded-full bg-slate-100 px-3 py-2">
+                <div className="flex min-w-[180px] items-center justify-center gap-2 rounded-full bg-slate-100 px-3 py-2">
                   <Sparkles className="h-4 w-4 text-sky-600" aria-hidden />
                   Guided readiness
                 </div>
@@ -250,7 +254,7 @@ function PublicLanding() {
         </section>
 
         <section className="border-y border-slate-200 bg-gradient-to-br from-sky-50 via-white to-blue-50">
-          <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 lg:grid-cols-[1.2fr,1fr] lg:px-6">
+          <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-14 lg:grid-cols-[1.2fr,1fr] lg:px-6">
             <div className="space-y-4 text-center lg:text-left">
               <Badge className="bg-slate-100 text-slate-700" variant="outline">
                 Analytics & compliance
@@ -276,7 +280,7 @@ function PublicLanding() {
             </div>
             <div className="grid gap-6 lg:grid-cols-3">
               {initiatives.map((initiative) => (
-                <Card key={initiative.title} className="rounded-2xl border-slate-200 bg-white/90 shadow-sm">
+                <Card key={initiative.title} className="h-full rounded-2xl border-slate-200 bg-white/90 shadow-sm">
                   <CardHeader>
                     <CardTitle className="text-base text-slate-900">{initiative.title}</CardTitle>
                   </CardHeader>
@@ -290,7 +294,7 @@ function PublicLanding() {
         </section>
 
         <section id="updates" className="bg-white">
-          <div className="mx-auto max-w-6xl px-4 py-14 lg:px-6">
+          <div className="mx-auto w-full max-w-7xl px-4 py-14 lg:px-6">
             <div className="mb-10 flex flex-col gap-4 text-center lg:flex-row lg:items-center lg:justify-between lg:text-left">
               <div>
                 <h2 className="text-3xl font-bold text-slate-900">Circulars & updates</h2>
@@ -299,7 +303,7 @@ function PublicLanding() {
             </div>
             <div className="grid gap-6 md:grid-cols-3">
               {updates.map((update) => (
-                <Card key={update.title} className="rounded-2xl border-slate-200 shadow-sm">
+                <Card key={update.title} className="h-full rounded-2xl border-slate-200 shadow-sm">
                   <CardHeader>
                     <p className="text-xs uppercase tracking-[0.3em] text-slate-500">{update.date}</p>
                     <CardTitle className="text-xl text-slate-900">{update.title}</CardTitle>
@@ -317,16 +321,20 @@ function PublicLanding() {
           <div className="absolute inset-0 opacity-35" aria-hidden="true" style={{
             backgroundImage: "radial-gradient(circle at 30% 20%, rgba(59,130,246,0.16) 0, rgba(255,255,255,0) 32%)",
           }} />
-          <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-16 text-center lg:px-6">
+          <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-16 text-center lg:px-6">
             <h2 className="text-3xl font-bold text-slate-900">Ready to strengthen your campus-to-career pipeline?</h2>
             <p className="text-base text-slate-700">
               Bring students, administrators, and employers together with a unified, secure, and policy-aligned platform.
             </p>
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-              <Button size="lg" className="bg-sky-600 text-white hover:bg-sky-500" asChild>
+              <Button
+                size="lg"
+                className="inline-flex items-center gap-2 bg-sky-600 text-white leading-none hover:bg-sky-500"
+                asChild
+              >
                 <Link href="/sign-in">
                   Start now
-                  <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
               </Button>
             </div>
@@ -335,7 +343,7 @@ function PublicLanding() {
       </main>
 
       <footer className="border-t border-slate-200 bg-white">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-6 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between lg:px-6">
+        <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-6 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between lg:px-6">
           <p>(c) {new Date().getFullYear()} Department of Higher Education, Government of India</p>
           <div className="flex flex-wrap gap-4 text-xs uppercase tracking-[0.2em] text-slate-500">
             <span>Data Protection</span>
