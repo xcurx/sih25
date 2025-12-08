@@ -24,6 +24,7 @@ export default function JobsPage() {
   const [selectedLocation, setSelectedLocation] = useState("")
   const [showFilters, setShowFilters] = useState(false)
   const [selectedSkills, setSelectedSkills] = useState<string[]>([])
+  const [sortBy, setSortBy] = useState("recent")
   const [loading ,setLoading] = useState(true);
 
   const [jobs, setJobs] = useState<Opportunity[]>([])
@@ -52,14 +53,36 @@ export default function JobsPage() {
         job.companyRel?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         job.description.toLowerCase().includes(searchTerm.toLowerCase())
 
-      const matchesDepartment = !selectedDepartment || job.eligibleDepartments.includes(selectedDepartment)
-      const matchesType = !selectedType || job.type === selectedType
-      const matchesLocation = !selectedLocation || job.location === selectedLocation
+      const matchesDepartment = !selectedDepartment || selectedDepartment === "all" || job.eligibleDepartments.includes(selectedDepartment)
+      const matchesType = !selectedType || selectedType === "all" || job.type === selectedType
+      const matchesLocation = !selectedLocation || selectedLocation === "all" || job.location === selectedLocation
       const matchesSkills = selectedSkills.length === 0 || selectedSkills.some((skill) => job.skillsRequired.includes(skill))
 
       return matchesSearch && matchesDepartment && matchesType && matchesLocation && matchesSkills
     })
   }, [searchTerm, selectedDepartment, selectedType, selectedLocation, selectedSkills, jobs])
+
+  const sortedJobs = useMemo(() => {
+    const list = [...filteredJobs]
+
+    switch (sortBy) {
+      case "salary":
+        list.sort((a, b) => (b.salary ?? 0) - (a.salary ?? 0))
+        break
+      case "company":
+        list.sort((a, b) => (a.companyRel?.name || "").localeCompare(b.companyRel?.name || ""))
+        break
+      case "deadline":
+        list.sort((a, b) => new Date(a.applicationDeadline).getTime() - new Date(b.applicationDeadline).getTime())
+        break
+      case "recent":
+      default:
+        list.sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime())
+        break
+    }
+
+    return list
+  }, [filteredJobs, sortBy])
 
   const handleSkillToggle = (skill: string) => {
     setSelectedSkills((prev) => (prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill]))
@@ -93,9 +116,9 @@ export default function JobsPage() {
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.08),transparent_55%)]" />
         <div className="relative space-y-4">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">Opportunity Hub</p>
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-700">Opportunity Hub</p>
             <h1 className="mt-3 text-3xl font-semibold text-slate-900">Discover Your Next Career Move</h1>
-            <p className="mt-2 text-sm text-slate-600">
+            <p className="mt-2 text-sm text-slate-800">
               Browse through {jobs.length} carefully curated opportunities from top companies
             </p>
           </div>
@@ -105,21 +128,21 @@ export default function JobsPage() {
         <div className="relative grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
             <CardContent className="p-4">
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Total Opportunities</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-700">Total Opportunities</p>
               <p className="text-2xl font-semibold text-slate-900">{jobs.length}</p>
             </CardContent>
           </Card>
 
           <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
             <CardContent className="p-4">
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Active Applications</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-700">Active Applications</p>
               <p className="text-2xl font-semibold text-slate-900">{jobs.filter(j => j.applied).length}</p>
             </CardContent>
           </Card>
 
           <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
             <CardContent className="p-4">
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-500">New This Week</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-700">New This Week</p>
               <p className="text-2xl font-semibold text-slate-900">
                 {jobs.filter(j => {
                   const daysDiff = Math.ceil((new Date().getTime() - new Date(j.postedAt).getTime()) / (1000 * 60 * 60 * 24));
@@ -131,161 +154,164 @@ export default function JobsPage() {
         </div>
       </section>
 
-      {/* Search and Filter Bar */}
-      <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
-        <CardContent className="p-6">
-          <div className="flex flex-col lg:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
-              <Input
-                placeholder="Search jobs, companies, or keywords..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 h-12 rounded-2xl border-slate-200 focus:border-sky-400 focus:ring-sky-400"
-              />
-            </div>
-            <div className="flex gap-2">
+      {/* Search, Filters, and Sort */}
+      <div className="space-y-4 rounded-2xl border border-slate-100 bg-white px-4 py-3 md:px-6 md:py-4 shadow-sm">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex items-center gap-2 rounded-full border-slate-200 hover:bg-sky-50 hover:border-sky-300"
+            >
+              <Filter className="h-4 w-4 text-sky-700" />
+              Filters
+              {(selectedDepartment || selectedType || selectedLocation || selectedSkills.length > 0) && (
+                <Badge className="ml-1 h-5 w-5 rounded-full bg-sky-500 p-0 flex items-center justify-center text-xs">
+                  {[selectedDepartment, selectedType, selectedLocation, ...selectedSkills].filter(Boolean).length}
+                </Badge>
+              )}
+            </Button>
+            {(searchTerm || selectedDepartment || selectedType || selectedLocation || selectedSkills.length > 0) && (
               <Button
                 variant="outline"
-                onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center gap-2 rounded-full border-slate-200 hover:bg-sky-50 hover:border-sky-300"
+                onClick={clearFilters}
+                className="rounded-full border-slate-200 hover:bg-red-50 hover:border-red-300 text-slate-800"
               >
-                <Filter className="h-4 w-4" />
-                Filters
-                {(selectedDepartment || selectedType || selectedLocation || selectedSkills.length > 0) && (
-                  <Badge className="ml-1 h-5 w-5 rounded-full bg-sky-500 p-0 flex items-center justify-center text-xs">
-                    {[selectedDepartment, selectedType, selectedLocation, ...selectedSkills].filter(Boolean).length}
-                  </Badge>
-                )}
+                Clear All
               </Button>
-              {(searchTerm || selectedDepartment || selectedType || selectedLocation || selectedSkills.length > 0) && (
-                <Button variant="outline" onClick={clearFilters} className="rounded-full border-slate-200 hover:bg-red-50 hover:border-red-300">
-                  Clear All
-                </Button>
-              )}
+            )}
+            <div className="flex items-center gap-2">
+              <Label htmlFor="sort" className="text-sm text-slate-800">Sort by:</Label>
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-44 rounded-full border-slate-200 bg-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="recent">Most Recent</SelectItem>
+                  <SelectItem value="salary">Salary</SelectItem>
+                  <SelectItem value="company">Company</SelectItem>
+                  <SelectItem value="deadline">Deadline</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
+          <div className="flex-1 lg:max-w-xl relative lg:ml-4">
+            <Search className="absolute left-3 top-3 h-5 w-5 text-slate-500" />
+            <Input
+              placeholder="Search jobs, companies, or keywords..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 h-12 rounded-2xl border-slate-200 focus:border-sky-400 focus:ring-sky-400"
+            />
+          </div>
+        </div>
 
-          {showFilters && (
-            <div className="mt-6 pt-6 border-t border-slate-200">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700">Department</Label>
-                  <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
-                    <SelectTrigger className="rounded-2xl border-slate-200 bg-slate-50/60 hover:bg-white">
-                      <SelectValue placeholder="All Departments" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Departments</SelectItem>
-                      {allDepartments.map((dept) => (
-                        <SelectItem key={dept} value={dept}>
-                          {dept}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700">Job Type</Label>
-                  <Select value={selectedType} onValueChange={setSelectedType}>
-                    <SelectTrigger className="rounded-2xl border-slate-200 bg-slate-50/60 hover:bg-white">
-                      <SelectValue placeholder="All Types" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Types</SelectItem>
-                      <SelectItem value="internship">Internship</SelectItem>
-                      <SelectItem value="full-time">Full-time</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700">Location</Label>
-                  <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-                    <SelectTrigger className="rounded-2xl border-slate-200 bg-slate-50/60 hover:bg-white">
-                      <SelectValue placeholder="All Locations" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Locations</SelectItem>
-                      {allLocations.map((location) => (
-                        <SelectItem key={location} value={location}>
-                          {location}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700">Skills</Label>
-                  <div className="max-h-32 overflow-y-auto space-y-2 rounded-2xl border border-slate-200 bg-slate-50/60 p-3">
-                    {allSkills.slice(0, 6).map((skill) => (
-                      <div key={skill} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={skill}
-                          checked={selectedSkills.includes(skill)}
-                          onCheckedChange={() => handleSkillToggle(skill)}
-                          className="data-[state=checked]:bg-sky-600"
-                        />
-                        <Label htmlFor={skill} className="text-sm text-slate-700 cursor-pointer">
-                          {skill}
-                        </Label>
-                      </div>
+        {showFilters && (
+          <div className="pt-4 border-t border-slate-200">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+              <p className="text-sm font-semibold text-slate-800">Refine results</p>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  className="rounded-full border-slate-200 text-slate-800 hover:bg-slate-50"
+                  onClick={() => setShowFilters(false)}
+                >
+                  Close
+                </Button>
+                <Button
+                  className="rounded-full bg-sky-600 text-white hover:bg-sky-700"
+                  onClick={() => setShowFilters(false)}
+                >
+                  Apply
+                </Button>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold text-slate-800">Department</Label>
+                <Select value={selectedDepartment || "all"} onValueChange={(v) => setSelectedDepartment(v === "all" ? "" : v)}>
+                  <SelectTrigger className="rounded-2xl border-slate-200 bg-slate-50/60 hover:bg-white text-slate-900">
+                    <SelectValue placeholder="All Departments" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Departments</SelectItem>
+                    {allDepartments.map((dept) => (
+                      <SelectItem key={dept} value={dept}>
+                        {dept}
+                      </SelectItem>
                     ))}
-                  </div>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold text-slate-800">Job Type</Label>
+                <Select value={selectedType || "all"} onValueChange={(v) => setSelectedType(v === "all" ? "" : v)}>
+                  <SelectTrigger className="rounded-2xl border-slate-200 bg-slate-50/60 hover:bg-white text-slate-900">
+                    <SelectValue placeholder="All Types" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="internship">Internship</SelectItem>
+                    <SelectItem value="full-time">Full-time</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold text-slate-800">Location</Label>
+                <Select value={selectedLocation || "all"} onValueChange={(v) => setSelectedLocation(v === "all" ? "" : v)}>
+                  <SelectTrigger className="rounded-2xl border-slate-200 bg-slate-50/60 hover:bg-white text-slate-900">
+                    <SelectValue placeholder="All Locations" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Locations</SelectItem>
+                    {allLocations.map((location) => (
+                      <SelectItem key={location} value={location}>
+                        {location}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold text-slate-800">Skills</Label>
+                <div className="max-h-32 overflow-y-auto space-y-2 rounded-2xl border border-slate-200 bg-slate-50/60 p-3">
+                  {allSkills.slice(0, 6).map((skill) => (
+                    <div key={skill} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={skill}
+                        checked={selectedSkills.includes(skill)}
+                        onCheckedChange={() => handleSkillToggle(skill)}
+                        className="data-[state=checked]:bg-sky-600"
+                      />
+                      <Label htmlFor={skill} className="text-sm text-slate-800 cursor-pointer">
+                        {skill}
+                      </Label>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Results Summary */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl border border-slate-100 bg-slate-50/60 px-6 py-4">
-        <div className="flex items-center gap-3">
-          <div className="rounded-full bg-sky-100 p-2">
-            <TrendingUp className="h-5 w-5 text-sky-600" />
           </div>
-          <div>
-            <p className="text-sm font-semibold text-slate-900">
-              Showing {filteredJobs.length} of {jobs.length} opportunities
-            </p>
-            <p className="text-xs text-slate-500">
-              {filteredJobs.length === jobs.length ? "All results displayed" : "Filters applied"}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Label htmlFor="sort" className="text-sm text-slate-700">Sort by:</Label>
-          <Select defaultValue="recent">
-            <SelectTrigger className="w-44 rounded-full border-slate-200 bg-white">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="recent">Most Recent</SelectItem>
-              <SelectItem value="salary">Salary</SelectItem>
-              <SelectItem value="company">Company</SelectItem>
-              <SelectItem value="deadline">Deadline</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        )}
       </div>
 
       {/* Job Listings */}
       <div className="space-y-6">
-        {filteredJobs.map((job) => (
+        {sortedJobs.map((job) => (
           <JobCard key={job.id} job={job} setJobs={setJobs}/>
         ))}
       </div>
 
-      {filteredJobs.length === 0 && (
+      {sortedJobs.length === 0 && (
         <div className="rounded-xl border border-slate-200 bg-white p-12 text-center shadow-lg">
           <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-slate-100">
-            <Briefcase className="h-10 w-10 text-slate-400" />
+            <Briefcase className="h-10 w-10 text-slate-600" />
           </div>
           <h3 className="mb-2 text-xl font-semibold text-slate-900">No opportunities found</h3>
-          <p className="text-slate-500">
+          <p className="text-slate-800">
             Try adjusting your search criteria or filters to discover more opportunities.
           </p>
           <Button 

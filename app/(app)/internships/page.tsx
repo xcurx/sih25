@@ -66,8 +66,8 @@ export default function StudentInternshipsPage() {
 
   const getInternshipStatus = (start: Date, end: Date) => {
     if (start > now) return { label: "Not started", color: "bg-slate-100 text-slate-700" }
-    if (end >= now) return { label: "Ongoing", color: "bg-green-100 text-green-700" }
-    return { label: "Completed", color: "bg-sky-100 text-sky-700" }
+    if (end >= now) return { label: "Ongoing", color: "bg-sky-100 text-sky-700" }
+    return { label: "Completed", color: "bg-blue-100 text-blue-700" }
   }
 
   const hasFeedback = (internshipId: string) => {
@@ -101,9 +101,9 @@ export default function StudentInternshipsPage() {
       <section className="relative overflow-hidden rounded-[32px] border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 shadow">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.08),transparent_55%)]" />
         <div className="relative">
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">Internships</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-700">Internships</p>
           <h1 className="mt-3 text-3xl font-semibold text-slate-900">My Internships</h1>
-          <p className="mt-2 text-sm text-slate-600">
+          <p className="mt-2 text-sm text-slate-800">
             Track your internship experiences grouped by opportunity
           </p>
         </div>
@@ -112,12 +112,12 @@ export default function StudentInternshipsPage() {
       {/* Stats Summary */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
         <Card className="rounded-2xl border-slate-200 p-6">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Internships</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-700">Total Internships</p>
           <p className="mt-2 text-3xl font-semibold text-slate-900">{internships.length}</p>
         </Card>
         <Card className="rounded-2xl border-slate-200 p-6">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Ongoing</p>
-          <p className="mt-2 text-3xl font-semibold text-green-600">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-700">Ongoing</p>
+          <p className="mt-2 text-3xl font-semibold text-sky-700">
             {internships.filter((it) => {
               const start = new Date(it.startDate)
               const end = new Date(it.endDate)
@@ -126,8 +126,8 @@ export default function StudentInternshipsPage() {
           </p>
         </Card>
         <Card className="rounded-2xl border-slate-200 p-6">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Companies</p>
-          <p className="mt-2 text-3xl font-semibold text-sky-600">{groupedByOpportunity.length}</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-700">Companies</p>
+          <p className="mt-2 text-3xl font-semibold text-sky-700">{groupedByOpportunity.length}</p>
         </Card>
       </div>
     
@@ -146,7 +146,7 @@ export default function StudentInternshipsPage() {
             const company = opportunity.companyRel
             return (
               <div key={opportunity.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-              <div className="bg-gradient-to-r text-sky-300 p-6">
+              <div className="p-6 border-b border-slate-200">
                 {/* Opportunity Header */}
                 <div className="flex items-start gap-4">
                   <Avatar className="h-12 w-12 border border-slate-200">
@@ -156,31 +156,30 @@ export default function StudentInternshipsPage() {
                   </Avatar>
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-slate-900">{opportunity.title}</h3>
-                    <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-slate-600">
+                    <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-slate-800">
                       <span className="inline-flex items-center gap-1">
-                        <Building2 className="h-4 w-4" /> {company.name}
+                        <Building2 className="h-4 w-4 text-sky-600" /> {company.name}
                       </span>
                       <span className="text-slate-300">•</span>
                       <span className="inline-flex items-center gap-1">
-                        <MapPin className="h-4 w-4" /> {opportunity.location}
+                        <MapPin className="h-4 w-4 text-sky-600" /> {opportunity.location}
                       </span>
                       <span className="text-slate-300">•</span>
-                      <Badge variant="outline" className="rounded-full">
+                      <Badge variant="outline" className="rounded-full border-sky-200 bg-white text-sky-700">
                         {opportunity.type}
                       </Badge>
                     </div>
                   </div>
                 </div>
                 {/* Opportunity dates and salary */}
-                <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-slate-600">
+                <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-slate-800">
                   <span className="inline-flex items-center gap-1">
-                    <Calendar className="h-4 w-4 text-slate-400" />
+                    <Calendar className="h-4 w-4 text-sky-600" />
                     {new Date(opportunity.startDate).toLocaleDateString()} – {new Date(opportunity.endDate).toLocaleDateString()}
                   </span>
                   {opportunity.salary && (
-                    <span className="inline-flex items-center gap-1">
-                    ₹ 
-                      {opportunity.salary}
+                    <span className="inline-flex items-center gap-1 rounded-full bg-sky-50 px-3 py-1 text-sky-700 border border-sky-100">
+                      ₹ {opportunity.salary}
                     </span>
                   )}
                 </div>
@@ -201,28 +200,28 @@ export default function StudentInternshipsPage() {
                             <div className={`rounded-full px-3 py-1 text-xs font-medium ${statusInfo.color}`}>
                               {statusInfo.label}
                             </div>
-                            <div className="text-sm text-slate-600">
+                            <div className="text-sm text-slate-800">
                               <span className="inline-flex items-center gap-1">
-                                <Clock className="h-4 w-4 text-slate-400" />
+                                <Clock className="h-4 w-4 text-sky-600" />
                                 {start.toLocaleDateString()} – {end.toLocaleDateString()}
                               </span>
                             </div>
                           </div>
                           <div className="flex items-center gap-3">
                             {it.salary && (
-                              <Badge variant="secondary" className="rounded-full">
-                                {it.salary}
+                              <Badge variant="secondary" className="rounded-full bg-sky-50 text-sky-700 border border-sky-100">
+                                ₹ {it.salary}
                               </Badge>
                             )}
                             {it.performanceReview && (
-                              <Badge variant="outline" className="rounded-full">
+                              <Badge variant="outline" className="rounded-full border-sky-200 text-slate-800">
                                 Review: {it.performanceReview}
                               </Badge>
                             )}
                             {/* Feedback button - only show for completed internships */}
                             {isCompleted && (
                               feedbackSubmitted ? (
-                                <Badge variant="outline" className="rounded-full bg-green-50 text-green-700 border-green-200">
+                                <Badge variant="outline" className="rounded-full bg-sky-50 text-sky-700 border-sky-200">
                                   <CheckCircle2 className="h-3 w-3 mr-1" />
                                   Feedback Submitted
                                 </Badge>
@@ -231,7 +230,7 @@ export default function StudentInternshipsPage() {
                                   size="sm"
                                   variant="outline"
                                   onClick={() => handleAddFeedback(it)}
-                                  className="rounded-full text-sky-600 border-sky-300 hover:bg-sky-50"
+                                  className="rounded-full border-sky-200 bg-white text-sky-700 hover:bg-sky-50"
                                 >
                                   <MessageSquarePlus className="h-4 w-4 mr-1" />
                                   Add Feedback
@@ -250,7 +249,7 @@ export default function StudentInternshipsPage() {
                               </div>
                               <div className="flex-1">
                                 <p className="text-sm font-medium text-slate-900">Employer Remarks</p>
-                                <p className="text-sm text-slate-600 mt-1 whitespace-pre-wrap">{it.employerRemarks}</p>
+                                <p className="text-sm text-slate-800 mt-1 whitespace-pre-wrap">{it.employerRemarks}</p>
                               </div>
                             </div>
                           </div>

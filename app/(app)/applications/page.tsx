@@ -3,7 +3,6 @@
 import ApplicationCard from "@/components/applications/ApplicationCard"
 import ApplicationDetailsDialog from "@/components/applications/ApplicationDetailsDialog"
 import Loader from "@/components/loader/Loader"
-import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -153,21 +152,27 @@ export default function ApplicationsPage() {
         </div>
       </section>
 
-      {/* Search and Filter */}
-      <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
-        <CardContent className="p-6">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
-              <Input
-                placeholder="Search applications by role or company..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 h-12 rounded-2xl border-slate-200 focus:border-sky-400 focus:ring-sky-400"
-              />
-            </div>
+      {/* Tabs with filter/search header */}
+      <Tabs defaultValue="all" className="space-y-6">
+        <div className="rounded-2xl border border-slate-100 bg-white px-4 py-3 md:px-6 md:py-4 shadow-sm flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <TabsList className="bg-slate-100/60 rounded-2xl h-auto flex-wrap">
+            <TabsTrigger value="all" className="rounded-lg px-4 py-2 text-sm font-semibold text-slate-700 data-[state=active]:bg-sky-600 data-[state=active]:text-white">
+              All
+            </TabsTrigger>
+            <TabsTrigger value="pending" className="rounded-lg px-4 py-2 text-sm font-semibold text-slate-700 data-[state=active]:bg-sky-600 data-[state=active]:text-white">
+              Pending
+            </TabsTrigger>
+            <TabsTrigger value="interview" className="rounded-lg px-4 py-2 text-sm font-semibold text-slate-700 data-[state=active]:bg-sky-600 data-[state=active]:text-white">
+              Interviews
+            </TabsTrigger>
+            <TabsTrigger value="completed" className="rounded-lg px-4 py-2 text-sm font-semibold text-slate-700 data-[state=active]:bg-sky-600 data-[state=active]:text-white">
+              Completed
+            </TabsTrigger>
+          </TabsList>
+
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3 lg:min-w-[420px] lg:justify-end">
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-52 h-12 rounded-full border-slate-200 bg-slate-50/60 hover:bg-white">
+              <SelectTrigger className="w-52 h-11 rounded-full border-slate-200 bg-slate-50/60 hover:bg-white text-slate-900">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent>
@@ -179,50 +184,17 @@ export default function ApplicationsPage() {
                 <SelectItem value="selected">Selected</SelectItem>
               </SelectContent>
             </Select>
+            <div className="flex-1 relative min-w-[240px] lg:min-w-[280px]">
+              <Search className="absolute left-3 top-3 h-5 w-5 text-slate-500" />
+              <Input
+                placeholder="Search applications by role or company..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 h-11 rounded-2xl border-slate-200 focus:border-sky-400 focus:ring-sky-400"
+              />
+            </div>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Applications Tabs */}
-      <Tabs defaultValue="all" className="space-y-6">
-        <TabsList className="rounded-full bg-slate-100 p-1 h-auto border border-slate-200">
-          <TabsTrigger 
-            value="all" 
-            className="rounded-full data-[state=active]:bg-white data-[state=active]:shadow-md px-6 py-2.5"
-          >
-            All 
-            <Badge className="ml-2 bg-sky-100 text-sky-700 hover:bg-sky-100">
-              {filteredApplications.length}
-            </Badge>
-          </TabsTrigger>
-          <TabsTrigger 
-            value="pending"
-            className="rounded-full data-[state=active]:bg-white data-[state=active]:shadow-md px-6 py-2.5"
-          >
-            Pending 
-            <Badge className="ml-2 bg-amber-100 text-amber-700 hover:bg-amber-100">
-              {pendingApplications.length}
-            </Badge>
-          </TabsTrigger>
-          <TabsTrigger 
-            value="interview"
-            className="rounded-full data-[state=active]:bg-white data-[state=active]:shadow-md px-6 py-2.5"
-          >
-            Interviews 
-            <Badge className="ml-2 bg-cyan-100 text-cyan-700 hover:bg-cyan-100">
-              {interviewApplications.length}
-            </Badge>
-          </TabsTrigger>
-          <TabsTrigger 
-            value="completed"
-            className="rounded-full data-[state=active]:bg-white data-[state=active]:shadow-md px-6 py-2.5"
-          >
-            Completed 
-            <Badge className="ml-2 bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
-              {completedApplications.length}
-            </Badge>
-          </TabsTrigger>
-        </TabsList>
+        </div>
 
         <TabsContent value="all" className="space-y-4">
           {filteredApplications.map((application) => (

@@ -20,10 +20,10 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-6xl w-full mx-auto">
-      <div className="mb-4 sm:mb-6 lg:mb-8">
+    <div className="px-2 sm:px-3 lg:px-4 py-3 sm:py-4 max-w-6xl w-full mx-auto">
+      <div className="mb-2.5 sm:mb-4 lg:mb-5">
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary">Welcome back, {user.name}!</h1>
-        <p className="text-sm sm:text-base text-muted-foreground mt-1 sm:mt-2">
+        <p className="text-sm sm:text-base text-muted-foreground mt-0.5 sm:mt-1">
           Here's what's happening with your {user.role.replace("_", " ")} account today.
         </p>
       </div>
