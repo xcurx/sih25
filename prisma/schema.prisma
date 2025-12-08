@@ -112,6 +112,7 @@ model Opportunity {
   salary String?
   postedAt DateTime @default(now())
   applicationDeadline DateTime
+  cgpa Float?
   requirements String[]
   eligibleDepartments String[]
   skillsRequired String[]
