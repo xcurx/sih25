@@ -146,7 +146,7 @@ export default function StudentInternshipsPage() {
             const company = opportunity.companyRel
             return (
               <div key={opportunity.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-              <div className="bg-gradient-to-r from-white to-sky-50 p-6">
+              <div className="bg-gradient-to-r text-sky-300 p-6">
                 {/* Opportunity Header */}
                 <div className="flex items-start gap-4">
                   <Avatar className="h-12 w-12 border border-slate-200">
