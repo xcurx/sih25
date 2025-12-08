@@ -4,13 +4,13 @@ import JobCard from "@/components/jobs/JobCard"
 import Loader from "@/components/loader/Loader"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Opportunity } from "@/lib/types"
 import axios from "axios"
-import { Sparkles, Search, Filter, Award, Layers, TrendingUp, CheckCircle2 } from "lucide-react"
+import { Sparkles, Search, Filter, Award, Layers, TrendingUp, CheckCircle2, MapPin } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
@@ -90,50 +90,69 @@ export default function RecommendationPage() {
   }
 
   return (
-    <div className="relative p-6 max-w-7xl w-full mx-auto space-y-8">
-      {/* Background gradient effect */}
-      <div
-        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_10%_20%,rgba(14,165,233,0.15),transparent_45%),radial-gradient(circle_at_90%_10%,rgba(37,99,235,0.2),transparent_45%),linear-gradient(180deg,rgba(255,255,255,0.8),transparent)]"
-        aria-hidden="true"
-      />
-
+    <div className="space-y-8">
       {/* Hero Section */}
-      <div className="relative overflow-hidden rounded-3xl border border-sky-100 bg-gradient-to-br from-sky-600 via-sky-500 to-blue-500 p-8 text-white shadow-2xl">
-        <div className="pointer-events-none absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white/20 blur-3xl" />
-        <div className="pointer-events-none absolute bottom-0 left-0 h-32 w-32 rounded-full bg-cyan-400/20 blur-3xl" />
+      <section className="relative overflow-hidden rounded-[32px] border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 shadow space-y-6">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.08),transparent_55%)]" />
         <div className="relative space-y-4">
-          <Badge variant="outline" className="border-white/40 bg-white/10 text-white">
-            <Sparkles className="h-3 w-3 mr-1" />
-            AI-Powered Recommendations
-          </Badge>
           <div>
-            <h1 className="text-3xl font-bold">Opportunities Tailored For You</h1>
-            <p className="text-white/90 mt-2">
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">AI-Powered Recommendations</p>
+            <h1 className="mt-3 text-3xl font-semibold text-slate-900">Opportunities Tailored For You</h1>
+            <p className="mt-2 text-sm text-slate-600">
               Discover {recommendations.length} personalized opportunities matched to your profile and preferences
             </p>
           </div>
-          <div className="flex flex-wrap gap-4">
-            {[
-              { label: "Perfect Matches", value: recommendations.filter(r => r.composite_score > 0.8).length.toString(), icon: Award },
-              { label: "Good Fits", value: recommendations.filter(r => r.composite_score > 0.6 && r.composite_score <= 0.8).length.toString(), icon: TrendingUp },
-              { label: "Total Recommendations", value: recommendations.length.toString(), icon: Layers },
-            ].map((stat) => (
-              <div key={stat.label} className="rounded-2xl border border-white/20 bg-white/10 px-4 py-3 flex items-start gap-3">
-                <div className="rounded-full bg-white/20 p-2">
-                  <stat.icon className="h-4 w-4" />
-                </div>
-                <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-white/70">{stat.label}</p>
-                  <p className="text-2xl font-semibold">{stat.value}</p>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
-      </div>
+
+        {/* Stats Cards inside gradient */}
+        <div className="relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-500">Perfect Matches</CardTitle>
+              <div className="rounded-full p-2 bg-sky-50 text-sky-600">
+                <Award className="h-4 w-4" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-semibold text-slate-900">
+                {recommendations.filter(r => r.composite_score > 0.8).length}
+              </div>
+              <p className="text-xs text-slate-500">80%+ match score</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-500">Good Fits</CardTitle>
+              <div className="rounded-full p-2 bg-cyan-50 text-cyan-600">
+                <TrendingUp className="h-4 w-4" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-semibold text-slate-900">
+                {recommendations.filter(r => r.composite_score > 0.6 && r.composite_score <= 0.8).length}
+              </div>
+              <p className="text-xs text-slate-500">60-80% match score</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-500">Total Recommendations</CardTitle>
+              <div className="rounded-full p-2 bg-emerald-50 text-emerald-600">
+                <Layers className="h-4 w-4" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-semibold text-slate-900">{recommendations.length}</div>
+              <p className="text-xs text-slate-500">Updated hourly</p>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
 
       {/* Search and Filter Bar */}
-      <Card className="border-slate-200 bg-white/90 shadow-lg rounded-3xl">
+      <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
         <CardContent className="p-6">
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1 relative">
@@ -142,25 +161,25 @@ export default function RecommendationPage() {
                 placeholder="Search recommended opportunities..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 h-12 rounded-2xl border-slate-200 focus:border-sky-400 focus:ring-sky-400"
+                className="pl-10 h-12 rounded-full border-slate-200 focus:border-sky-400 focus:ring-sky-400"
               />
             </div>
             <div className="flex gap-2">
               <Button
                 variant="outline"
                 onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center gap-2 rounded-full border-slate-200 hover:bg-sky-50 hover:border-sky-300"
+                className="rounded-full border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
               >
-                <Filter className="h-4 w-4" />
+                <Filter className="h-4 w-4 mr-2" />
                 Filters
                 {(selectedType || selectedLocation) && (
-                  <Badge className="ml-1 h-5 w-5 rounded-full bg-sky-500 p-0 flex items-center justify-center text-xs">
+                  <Badge className="ml-2 h-5 w-5 rounded-full bg-sky-600 p-0 flex items-center justify-center text-xs">
                     {[selectedType, selectedLocation].filter(Boolean).length}
                   </Badge>
                 )}
               </Button>
               {(searchTerm || selectedType || selectedLocation) && (
-                <Button variant="outline" onClick={clearFilters} className="rounded-full border-slate-200 hover:bg-red-50 hover:border-red-300">
+                <Button variant="outline" onClick={clearFilters} className="rounded-full border-slate-300 bg-white text-slate-700 hover:bg-slate-50">
                   Clear All
                 </Button>
               )}
@@ -168,12 +187,12 @@ export default function RecommendationPage() {
           </div>
 
           {showFilters && (
-            <div className="mt-6 pt-6 border-t border-slate-200">
+            <div className="mt-6 pt-6 border-t border-slate-100">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700">Job Type</Label>
+                  <Label className="text-sm font-medium text-slate-700">Job Type</Label>
                   <Select value={selectedType} onValueChange={setSelectedType}>
-                    <SelectTrigger className="rounded-2xl border-slate-200 bg-slate-50/60 hover:bg-white">
+                    <SelectTrigger className="rounded-full border-slate-200 bg-slate-50/60 hover:bg-white">
                       <SelectValue placeholder="All Types" />
                     </SelectTrigger>
                     <SelectContent>
@@ -185,9 +204,9 @@ export default function RecommendationPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700">Location</Label>
+                  <Label className="text-sm font-medium text-slate-700">Location</Label>
                   <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-                    <SelectTrigger className="rounded-2xl border-slate-200 bg-slate-50/60 hover:bg-white">
+                    <SelectTrigger className="rounded-full border-slate-200 bg-slate-50/60 hover:bg-white">
                       <SelectValue placeholder="All Locations" />
                     </SelectTrigger>
                     <SelectContent>
@@ -202,14 +221,14 @@ export default function RecommendationPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700">Match Quality</Label>
+                  <Label className="text-sm font-medium text-slate-700">Match Quality</Label>
                   <div className="flex gap-2 pt-2">
                     <Badge variant="secondary" className="rounded-full bg-emerald-50 text-emerald-700 border-emerald-200">
                       <CheckCircle2 className="h-3 w-3 mr-1" />
-                      Perfect: {recommendations.filter(r => r.composite_score > 0.8).length}
+                      {recommendations.filter(r => r.composite_score > 0.8).length}
                     </Badge>
                     <Badge variant="secondary" className="rounded-full bg-sky-50 text-sky-700 border-sky-200">
-                      Good: {recommendations.filter(r => r.composite_score > 0.6 && r.composite_score <= 0.8).length}
+                      {recommendations.filter(r => r.composite_score > 0.6 && r.composite_score <= 0.8).length}
                     </Badge>
                   </div>
                 </div>
@@ -220,36 +239,37 @@ export default function RecommendationPage() {
       </Card>
 
       {/* Results Summary */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <Sparkles className="h-6 w-6 text-sky-600" />
-            {filteredRecommendations.length} Recommended {filteredRecommendations.length === 1 ? "Match" : "Matches"}
-          </h2>
-          <p className="text-slate-600 mt-1">
-            Sorted by match score • Updated based on your profile
-          </p>
-        </div>
-      </div>
-
-      {/* Recommendations Grid */}
-      <div className="grid gap-6">
-        {filteredRecommendations.length > 0 ? (
-          filteredRecommendations.map((rec) => (
-            <RecommendationCard key={rec.opportunity.id} recommendation={rec} setRecommendations={setRecommendations} />
-          ))
-        ) : (
-          <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-lg">
-            <CardContent className="p-12 text-center">
-              <div className="rounded-full bg-slate-100 p-4 w-fit mx-auto mb-4">
+      <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
+        <CardHeader className="border-b border-slate-100 pb-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-lg text-slate-900 flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-sky-600" />
+                {filteredRecommendations.length} Recommended {filteredRecommendations.length === 1 ? "Match" : "Matches"}
+              </CardTitle>
+              <CardDescription className="text-sm">Sorted by match score • Updated based on your profile</CardDescription>
+            </div>
+            <Badge variant="outline" className="border-slate-200 bg-slate-50 text-slate-600">
+              Updated hourly
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-6 pt-6">
+          {filteredRecommendations.length > 0 ? (
+            filteredRecommendations.map((rec) => (
+              <RecommendationCard key={rec.opportunity.id} recommendation={rec} setRecommendations={setRecommendations} />
+            ))
+          ) : (
+            <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-12 text-center">
+              <div className="rounded-full p-4 w-fit mx-auto mb-4 bg-slate-100">
                 <Sparkles className="h-8 w-8 text-slate-400" />
               </div>
-              <h3 className="text-xl font-semibold text-slate-900 mb-2">No matches found</h3>
-              <p className="text-slate-600">Try adjusting your filters to see more recommendations</p>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">No matches found</h3>
+              <p className="text-sm text-slate-600">Try adjusting your filters to see more recommendations</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 }
@@ -282,7 +302,7 @@ function RecommendationCard({
 
       return prevRecs.map(rec => {
         const updatedJob = updatedJobs.find(j => j.id === rec.opportunity.id)
-        return updatedJob ? { ...rec, Opportunity: updatedJob } : rec
+        return updatedJob ? { ...rec, opportunity: updatedJob } : rec
       })
     })
   }
@@ -291,13 +311,13 @@ function RecommendationCard({
     <div className="relative">
       {/* Match Score Badge */}
       <div className="absolute -top-3 right-6 z-10">
-        <Badge className={`${matchLevel.bgColor} ${matchLevel.textColor} ${matchLevel.borderColor} border-2 rounded-full px-4 py-1.5 shadow-lg font-semibold`}>
+        <Badge className={`${matchLevel.bgColor} ${matchLevel.textColor} ${matchLevel.borderColor} border-2 rounded-full px-4 py-1.5 shadow font-semibold`}>
           <Award className="h-3.5 w-3.5 mr-1.5" />
           {matchLevel.label} • {Math.round(composite_score * 100)}%
         </Badge>
       </div>
 
-      <Card className="group relative overflow-hidden rounded-3xl border-slate-200 bg-white/90 shadow-lg transition-all hover:shadow-xl hover:border-sky-200">
+      <div className="rounded-2xl border border-slate-200 bg-white shadow-md transition-shadow hover:shadow-xl overflow-hidden">
         {/* Job Card */}
         <div className="p-6">
           <JobCard job={job} setJobs={updateJobInRecommendations} />
@@ -394,7 +414,7 @@ function RecommendationCard({
             </div>
           </div>
         </div>
-      </Card>
+      </div>
     </div>
   )
 }

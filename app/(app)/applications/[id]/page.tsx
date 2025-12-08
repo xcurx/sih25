@@ -15,7 +15,7 @@ import {
   Calendar,
   CheckCircle,
   Clock,
-  DollarSign,
+ 
   ExternalLink,
   FileText,
   Linkedin,
@@ -190,7 +190,7 @@ export default function ApplicationDetailPage() {
                   <span className="capitalize">{application.opportunityRel.type}</span>
                 </div>
                 <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-4 py-2 text-sm font-semibold text-emerald-700">
-                  <DollarSign className="h-4 w-4" />
+                 
                   <span>₹{application.opportunityRel.salary?.toLocaleString()}</span>
                 </div>
               </div>

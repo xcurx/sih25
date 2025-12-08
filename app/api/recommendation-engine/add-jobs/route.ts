@@ -15,6 +15,7 @@ export const POST = async () => {
                 location: true,
                 status: true,
                 salary: true,
+                cgpa: true,
                 requirements: true,
                 eligibleDepartments: true,
                 skillsRequired: true,

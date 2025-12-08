@@ -15,10 +15,50 @@ class Opportunity(BaseModel):
     location: str
     status: str  # active or closed
     salary: Optional[str] = None
+    cgpa: Optional[float] = None
     requirements: List[str] = []
     eligibleDepartments: List[str] = []
     skillsRequired: List[str] = []
     additionalInfo: Optional[str] = None
+
+
+class Project(BaseModel):
+    """Schema for a student's project"""
+    id: str
+    studentId: str
+    title: str
+    description: str
+    startDate: Optional[str] = None
+    endDate: Optional[str] = None
+    link: Optional[str] = None
+    technologies: List[str] = []
+
+
+class Student(BaseModel):
+    """Schema for a student"""
+    id: str
+    email: str
+    name: str
+    branch: Optional[str] = None
+    batch: Optional[int] = None
+    cgpa: Optional[float] = None
+    phone: Optional[str] = None
+    skills: List[str] = []
+    projects: List[Project] = []
+
+
+class CandidateMatch(BaseModel):
+    job_id: str
+    student_id: str
+    match_score: float
+    matching_skills: List[str] = []
+
+
+class StudentRecommendationResponse(BaseModel):
+    success: bool
+    message: str
+    total_candidates: int
+    candidates: List[Student] = []
 
 
 class RecommendationRequest(BaseModel):

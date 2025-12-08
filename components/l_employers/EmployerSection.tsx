@@ -41,12 +41,12 @@ function Benefit({
   desc: string;
 }) {
   return (
-    <Card className="rounded-2xl border border-white/60 bg-white/95 shadow-sm">
-      <CardHeader className="flex items-start gap-3">
+    <Card className="rounded-2xl border border-white/60 bg-white/95 text-center shadow-sm">
+      <CardHeader className="flex flex-col items-center gap-3">
         <div className="rounded-lg bg-sky-50 p-2">
           <Icon className="h-6 w-6 text-sky-600" />
         </div>
-        <div>
+        <div className="space-y-1">
           <CardTitle className="text-lg font-semibold text-slate-900">{title}</CardTitle>
           <CardDescription className="text-sm text-slate-600">{desc}</CardDescription>
         </div>
@@ -74,92 +74,86 @@ function FAQRow({ q, a }: { q: string; a: React.ReactNode }) {
 
 export default function EmployerSection() {
   return (
-    <section id="employers" className="mx-auto max-w-6xl px-4">
-      <div className="mb-12 grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 rounded-3xl bg-gradient-to-br from-white via-sky-50 to-blue-50 p-10 shadow-2xl">
-          <div className="flex items-start gap-6">
+    <section id="employers" className="mx-auto max-w-7xl px-4">
+      <div className="mb-12 space-y-6">
+        <div className="rounded-3xl bg-gradient-to-br from-white via-sky-50 to-blue-50 p-10 text-center shadow-2xl">
+          <div className="flex flex-col items-center gap-4">
             <div className="rounded-full bg-sky-100 p-3">
               <Building2 className="h-6 w-6 text-sky-600" />
             </div>
 
-            <div>
-              <Badge className="bg-sky-100 text-sky-800" variant="outline">
-                Employer Partnership Program
-              </Badge>
+            <Badge className="bg-sky-100 text-sky-800" variant="outline">
+              Employer Partnership Program
+            </Badge>
 
-              <h1 className="mt-4 text-4xl font-extrabold text-slate-900 leading-tight tracking-tight">
-                Hire industry-ready talent <br />
-                with a secure, structured, <br />
-                national platform.
-              </h1>
+            <h1 className="max-w-4xl text-4xl font-extrabold leading-tight tracking-tight text-slate-900">
+              Hire industry-ready talent with a secure, structured national platform.
+            </h1>
 
-              <p className="mt-4 max-w-xl text-slate-700 text-base">
-                Gain access to verified student pools, skill-tagged profiles, interview-ready candidates,
-                and structured hiring workflows—built to support HR teams, recruitment drives,
-                and large-scale talent acquisition.
-              </p>
+            <p className="max-w-3xl text-base text-slate-700">
+              Access verified student pools, skill-tagged profiles, interview-ready candidates, and structured hiring workflows built for HR teams, recruitment drives, and large-scale talent acquisition.
+            </p>
 
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Link href="/employers/register">
-                  <Button className="rounded-full bg-sky-600 text-white hover:bg-sky-500">
-                    Register as employer
-                  </Button>
-                </Link>
+            <div className="flex flex-wrap justify-center gap-3">
+              <Link href="/employers/register">
+                <Button className="rounded-full bg-sky-600 text-white hover:bg-sky-500">
+                  Register as employer
+                </Button>
+              </Link>
 
-                <Link href="/resources#employer-api">
-                  <Button variant="outline" className="rounded-full border-sky-200 text-sky-700">
-                    Explore Employer API
-                  </Button>
-                </Link>
-              </div>
+              <Link href="/resources#employer-api">
+                <Button variant="outline" className="rounded-full border-sky-200 text-sky-700">
+                  Explore Employer API
+                </Button>
+              </Link>
+            </div>
 
-              <div className="mt-6 grid gap-4 sm:grid-cols-3">
-                <Stat label="Verified Institutes" value="280+" />
-                <Stat label="Active Employer Partners" value="950+" />
-                <Stat label="Annual Hiring Drives" value="1,200+" />
-              </div>
+            <div className="grid w-full max-w-4xl gap-4 sm:grid-cols-3">
+              <Stat label="Verified Institutes" value="280+" />
+              <Stat label="Active Employer Partners" value="950+" />
+              <Stat label="Annual Hiring Drives" value="1,200+" />
             </div>
           </div>
         </div>
 
-        <aside className="rounded-2xl border border-white/60 bg-white/95 p-6 shadow-md">
-          <p className="text-xs uppercase tracking-widest text-sky-600 font-semibold">
-            Why Employers Choose Us
+        <aside className="rounded-2xl border border-white/60 bg-white/95 p-6 text-center shadow-md">
+          <p className="text-xs font-semibold uppercase tracking-widest text-sky-600">
+            Why employers choose us
           </p>
 
           <ul className="mt-4 space-y-3 text-sm text-slate-700">
-            <li className="flex gap-2">
-              <CheckCircle className="h-4 w-4 text-sky-600 mt-1" />
+            <li className="flex flex-col items-center gap-1">
+              <CheckCircle className="h-4 w-4 text-sky-600" />
               Verified student identity & academic history
             </li>
-            <li className="flex gap-2">
-              <Sparkles className="h-4 w-4 text-sky-600 mt-1" />
+            <li className="flex flex-col items-center gap-1">
+              <Sparkles className="h-4 w-4 text-sky-600" />
               AI-driven candidate recommendations
             </li>
-            <li className="flex gap-2">
-              <BarChart3 className="h-4 w-4 text-sky-600 mt-1" />
+            <li className="flex flex-col items-center gap-1">
+              <BarChart3 className="h-4 w-4 text-sky-600" />
               Detailed hiring analytics & reporting
             </li>
           </ul>
 
           <hr className="my-4 border-slate-100" />
 
-          <p className="font-semibold text-slate-900">Need help?</p>
-          <p className="text-sm text-slate-600">Mon–Sat, 9:00 — 18:00</p>
-
-          <p className="mt-3 text-sm text-slate-700 flex items-center gap-2">
-            <Phone className="h-4 w-4 text-sky-600" /> +91 011 4000 1122
-          </p>
-
-          <p className="mt-1 text-sm text-slate-700 flex items-center gap-2">
-            <Mail className="h-4 w-4 text-sky-600" /> support@placement.gov.in
-          </p>
+          <div className="space-y-1 text-sm text-slate-700">
+            <p className="font-semibold text-slate-900">Need help?</p>
+            <p className="text-slate-600">Mon–Sat, 9:00 — 18:00</p>
+            <p className="flex items-center justify-center gap-2 text-slate-700">
+              <Phone className="h-4 w-4 text-sky-600" /> +91 011 4000 1122
+            </p>
+            <p className="flex items-center justify-center gap-2 text-slate-700">
+              <Mail className="h-4 w-4 text-sky-600" /> support@placement.gov.in
+            </p>
+          </div>
         </aside>
       </div>
 
-      <div className="mb-12">
+      <div className="mb-12 text-center">
         <h2 className="text-2xl font-semibold text-slate-900">Built for modern hiring teams</h2>
-        <p className="mt-2 text-sm text-slate-600 max-w-2xl">
+        <p className="mx-auto mt-2 max-w-2xl text-sm text-slate-600">
           Tools and workflows designed to reduce hiring time, increase match accuracy,
           and provide audit-friendly documentation for institutional partnerships.
         </p>
@@ -185,64 +179,60 @@ export default function EmployerSection() {
         </div>
       </div>
 
-      <div className="mb-12 grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-6">
-          <Card className="rounded-2xl border border-white/60 bg-white/90 shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold text-slate-900">
-                How hiring works on the mission platform
-              </CardTitle>
-              <CardDescription className="text-sm text-slate-600">
-                A simple, structured pipeline from job posting to selection.
-              </CardDescription>
-            </CardHeader>
+      <div className="mb-12 space-y-6">
+        <Card className="rounded-2xl border border-white/60 bg-white/90 text-center shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold text-slate-900">
+              How hiring works on the mission platform
+            </CardTitle>
+            <CardDescription className="text-sm text-slate-600">
+              A simple, structured pipeline from job posting to selection.
+            </CardDescription>
+          </CardHeader>
 
-            <CardContent className="text-slate-700 space-y-4 text-sm">
-              <p><strong>1. Register & verify:</strong> Employers complete KYC verification and get access to recruitment tools.</p>
-              <p><strong>2. Post opportunities:</strong> Use structured fields for eligibility, skills, salary, location, etc.</p>
-              <p><strong>3. Discover candidates:</strong> Search, filter, and shortlist using smart AI recommendations.</p>
-              <p><strong>4. Manage applications:</strong> Track applications, schedule interviews, and record feedback.</p>
-              <p><strong>5. Final selection:</strong> Issue offers, track acceptance, and access analytics for hiring cycles.</p>
-            </CardContent>
-          </Card>
+          <CardContent className="space-y-3 text-sm text-slate-700">
+            <p><strong>1. Register & verify:</strong> Employers complete KYC verification and get access to recruitment tools.</p>
+            <p><strong>2. Post opportunities:</strong> Use structured fields for eligibility, skills, salary, location, etc.</p>
+            <p><strong>3. Discover candidates:</strong> Search, filter, and shortlist using smart AI recommendations.</p>
+            <p><strong>4. Manage applications:</strong> Track applications, schedule interviews, and record feedback.</p>
+            <p><strong>5. Final selection:</strong> Issue offers, track acceptance, and access analytics for hiring cycles.</p>
+          </CardContent>
+        </Card>
 
-          <Card className="rounded-2xl border border-white/60 bg-white/90 shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold text-slate-900">Employer programs</CardTitle>
-              <CardDescription className="text-sm text-slate-600">
-                Dedicated initiatives to support hiring at scale.
-              </CardDescription>
-            </CardHeader>
+        <Card className="rounded-2xl border border-white/60 bg-white/90 text-center shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold text-slate-900">Employer programs</CardTitle>
+            <CardDescription className="text-sm text-slate-600">
+              Dedicated initiatives to support hiring at scale.
+            </CardDescription>
+          </CardHeader>
 
-            <CardContent className="space-y-4 text-sm text-slate-700">
-              <p><strong>Campus Hiring Program:</strong> Coordinate multi-institute drives with automation.</p>
-              <p><strong>Startup Hiring Track:</strong> Support for startups seeking interns or entry-level talent.</p>
-              <p><strong>Women-in-Tech Fellowship:</strong> Programs to onboard and hire women candidates in STEM.</p>
-            </CardContent>
-          </Card>
-        </div>
+          <CardContent className="space-y-4 text-sm text-slate-700">
+            <p><strong>Campus Hiring Program:</strong> Coordinate multi-institute drives with automation.</p>
+            <p><strong>Startup Hiring Track:</strong> Support for startups seeking interns or entry-level talent.</p>
+            <p><strong>Women-in-Tech Fellowship:</strong> Programs to onboard and hire women candidates in STEM.</p>
+          </CardContent>
+        </Card>
 
-        <aside className="space-y-6">
-          <Card className="rounded-2xl border border-white/60 bg-white/90 p-5 shadow-sm">
-            <p className="text-xs uppercase tracking-widest text-sky-600 font-semibold">
-              Quick assistance
+        <Card className="rounded-2xl border border-white/60 bg-white/90 p-5 text-center shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-widest text-sky-600">
+            Quick assistance
+          </p>
+
+          <div className="mt-3 space-y-3 text-sm text-slate-700">
+            <p className="flex items-center justify-center gap-2">
+              <Phone className="h-4 w-4 text-sky-600" /> +91 011 4000 1122
             </p>
-
-            <div className="mt-3 text-sm text-slate-700 space-y-3">
-              <p className="flex items-center gap-2">
-                <Phone className="h-4 w-4 text-sky-600" /> +91 011 4000 1122
-              </p>
-              <p className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-sky-600" /> employer-support@placement.gov.in
-              </p>
-            </div>
-          </Card>
-        </aside>
+            <p className="flex items-center justify-center gap-2">
+              <Mail className="h-4 w-4 text-sky-600" /> employer-support@placement.gov.in
+            </p>
+          </div>
+        </Card>
       </div>
 
-      <div className="mb-16">
+      <div className="mb-16 text-center">
         <h3 className="text-2xl font-semibold text-slate-900">Frequently asked questions</h3>
-        <p className="mt-2 text-sm text-slate-600 max-w-2xl">
+        <p className="mx-auto mt-2 max-w-2xl text-sm text-slate-600">
           Answers to common questions from employers regarding hiring, data protection, and workflow.
         </p>
 

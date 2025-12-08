@@ -75,91 +75,86 @@ export default function ApplicationsPage() {
   }
 
   return (
-    <div className="relative p-6 max-w-7xl w-full mx-auto space-y-8">
-      {/* Background gradient effect */}
-      <div
-        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_10%_20%,rgba(14,165,233,0.15),transparent_45%),radial-gradient(circle_at_90%_10%,rgba(37,99,235,0.2),transparent_45%),linear-gradient(180deg,rgba(255,255,255,0.8),transparent)]"
-        aria-hidden="true"
-      />
-
+    <div className="p-6 max-w-7xl w-full mx-auto space-y-8">
       {/* Hero Section */}
-      <div className="relative overflow-hidden rounded-3xl border border-sky-100 bg-gradient-to-br from-sky-600 via-sky-500 to-blue-500 p-8 text-white shadow-2xl">
-        <div className="pointer-events-none absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white/20 blur-3xl" />
-        <div className="pointer-events-none absolute bottom-0 left-0 h-32 w-32 rounded-full bg-cyan-400/20 blur-3xl" />
+      <section className="relative overflow-hidden rounded-[32px] border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 shadow space-y-6">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.08),transparent_55%)]" />
         <div className="relative space-y-4">
-          <Badge variant="outline" className="border-white/40 bg-white/10 text-white">
-            <Sparkles className="h-3 w-3 mr-1" />
-            {session?.user?.role === "student" ? "Application tracker" : "Applications dashboard"}
-          </Badge>
           <div>
-            <h1 className="text-3xl font-bold">
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">
+              {session?.user?.role === "student" ? "Application Tracker" : "Applications Dashboard"}
+            </p>
+            <h1 className="mt-3 text-3xl font-semibold text-slate-900">
               {session?.user?.role === "student" ? "My Applications" : "Student Applications"}
             </h1>
-            <p className="text-white/90 mt-2">
+            <p className="mt-2 text-sm text-slate-600">
               {session?.user?.role === "student"
                 ? "Track your journey from application to offer"
                 : "Monitor and manage all student applications"}
             </p>
           </div>
         </div>
-      </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="border-slate-200 bg-white/90 shadow-lg rounded-3xl overflow-hidden group hover:shadow-xl transition-all">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-            <CardTitle className="text-sm font-semibold text-slate-700">Total Applications</CardTitle>
-            <div className="rounded-full bg-sky-50 p-3 group-hover:bg-sky-100 transition-colors">
-              <FileText className="h-5 w-5 text-sky-600" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-slate-900">{filteredApplications.length}</div>
-            <p className="text-xs text-slate-500 mt-1">All time submissions</p>
-          </CardContent>
-        </Card>
-        <Card className="border-slate-200 bg-white/90 shadow-lg rounded-3xl overflow-hidden group hover:shadow-xl transition-all">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-            <CardTitle className="text-sm font-semibold text-slate-700">Pending Review</CardTitle>
-            <div className="rounded-full bg-amber-50 p-3 group-hover:bg-amber-100 transition-colors">
-              <Clock className="h-5 w-5 text-amber-600" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-slate-900">{pendingApplications.length}</div>
-            <p className="text-xs text-slate-500 mt-1">Awaiting response</p>
-          </CardContent>
-        </Card>
-        <Card className="border-slate-200 bg-white/90 shadow-lg rounded-3xl overflow-hidden group hover:shadow-xl transition-all">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-            <CardTitle className="text-sm font-semibold text-slate-700">Interviews</CardTitle>
-            <div className="rounded-full bg-cyan-50 p-3 group-hover:bg-cyan-100 transition-colors">
-              <Calendar className="h-5 w-5 text-cyan-600" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-slate-900">{interviewApplications.length}</div>
-            <p className="text-xs text-slate-500 mt-1">Shortlisted</p>
-          </CardContent>
-        </Card>
-        <Card className="border-slate-200 bg-white/90 shadow-lg rounded-3xl overflow-hidden group hover:shadow-xl transition-all">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-            <CardTitle className="text-sm font-semibold text-slate-700">Success Rate</CardTitle>
-            <div className="rounded-full bg-emerald-50 p-3 group-hover:bg-emerald-100 transition-colors">
-              <TrendingUp className="h-5 w-5 text-emerald-600" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-slate-900">
-              {applications.length > 0 ? Math.round((interviewApplications.length / applications.length) * 100) : 0}%
-            </div>
-            <p className="text-xs text-slate-500 mt-1">Shortlist conversion</p>
-          </CardContent>
-        </Card>
-      </div>
+        {/* Stats Cards inside gradient */}
+        <div className="relative grid grid-cols-1 md:grid-cols-4 gap-6">
+          <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-500">Total Applications</CardTitle>
+              <div className="rounded-full p-2 bg-sky-50 text-sky-600">
+                <FileText className="h-4 w-4" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-semibold text-slate-900">{filteredApplications.length}</div>
+              <p className="text-xs text-slate-500">All time submissions</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-500">Pending Review</CardTitle>
+              <div className="rounded-full p-2 bg-amber-50 text-amber-600">
+                <Clock className="h-4 w-4" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-semibold text-slate-900">{pendingApplications.length}</div>
+              <p className="text-xs text-slate-500">Awaiting response</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-500">Interviews</CardTitle>
+              <div className="rounded-full p-2 bg-cyan-50 text-cyan-600">
+                <Calendar className="h-4 w-4" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-semibold text-slate-900">{interviewApplications.length}</div>
+              <p className="text-xs text-slate-500">Shortlisted</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-500">Success Rate</CardTitle>
+              <div className="rounded-full p-2 bg-emerald-50 text-emerald-600">
+                <TrendingUp className="h-4 w-4" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-semibold text-slate-900">
+                {applications.length > 0 ? Math.round((interviewApplications.length / applications.length) * 100) : 0}%
+              </div>
+              <p className="text-xs text-slate-500">Shortlist conversion</p>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
 
       {/* Search and Filter */}
-      <Card className="border-slate-200 bg-white/90 shadow-lg rounded-3xl">
+      <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">

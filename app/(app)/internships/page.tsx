@@ -96,29 +96,28 @@ export default function StudentInternshipsPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-6">
+    <div className="p-6 max-w-6xl w-full mx-auto space-y-8">
       {/* Hero Section */}
-      <div className="rounded-3xl bg-gradient-to-r from-sky-50 via-white to-sky-50 p-6 shadow-sm">
-        <div className="flex items-center gap-3">
-          <div className="rounded-full bg-sky-100 p-2 shadow-inner">
-            <Briefcase className="h-5 w-5 text-sky-700" />
-          </div>
-          <div>
-            <h1 className="text-xl font-semibold text-slate-900">My Internships</h1>
-            <p className="text-sm text-slate-600">Track your internship experiences grouped by opportunity</p>
-          </div>
+      <section className="relative overflow-hidden rounded-[32px] border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 shadow">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.08),transparent_55%)]" />
+        <div className="relative">
+          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">Internships</p>
+          <h1 className="mt-3 text-3xl font-semibold text-slate-900">My Internships</h1>
+          <p className="mt-2 text-sm text-slate-600">
+            Track your internship experiences grouped by opportunity
+          </p>
         </div>
-      </div>
+    <br></br>
 
       {/* Stats Summary */}
-      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Card className="rounded-2xl border-slate-200 p-4">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+        <Card className="rounded-2xl border-slate-200 p-6">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Internships</p>
-          <p className="mt-1 text-2xl font-semibold text-slate-900">{internships.length}</p>
+          <p className="mt-2 text-3xl font-semibold text-slate-900">{internships.length}</p>
         </Card>
-        <Card className="rounded-2xl border-slate-200 p-4">
+        <Card className="rounded-2xl border-slate-200 p-6">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Ongoing</p>
-          <p className="mt-1 text-2xl font-semibold text-green-600">
+          <p className="mt-2 text-3xl font-semibold text-green-600">
             {internships.filter((it) => {
               const start = new Date(it.startDate)
               const end = new Date(it.endDate)
@@ -126,63 +125,65 @@ export default function StudentInternshipsPage() {
             }).length}
           </p>
         </Card>
-        <Card className="rounded-2xl border-slate-200 p-4">
+        <Card className="rounded-2xl border-slate-200 p-6">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Companies</p>
-          <p className="mt-1 text-2xl font-semibold text-sky-600">{groupedByOpportunity.length}</p>
+          <p className="mt-2 text-3xl font-semibold text-sky-600">{groupedByOpportunity.length}</p>
         </Card>
       </div>
+    
+    </section>
 
       {/* Internships List */}
       {groupedByOpportunity.length === 0 ? (
-        <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-8 text-center text-slate-600">
-          <Briefcase className="mx-auto h-12 w-12 text-slate-300" />
-          <p className="mt-3 text-lg font-medium">No internships yet</p>
-          <p className="mt-1 text-sm">Apply to opportunities and get accepted to see your internships here.</p>
+        <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center">
+          <Briefcase className="mx-auto h-16 w-16 text-slate-300" />
+          <p className="mt-4 text-lg font-semibold text-slate-900">No internships yet</p>
+          <p className="mt-2 text-sm text-slate-600">Apply to opportunities and get accepted to see your internships here.</p>
         </div>
       ) : (
-        <div className="mt-6 space-y-6">
+        <div className="space-y-6">
           {groupedByOpportunity.map(({ opportunity, items }) => {
             const company = opportunity.companyRel
             return (
-              <Card key={opportunity.id} className="overflow-hidden rounded-2xl border-slate-200">
+              <div key={opportunity.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+              <div className="bg-gradient-to-r text-sky-300 p-6">
                 {/* Opportunity Header */}
-                <div className="bg-gradient-to-r from-white to-sky-50 p-5">
-                  <div className="flex items-start gap-4">
-                    <Avatar className="h-12 w-12 border border-slate-200">
-                      <AvatarFallback className="bg-sky-100 text-sky-700 font-semibold">
-                        {company.name.slice(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-slate-900">{opportunity.title}</h3>
-                      <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-slate-600">
-                        <span className="inline-flex items-center gap-1">
-                          <Building2 className="h-4 w-4" /> {company.name}
-                        </span>
-                        <span className="text-slate-300">•</span>
-                        <span className="inline-flex items-center gap-1">
-                          <MapPin className="h-4 w-4" /> {opportunity.location}
-                        </span>
-                        <span className="text-slate-300">•</span>
-                        <Badge variant="outline" className="rounded-full">
-                          {opportunity.type}
-                        </Badge>
-                      </div>
+                <div className="flex items-start gap-4">
+                  <Avatar className="h-12 w-12 border border-slate-200">
+                    <AvatarFallback className="bg-sky-100 text-sky-700 font-semibold">
+                      {company.name.slice(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-slate-900">{opportunity.title}</h3>
+                    <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-slate-600">
+                      <span className="inline-flex items-center gap-1">
+                        <Building2 className="h-4 w-4" /> {company.name}
+                      </span>
+                      <span className="text-slate-300">•</span>
+                      <span className="inline-flex items-center gap-1">
+                        <MapPin className="h-4 w-4" /> {opportunity.location}
+                      </span>
+                      <span className="text-slate-300">•</span>
+                      <Badge variant="outline" className="rounded-full">
+                        {opportunity.type}
+                      </Badge>
                     </div>
                   </div>
-                  {/* Opportunity dates and salary */}
-                  <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-slate-600">
+                </div>
+                {/* Opportunity dates and salary */}
+                <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-slate-600">
+                  <span className="inline-flex items-center gap-1">
+                    <Calendar className="h-4 w-4 text-slate-400" />
+                    {new Date(opportunity.startDate).toLocaleDateString()} – {new Date(opportunity.endDate).toLocaleDateString()}
+                  </span>
+                  {opportunity.salary && (
                     <span className="inline-flex items-center gap-1">
-                      <Calendar className="h-4 w-4 text-slate-400" />
-                      {new Date(opportunity.startDate).toLocaleDateString()} – {new Date(opportunity.endDate).toLocaleDateString()}
+                    ₹ 
+                      {opportunity.salary}
                     </span>
-                    {opportunity.salary && (
-                      <span className="inline-flex items-center gap-1">
-                        <DollarSign className="h-4 w-4 text-slate-400" />
-                        {opportunity.salary}
-                      </span>
-                    )}
-                  </div>
+                  )}
+                </div>
                 </div>
 
                 {/* Internship Items */}
@@ -258,7 +259,7 @@ export default function StudentInternshipsPage() {
                     )
                   })}
                 </div>
-              </Card>
+              </div>
             )
           })}
         </div>

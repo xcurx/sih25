@@ -50,12 +50,11 @@ const companyData = [
   { name: "InnovateTech", hires: 12, avgSalary: 680000, type: "Technology" },
 ]
 
-// Updated colors for the blue theme (Sky, Indigo, Amber, Red/Coral)
 const salaryDistribution = [
-  { range: "3-5 LPA", count: 45, color: "#22c55e" },  // Emerald
-  { range: "5-8 LPA", count: 78, color: "#3b82f6" },  // Blue
-  { range: "8-12 LPA", count: 52, color: "#f97316" }, // Orange
-  { range: "12+ LPA", count: 28, color: "#ef4444" },  // Red
+  { range: "3-5 LPA", count: 45, color: "#22c55e" },
+  { range: "5-8 LPA", count: 78, color: "#3b82f6" },
+  { range: "8-12 LPA", count: 52, color: "#f97316" },
+  { range: "12+ LPA", count: 28, color: "#ef4444" },
 ]
 
 const skillDemand = [
@@ -69,14 +68,13 @@ const skillDemand = [
   { skill: "Docker", demand: 45, jobs: 8 },
 ]
 
-// Consistent colors for charts
 const CHART_COLORS = {
-    APPLICATIONS: "#3b82f6", // Blue
-    INTERVIEWS: "#a855f7", // Purple
-    PLACEMENTS: "#10b981", // Emerald
-    COMPANIES: "#164e63", // Dark Cyan/Teal
-    GRID: "#f1f5f9", // Slate-100
-    TEXT: "#64748b", // Slate-500
+    APPLICATIONS: "#3b82f6",
+    INTERVIEWS: "#a855f7",
+    PLACEMENTS: "#10b981",
+    COMPANIES: "#164e63",
+    GRID: "#f1f5f9",
+    TEXT: "#64748b",
 }
 
 export default function AnalyticsPage() {
@@ -97,75 +95,77 @@ export default function AnalyticsPage() {
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-8">
-      {/* Header and Controls */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-800">Placement Analytics</h1>
-          <p className="text-base text-slate-500 mt-1">Comprehensive placement and recruitment insights</p>
+      {/* Hero Section with Stats */}
+      <section className="relative overflow-hidden rounded-[32px] border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 shadow space-y-6">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.08),transparent_55%)]" />
+        <div className="relative space-y-4">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">Analytics Dashboard</p>
+            <h1 className="mt-3 text-3xl font-semibold text-slate-900">Placement Analytics</h1>
+            <p className="mt-2 text-sm text-slate-600">
+              Comprehensive placement and recruitment insights
+            </p>
+          </div>
+          <div className="flex justify-end gap-4 pt-4">
+            <Select value={timeRange} onValueChange={setTimeRange}>
+              <SelectTrigger className="w-40 border-slate-200 rounded-lg h-10 bg-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1month">Last Month</SelectItem>
+                <SelectItem value="3months">Last 3 Months</SelectItem>
+                <SelectItem value="6months">Last 6 Months</SelectItem>
+                <SelectItem value="1year">Last Year</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button variant="outline" className="rounded-full border-sky-600 text-sky-600 hover:bg-sky-50 hover:text-sky-700">
+              <Download className="mr-2 h-4 w-4" />
+              Export Report
+            </Button>
+          </div>
         </div>
-        <div className="flex items-center space-x-4">
-          <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="w-40 border-slate-300 rounded-lg h-10">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="1month">Last Month</SelectItem>
-              <SelectItem value="3months">Last 3 Months</SelectItem>
-              <SelectItem value="6months">Last 6 Months</SelectItem>
-              <SelectItem value="1year">Last Year</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button variant="outline" className="rounded-full border-sky-600 text-sky-600 hover:bg-sky-50 hover:text-sky-700">
-            <Download className="mr-2 h-4 w-4" />
-            Export Report
-          </Button>
-        </div>
-      </div>
 
-      {/* Key Metrics Cards - Blue Themed */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {[
-          { title: "Overall Placement Rate", value: "78.5%", caption: "+5.2% from last semester", icon: Target, accent: "bg-sky-50 text-sky-700", trend: true },
-          { title: "Total Students", value: "1,247", caption: "Eligible for placement", icon: GraduationCap, accent: "bg-indigo-50 text-indigo-700", trend: false },
-          { title: "Partner Companies", value: "89", caption: "+12 new partnerships", icon: Building2, accent: "bg-purple-50 text-purple-700", trend: true },
-          { title: "Avg. Package", value: "₹6.8L", caption: "+8.5% from last year", icon: DollarSign, accent: "bg-emerald-50 text-emerald-700", trend: true },
-        ].map((stat) => (
-          <Card key={stat.title} className="border-slate-200 bg-white shadow-sm rounded-xl">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-slate-500">{stat.title}</CardTitle>
-              <div className={`rounded-full p-2 ${stat.accent}`}>
-                <stat.icon className="h-4 w-4" aria-hidden="true" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-slate-900">{stat.value}</div>
-              {stat.trend && (
-                <p className="text-xs text-emerald-600 font-medium flex items-center">
-                  <TrendingUp className="h-3 w-3 mr-1" />
-                  {stat.caption}
-                </p>
-              )}
-              {!stat.trend && (
-                <p className="text-xs text-slate-500">
-                  {stat.caption}
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+        {/* Key Metrics Cards inside gradient */}
+        <div className="relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[
+            { title: "Overall Placement Rate", value: "78.5%", caption: "+5.2% from last semester", icon: Target, accent: "bg-sky-50 text-sky-600", trend: true },
+            { title: "Total Students", value: "1,247", caption: "Eligible for placement", icon: GraduationCap, accent: "bg-indigo-50 text-indigo-600", trend: false },
+            { title: "Partner Companies", value: "89", caption: "+12 new partnerships", icon: Building2, accent: "bg-purple-50 text-purple-600", trend: true },
+            { title: "Avg. Package", value: "₹6.8L", caption: "+8.5% from last year", icon: DollarSign, accent: "bg-emerald-50 text-emerald-600", trend: true },
+          ].map((stat) => (
+            <Card key={stat.title} className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-slate-500">{stat.title}</CardTitle>
+                <div className={`rounded-full p-2 ${stat.accent}`}>
+                  <stat.icon className="h-4 w-4" aria-hidden="true" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-semibold text-slate-900">{stat.value}</div>
+                {stat.trend && (
+                  <p className="text-xs text-emerald-600 font-medium flex items-center">
+                    <TrendingUp className="h-3 w-3 mr-1" />
+                    {stat.caption}
+                  </p>
+                )}
+                {!stat.trend && (
+                  <p className="text-xs text-slate-500">
+                    {stat.caption}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList 
-          className="bg-sky-100 p-1 h-auto rounded-xl shadow-inner grid w-full grid-cols-5" // Light blue background for the list
-        >
-          {["Overview", "Departments", "Companies", "Skills", "Trends"].map((tab, index) => (
+        <TabsList className="bg-slate-100 p-1 h-auto rounded-full">
+          {["Overview", "Departments", "Companies", "Skills", "Trends"].map((tab) => (
             <TabsTrigger 
               key={tab}
               value={tab.toLowerCase()} 
-              className="px-6 py-2.5 text-base font-semibold text-sky-900 rounded-lg transition-all w-full // Darker blue for inactive text
-                         data-[state=active]:bg-sky-600 data-[state=active]:shadow-lg data-[state=active]:text-white // Blue background, white text for active
-                         data-[state=active]:border-none" // Removed border for active state for cleaner look
+              className="rounded-full data-[state=active]:bg-sky-600 data-[state=active]:text-white data-[state=active]:shadow-sm transition text-slate-700 hover:text-slate-900"
             >
               {tab}
             </TabsTrigger>
@@ -174,11 +174,11 @@ export default function AnalyticsPage() {
 
         <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Placement Funnel (Bar Chart) */}
-            <Card className="border-slate-200 shadow-lg rounded-xl">
+            {/* Placement Funnel */}
+            <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
               <CardHeader className="border-b border-slate-100 pb-4">
-                <CardTitle className="text-xl text-slate-900">Placement Funnel</CardTitle>
-                <CardDescription>Student journey from application to placement</CardDescription>
+                <CardTitle className="text-lg text-slate-900">Placement Funnel</CardTitle>
+                <CardDescription className="text-sm">Student journey from application to placement</CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
                 <ResponsiveContainer width="100%" height={300}>
@@ -195,11 +195,11 @@ export default function AnalyticsPage() {
               </CardContent>
             </Card>
 
-            {/* Salary Distribution (Pie Chart) */}
-            <Card className="border-slate-200 shadow-lg rounded-xl">
+            {/* Salary Distribution */}
+            <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
               <CardHeader className="border-b border-slate-100 pb-4">
-                <CardTitle className="text-xl text-slate-900">Salary Distribution</CardTitle>
-                <CardDescription>Distribution of placement packages</CardDescription>
+                <CardTitle className="text-lg text-slate-900">Salary Distribution</CardTitle>
+                <CardDescription className="text-sm">Distribution of placement packages</CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
                 <div className="flex flex-col md:flex-row items-center justify-between">
@@ -237,11 +237,11 @@ export default function AnalyticsPage() {
             </Card>
           </div>
 
-          {/* Monthly Trends (Area Chart) */}
-          <Card className="border-slate-200 shadow-lg rounded-xl">
+          {/* Monthly Trends */}
+          <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
             <CardHeader className="border-b border-slate-100 pb-4">
-              <CardTitle className="text-xl text-slate-900">Monthly Trends</CardTitle>
-              <CardDescription>Placement activity over time</CardDescription>
+              <CardTitle className="text-lg text-slate-900">Monthly Trends</CardTitle>
+              <CardDescription className="text-sm">Placement activity over time</CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
               <ResponsiveContainer width="100%" height={300}>
@@ -281,23 +281,22 @@ export default function AnalyticsPage() {
         </TabsContent>
 
         <TabsContent value="departments" className="space-y-6">
-          <Card className="border-slate-200 shadow-lg rounded-xl">
+          <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
             <CardHeader className="border-b border-slate-100 pb-4">
-              <CardTitle className="text-xl text-slate-900">Department-wise Performance</CardTitle>
-              <CardDescription>Placement statistics by department</CardDescription>
+              <CardTitle className="text-lg text-slate-900">Department-wise Performance</CardTitle>
+              <CardDescription className="text-sm">Placement statistics by department</CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
               <div className="space-y-4">
                 {departmentData.map((dept, index) => (
-                  <div key={index} className="p-4 border border-slate-200 bg-slate-50 rounded-xl transition hover:border-sky-300">
+                  <div key={index} className="p-4 border border-slate-200 bg-slate-50 rounded-2xl transition hover:border-sky-200 hover:bg-white">
                     <div className="flex items-center justify-between mb-2">
                       <h3 className="font-semibold text-slate-800">{dept.name}</h3>
                       <Badge
-                        variant="default"
-                        className={`text-sm font-bold rounded-full px-3 ${
-                          dept.percentage >= 80 ? "bg-emerald-500 hover:bg-emerald-600" : 
-                          dept.percentage >= 70 ? "bg-sky-500 hover:bg-sky-600" : 
-                          "bg-amber-500 hover:bg-amber-600"
+                        className={`text-xs font-semibold rounded-full px-3 ${
+                          dept.percentage >= 80 ? "bg-emerald-600 hover:bg-emerald-600 text-white" : 
+                          dept.percentage >= 70 ? "bg-sky-600 hover:bg-sky-600 text-white" : 
+                          "bg-amber-600 hover:bg-amber-600 text-white"
                         }`}
                       >
                         {dept.percentage}%
@@ -322,17 +321,17 @@ export default function AnalyticsPage() {
         </TabsContent>
 
         <TabsContent value="companies" className="space-y-6">
-          <Card className="border-slate-200 shadow-lg rounded-xl">
+          <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
             <CardHeader className="border-b border-slate-100 pb-4">
-              <CardTitle className="text-xl text-slate-900">Top Recruiting Companies</CardTitle>
-              <CardDescription>Companies with highest hiring numbers</CardDescription>
+              <CardTitle className="text-lg text-slate-900">Top Recruiting Companies</CardTitle>
+              <CardDescription className="text-sm">Companies with highest hiring numbers</CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
               <div className="space-y-4">
                 {companyData.map((company, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 border border-slate-200 bg-slate-50 rounded-xl transition hover:border-sky-300">
+                  <div key={index} className="flex items-center justify-between p-4 border border-slate-200 bg-slate-50 rounded-2xl transition hover:border-sky-200 hover:bg-white">
                     <div className="flex items-center space-x-4">
-                      <div className="p-3 bg-sky-100 rounded-xl shrink-0">
+                      <div className="p-3 bg-sky-50 rounded-xl shrink-0">
                         <Building2 className="h-5 w-5 text-sky-600" />
                       </div>
                       <div>
@@ -354,10 +353,10 @@ export default function AnalyticsPage() {
         </TabsContent>
 
         <TabsContent value="skills" className="space-y-6">
-          <Card className="border-slate-200 shadow-lg rounded-xl">
+          <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
             <CardHeader className="border-b border-slate-100 pb-4">
-              <CardTitle className="text-xl text-slate-900">In-Demand Skills</CardTitle>
-              <CardDescription>Most requested skills by employers</CardDescription>
+              <CardTitle className="text-lg text-slate-900">In-Demand Skills</CardTitle>
+              <CardDescription className="text-sm">Most requested skills by employers</CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
               <div className="space-y-4">
@@ -385,11 +384,11 @@ export default function AnalyticsPage() {
 
         <TabsContent value="trends" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Application Success Rate (Line Chart) */}
-            <Card className="border-slate-200 shadow-lg rounded-xl">
+            {/* Placements Over Time */}
+            <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
               <CardHeader className="border-b border-slate-100 pb-4">
-                <CardTitle className="text-xl text-slate-900">Placements Over Time</CardTitle>
-                <CardDescription>Number of placements secured each month</CardDescription>
+                <CardTitle className="text-lg text-slate-900">Placements Over Time</CardTitle>
+                <CardDescription className="text-sm">Number of placements secured each month</CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
                 <ResponsiveContainer width="100%" height={300}>
@@ -411,11 +410,11 @@ export default function AnalyticsPage() {
               </CardContent>
             </Card>
 
-            {/* Company Engagement (Bar Chart) */}
-            <Card className="border-slate-200 shadow-lg rounded-xl">
+            {/* Company Engagement */}
+            <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
               <CardHeader className="border-b border-slate-100 pb-4">
-                <CardTitle className="text-xl text-slate-900">Company Engagement</CardTitle>
-                <CardDescription>Number of unique companies recruiting each month</CardDescription>
+                <CardTitle className="text-lg text-slate-900">Company Engagement</CardTitle>
+                <CardDescription className="text-sm">Number of unique companies recruiting each month</CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
                 <ResponsiveContainer width="100%" height={300}>
@@ -431,18 +430,18 @@ export default function AnalyticsPage() {
             </Card>
           </div>
 
-          <Card className="border-slate-200 shadow-lg rounded-xl">
+          <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
             <CardHeader className="border-b border-slate-100 pb-4">
-              <CardTitle className="text-xl text-slate-900">Key Insights & Actions</CardTitle>
-              <CardDescription>Important trends and observations for strategic planning</CardDescription>
+              <CardTitle className="text-lg text-slate-900">Key Insights & Actions</CardTitle>
+              <CardDescription className="text-sm">Important trends and observations for strategic planning</CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
+                  <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl">
                     <div className="flex items-center space-x-2 mb-2">
                       <Zap className="h-5 w-5 text-emerald-600" />
-                      <span className="font-bold text-emerald-800 text-lg">Positive Trends</span>
+                      <span className="font-bold text-emerald-800 text-base">Positive Trends</span>
                     </div>
                     <ul className="text-sm text-emerald-700 space-y-2 list-disc pl-5">
                       <li>15% increase in tech company partnerships year-over-year.</li>
@@ -452,10 +451,10 @@ export default function AnalyticsPage() {
                   </div>
                 </div>
                 <div className="space-y-4">
-                  <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                  <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl">
                     <div className="flex items-center space-x-2 mb-2">
                       <AlertCircle className="h-5 w-5 text-amber-600" />
-                      <span className="font-bold text-amber-800 text-lg">Areas for Improvement</span>
+                      <span className="font-bold text-amber-800 text-base">Areas for Improvement</span>
                     </div>
                     <ul className="text-sm text-amber-700 space-y-2 list-disc pl-5">
                       <li>Civil Engineering placement rate below target (65%); needs dedicated drives.</li>

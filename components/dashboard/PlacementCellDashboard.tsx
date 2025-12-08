@@ -6,9 +6,13 @@ import { Progress } from "../ui/progress"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 import { Briefcase, Calendar, CheckCircle, FileText, GraduationCap, TrendingUp, Users, Clock, Building2 } from "lucide-react"
 
-// Assume these are utility imports from your project
-// import { mockJobs, mockStudents } from "@/lib/mock-data" 
-// import { cn } from "@/lib/utils" 
+// Custom colors for the Bar Chart (Consistent with Blue Theme)
+const ACCENT_COLORS = {
+    APPLICATIONS: "#3b82f6", // Blue-500
+    PLACEMENTS: "#10b981", // Emerald-500
+    BACKGROUND: "#e0f2fe", // Sky-100
+    TEXT: "#0f172a", // Slate-900
+}
 
 const chartData = [
     { name: "Jan", applications: 12, placements: 8 },
@@ -19,45 +23,58 @@ const chartData = [
     { name: "Jun", applications: 35, placements: 25 },
 ]
 
-// Custom colors for the Bar Chart (Consistent with Blue Theme)
-const ACCENT_COLORS = {
-    APPLICATIONS: "#3b82f6", // Blue-500
-    PLACEMENTS: "#10b981", // Emerald-500
-    BACKGROUND: "#e0f2fe", // Sky-100
-    TEXT: "#0f172a", // Slate-900
-}
-
 export default function PlacementCellDashboard() {
     return (
         <div className="space-y-8 p-0">
-            {/* 4 Main Stats - Blue-Themed Card Style */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {[
-                    { title: "Active Jobs", value: 42, caption: "+5 this week", icon: Briefcase, accent: "bg-sky-50 text-sky-700" },
-                    { title: "Total Students", value: "1,247", caption: "Eligible for placement", icon: GraduationCap, accent: "bg-indigo-50 text-indigo-700" },
-                    { title: "Partner Companies", value: 89, caption: "Active partnerships", icon: Building2, accent: "bg-purple-50 text-purple-700" },
-                    { title: "Placement Rate", value: "82%", caption: "Current year", icon: TrendingUp, accent: "bg-emerald-50 text-emerald-700" },
-                ].map((stat) => (
-                    <Card key={stat.title} className="border-slate-200 bg-white shadow-md rounded-xl transition hover:shadow-lg">
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-slate-500">{stat.title}</CardTitle>
-                            <div className={`rounded-full p-2 ${stat.accent}`}>
-                                <stat.icon className="h-4 w-4" aria-hidden="true" />
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-3xl font-bold text-slate-900">{stat.value}</div>
-                            {/* Simplified caption styling using ternary for trend indication */}
-                            <p className={`text-xs ${stat.caption.startsWith('+') ? 'text-emerald-600 font-medium' : 'text-slate-500'}`}>{stat.caption}</p>
-                        </CardContent>
-                    </Card>
-                ))}
-            </div>
+            
+            {/* GRADIENT HEADER SECTION (Similar to Employer Dashboard) */}
+            <section className="relative overflow-hidden rounded-[32px] border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 shadow-lg">
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.08),transparent_55%)]" />
+
+                <div className="relative space-y-6">
+                    {/* PLACEMENT CELL HEADER TEXT */}
+                    <div>
+                        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">Placement Control Center</p>
+                        <h1 className="mt-3 text-3xl font-bold text-slate-900">Unified placement operations and real-time analytics.</h1>
+                        <p className="mt-2 text-sm text-slate-600">
+                            Monitor campus placement metrics and track partner engagement in one view.
+                        </p>
+                    </div>
+
+                    {/* 4 Main Stats - Adjusted to new unified styling */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {[
+                            { title: "Active Jobs", value: 42, caption: "+5 this week", icon: Briefcase, accent: "bg-sky-50 text-sky-700" },
+                            { title: "Total Students", value: "1,247", caption: "Eligible for placement", icon: GraduationCap, accent: "bg-indigo-50 text-indigo-700" },
+                            { title: "Partner Companies", value: 89, caption: "Active partnerships", icon: Building2, accent: "bg-purple-50 text-purple-700" },
+                            { title: "Placement Rate", value: "82%", caption: "Current year", icon: TrendingUp, accent: "bg-emerald-50 text-emerald-700" },
+                        ].map((stat) => (
+                            <Card 
+                                key={stat.title} 
+                                // Added shadow-md and hover effects for lift
+                                className="border-slate-200 bg-white shadow-md rounded-xl transition-shadow hover:shadow-xl"
+                            >
+                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                    <CardTitle className="text-sm font-medium text-slate-500">{stat.title}</CardTitle>
+                                    <div className={`rounded-full p-2 ${stat.accent}`}>
+                                        <stat.icon className="h-4 w-4" aria-hidden="true" />
+                                    </div>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-3xl font-bold text-slate-900">{stat.value}</div>
+                                    <p className={`text-xs ${stat.caption.startsWith('+') ? 'text-emerald-600 font-medium' : 'text-slate-500'}`}>{stat.caption}</p>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
 
             {/* Analytics & Recent Activities - Two column layout */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
-                {/* Placement Analytics Card (Bar Chart) */}
+                {/* Placement Analytics Card (Bar Chart) - Styling kept consistent */}
                 <Card className="lg:col-span-2 border-slate-200 bg-white shadow-lg rounded-xl">
                     <CardHeader className="border-b border-slate-100 pb-4">
                         <CardTitle className="text-xl text-slate-900">Placement Analytics</CardTitle>
@@ -65,10 +82,10 @@ export default function PlacementCellDashboard() {
                     </CardHeader>
                     <CardContent className="pt-6">
                         <ResponsiveContainer width="100%" height={300}>
-                            {/* Updated colors for blue/green consistency */}
+                            {/* Chart colors are already blue/green consistent */}
                             <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" /> {/* slate-100 */}
-                                <XAxis dataKey="name" stroke="#64748b" className="text-xs" /> {/* slate-500 */}
+                                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                                <XAxis dataKey="name" stroke="#64748b" className="text-xs" />
                                 <YAxis stroke="#64748b" className="text-xs" />
                                 <Tooltip
                                     cursor={{ fill: ACCENT_COLORS.BACKGROUND, opacity: 0.5 }}
@@ -81,7 +98,7 @@ export default function PlacementCellDashboard() {
                     </CardContent>
                 </Card>
 
-                {/* Recent Activities Card */}
+                {/* Recent Activities Card - Styling kept consistent */}
                 <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
                     <CardHeader className="border-b border-slate-100 pb-4">
                         <CardTitle className="text-xl text-slate-900">Recent Activities</CardTitle>
@@ -134,7 +151,7 @@ export default function PlacementCellDashboard() {
                             </div>
                         </div>
                         
-                        {/* View all button */}
+                        {/* View all button - Updated to use sky theme */}
                         <Button variant="ghost" className="w-full justify-center text-sky-600 hover:bg-sky-50 rounded-lg mt-4">
                             View All Activities
                         </Button>
@@ -144,7 +161,8 @@ export default function PlacementCellDashboard() {
 
             {/* Optional: Placement Status & Top Recruiters sections */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Placement Status Card (Assuming Progress and simple stats) */}
+                
+                {/* Placement Status Card - Styling kept consistent */}
                 <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
                     <CardHeader>
                         <CardTitle className="text-xl text-slate-900">Placement Status</CardTitle>
@@ -156,8 +174,7 @@ export default function PlacementCellDashboard() {
                             <p className="text-slate-500">Students Placed / Total Eligible</p>
                         </div>
                         
-                        {/* Progress bar needs the Progress component from your project */}
-                        {/* The following line assumes a <Progress> component exists and uses the blue theme classes */}
+                        {/* Progress bar - Styling updated to use sky theme */}
                         <div className="w-full bg-sky-100 rounded-full h-3">
                             <div className="bg-sky-600 h-3 rounded-full" style={{ width: `82%` }} /> 
                         </div>
@@ -179,7 +196,7 @@ export default function PlacementCellDashboard() {
                     </CardContent>
                 </Card>
 
-                {/* Top Recruiters Card (Assuming Avatar and Badge components exist) */}
+                {/* Top Recruiters Card - Styling kept consistent */}
                 <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
                     <CardHeader>
                         <CardTitle className="text-xl text-slate-900">Top Recruiters</CardTitle>
@@ -200,11 +217,13 @@ export default function PlacementCellDashboard() {
                                     </Avatar>
                                     <p className="font-medium text-slate-800">{recruiter.name}</p>
                                 </div>
+                                {/* Badge updated to use sky theme */}
                                 <Badge variant="secondary" className="bg-sky-100 text-sky-700 font-bold">
                                     {recruiter.count} Placements
                                 </Badge>
                             </div>
                         ))}
+                        {/* Button updated to use sky theme */}
                         <Button variant="ghost" className="w-full justify-center text-sky-600 hover:bg-sky-50 rounded-lg mt-4">
                             View All Partners
                         </Button>

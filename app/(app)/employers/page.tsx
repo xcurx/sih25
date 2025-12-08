@@ -94,37 +94,39 @@ const CustomEmployerCard = ({ company, onViewDetails, companyInfo }: CustomEmplo
     const lastInteraction = "2 days ago"; 
 
     return (
-        <Card className="border-slate-200 shadow-md rounded-xl transition hover:shadow-lg hover:border-sky-300">
+        <Card className="border-slate-200 bg-white shadow-sm rounded-2xl transition hover:shadow-md hover:border-sky-200">
             <CardContent className="p-5 space-y-4">
                 <div className="flex justify-between items-center">
                     <div className="flex items-center space-x-4">
-                        <div className="p-3 bg-sky-50 rounded-lg text-sky-700">
+                        {/* Placeholder for Logo/Icon */}
+                        <div className="p-3 bg-sky-50 rounded-lg text-sky-600">
                             <Building2 className="h-6 w-6" />
                         </div>
                         <div className="space-y-0.5">
                             <div className="flex items-center gap-2">
-                                <h3 className="text-xl font-bold text-slate-800">{company.name}</h3>
-                                <span className="flex items-center text-sm text-amber-500 font-medium">
-                                    <Star className="h-4 w-4 fill-amber-500 mr-1" />
+                                <h3 className="text-base font-semibold text-slate-900">{company.name}</h3>
+                                {/* Rating Star */}
+                                <span className="flex items-center text-xs text-amber-500 font-medium">
+                                    <Star className="h-3.5 w-3.5 fill-amber-500 mr-1" />
                                     {rating.toFixed(1)}
                                 </span>
                             </div>
                             <p className="text-sm text-slate-600">Contact: {contactPerson}</p>
-                            <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-500 mt-1">
+                            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500 mt-1">
                                 <span className="flex items-center gap-1">
-                                    <Mail className="h-4 w-4" />
+                                    <Mail className="h-3.5 w-3.5" />
                                     {contactEmail}
                                 </span>
                                 <span className="flex items-center gap-1">
-                                    <MapPin className="h-4 w-4" />
+                                    <MapPin className="h-3.5 w-3.5" />
                                     {companyLocation}
                                 </span>
-                                <Users className="h-4 w-4" /> 
                             </div>
                         </div>
                     </div>
 
-                    <Badge variant="secondary" className="bg-slate-100 text-slate-700 rounded-full font-medium">
+                    {/* Industry Badge */}
+                    <Badge variant="outline" className="bg-slate-50 text-slate-700 border-slate-200 rounded-full font-medium text-xs">
                         {industry}
                     </Badge>
                 </div>
@@ -132,23 +134,17 @@ const CustomEmployerCard = ({ company, onViewDetails, companyInfo }: CustomEmplo
                 <hr className="border-slate-100" />
 
                 <div className="flex justify-between items-center">
-                    <div className="flex items-center text-sm text-slate-500">
-                        <Clock className="h-4 w-4 mr-2" />
+                    <div className="flex items-center text-xs text-slate-500">
+                        <Clock className="h-3.5 w-3.5 mr-2" />
                         Last interaction: {lastInteraction}
                     </div>
                     <div className="flex gap-2">
-                        <Link href={`/employers/${company.id}/feedbacks`}>
-                            <Button variant="outline" size="sm" className="rounded-full text-amber-600 border-amber-300 hover:bg-amber-50">
-                                <MessageSquare className="h-4 w-4 mr-2" />
-                                Feedbacks
-                            </Button>
-                        </Link>
-                        <Button variant="outline" size="sm" className="rounded-full text-slate-700 border-slate-300 hover:bg-slate-100">
+                        <Button variant="ghost" size="sm" className="rounded-full text-slate-600 hover:bg-slate-100 text-xs">
                             Contact
                         </Button>
-                        <Button variant="outline" size="sm" onClick={() => onViewDetails(company)} className="rounded-full text-sky-600 border-sky-300 hover:bg-sky-50">
-                            <Eye className="h-4 w-4 mr-2" />
-                            Quick View
+                        <Button size="sm" onClick={() => onViewDetails(company)} className="rounded-full bg-sky-600 hover:bg-sky-700 text-white text-xs">
+                            <Eye className="h-3.5 w-3.5 mr-1.5" />
+                            View Details
                         </Button>
                         <Link href={`/employers/${company.id}`}>
                             <Button variant="default" size="sm" className="rounded-full bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700">
@@ -225,83 +221,100 @@ export default function EmployersPage() {
   return (
     <div className="p-6 max-w-7xl w-full mx-auto space-y-8">
       
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-800">Employer Management</h1>
-          <p className="text-base text-slate-500 mt-1">Manage company partnerships and employer relationships.</p>
+      {/* Hero Section with Stats - matching employer dashboard style */}
+      <section className="relative overflow-hidden rounded-[32px] border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 shadow space-y-6">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.08),transparent_55%)]" />
+        <div className="relative space-y-4">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">Employer Management</p>
+            <h1 className="mt-3 text-3xl font-semibold text-slate-900">Partner Companies</h1>
+            <p className="mt-2 text-sm text-slate-600">
+              Manage company partnerships and employer relationships.
+            </p>
+          </div>
+          <div className="flex justify-end pt-4">
+            <Button className="bg-sky-600 hover:bg-sky-700 rounded-full shadow-sm transition">
+              <Plus className="mr-2 h-4 w-4" />
+              Add New Employer
+            </Button>
+          </div>
         </div>
-        
-      </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        
-        <Card className="border-slate-200 bg-white shadow-sm rounded-xl">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-500">Partner Companies</CardTitle>
-            <div className={`rounded-full p-2 bg-sky-50 text-sky-700`}>
-              <Building2 className="h-4 w-4" aria-hidden="true" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-slate-900">{totalCompanies}</div>
-            <p className="text-xs text-slate-500">Active partnerships</p>
-          </CardContent>
-        </Card>
+        {/* Stats Cards inside gradient */}
+        <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Partner Companies */}
+          <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-500">Partner Companies</CardTitle>
+              <div className="rounded-full p-2 bg-sky-50 text-sky-600">
+                <Building2 className="h-4 w-4" aria-hidden="true" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-semibold text-slate-900">{totalCompanies}</div>
+              <p className="text-xs text-slate-500">Active partnerships</p>
+            </CardContent>
+          </Card>
 
-        <Card className="border-slate-200 bg-white shadow-sm rounded-xl">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-500">Active Jobs</CardTitle>
-            <div className={`rounded-full p-2 bg-emerald-50 text-emerald-700`}>
-              <Briefcase className="h-4 w-4" aria-hidden="true" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-slate-900">{totalActiveJobs}</div>
-            <p className="text-xs text-slate-500">Currently open positions</p>
-          </CardContent>
-        </Card>
+          {/* Active Jobs */}
+          <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-500">Active Jobs</CardTitle>
+              <div className="rounded-full p-2 bg-emerald-50 text-emerald-600">
+                <Briefcase className="h-4 w-4" aria-hidden="true" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-semibold text-slate-900">{totalActiveJobs}</div>
+              <p className="text-xs text-slate-500">Currently open positions</p>
+            </CardContent>
+          </Card>
 
-        <Card className="border-slate-200 bg-white shadow-sm rounded-xl">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-500">Total Hires</CardTitle>
-            <div className={`rounded-full p-2 bg-indigo-50 text-indigo-700`}>
-              <Users className="h-4 w-4" aria-hidden="true" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-slate-900">{totalHires}</div>
-            <p className="text-xs text-slate-500">This academic year</p>
-          </CardContent>
-        </Card>
+          {/* Total Hires */}
+          <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-500">Total Hires</CardTitle>
+              <div className="rounded-full p-2 bg-sky-50 text-sky-600">
+                <Users className="h-4 w-4" aria-hidden="true" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-semibold text-slate-900">{totalHires}</div>
+              <p className="text-xs text-slate-500">This academic year</p>
+            </CardContent>
+          </Card>
 
-        <Card className="border-slate-200 bg-white shadow-sm rounded-xl">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-500">Avg. Package</CardTitle>
-            <div className={`rounded-full p-2 bg-amber-50 text-amber-700`}>
-              <DollarSign className="h-4 w-4" aria-hidden="true" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-slate-900">₹6.2L</div>
-            <p className="text-xs text-slate-500">Average offered CTC</p>
-          </CardContent>
-        </Card>
-      </div>
+          {/* Avg. Package */}
+          <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-500">Avg. Package</CardTitle>
+              <div className="rounded-full p-2 bg-amber-50 text-amber-600">
+                <DollarSign className="h-4 w-4" aria-hidden="true" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-semibold text-slate-900">₹6.2L</div>
+              <p className="text-xs text-slate-500">Average offered CTC</p>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
 
-      <Card className="shadow-lg border-slate-100 rounded-xl">
-        <CardContent className="p-4 sm:p-6">
+      {/* Search and Filter */}
+      <Card className="shadow-lg border-slate-200 rounded-xl bg-white">
+        <CardContent className="p-6">
           <div className="flex flex-col md:flex-row gap-4 items-center">
-            <div className="flex-1 relative">
+            <div className="flex-1 relative w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
                 placeholder="Search employers by name or contact..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 h-10 border-slate-300 focus:border-sky-500 rounded-lg transition"
+                className="pl-10 h-10 border-slate-200 focus:border-sky-500 rounded-lg transition"
               />
             </div>
             <Select value={industryFilter} onValueChange={setIndustryFilter}>
-              <SelectTrigger className="w-full md:w-48 h-10 border-slate-300 focus:ring-sky-500 rounded-lg">
+              <SelectTrigger className="w-full md:w-48 h-10 border-slate-200 focus:ring-sky-500 rounded-lg">
                 <SelectValue placeholder="All Industries" />
               </SelectTrigger>
               <SelectContent>
@@ -317,7 +330,8 @@ export default function EmployersPage() {
         </CardContent>
       </Card>
 
-      <div className="grid gap-6">
+      {/* Employer Cards - Using Custom List Structure */}
+      <div className="grid gap-4">
         {filteredEmployers.map((company) => (
           <CustomEmployerCard
             key={company.id}
@@ -327,7 +341,7 @@ export default function EmployersPage() {
           />
         ))}
         {filteredEmployers.length === 0 && (
-          <div className="text-center py-10 border border-slate-200 rounded-xl bg-slate-50">
+          <div className="text-center py-10 border border-slate-200 rounded-2xl bg-slate-50">
             <Building2 className="h-8 w-8 text-slate-400 mx-auto mb-3" />
             <p className="text-lg font-medium text-slate-600">No companies found matching your criteria.</p>
           </div>

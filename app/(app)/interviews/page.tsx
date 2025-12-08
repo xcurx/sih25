@@ -191,7 +191,7 @@ export default function InterviewsPage() {
 </section>
             
             {/* Search and Filter */}
-            {/* <Card className="border-slate-200 bg-white/90 shadow-lg rounded-3xl"> */}
+            <Card className="border-slate-200 bg-white/90 shadow-lg rounded-3xl">
                 <CardContent className="p-6">
                     <div className="flex flex-col lg:flex-row gap-4">
                         <div className="flex-1 relative">
@@ -204,7 +204,7 @@ export default function InterviewsPage() {
                             />
                         </div>
                         <Select value={statusFilter} onValueChange={setStatusFilter}>
-                            <SelectTrigger className="w-full lg:w-48 rounded-2xl border-slate-200 hover:bg-sky-50 hover:border-sky-300">
+                            <SelectTrigger className="!h-12 w-full lg:w-48 rounded-2xl border-slate-200 hover:bg-sky-50 hover:border-sky-300">
                                 <SelectValue placeholder="All Status" />
                             </SelectTrigger>
                             <SelectContent>
@@ -217,7 +217,7 @@ export default function InterviewsPage() {
                         </Select>
                     </div>
                 </CardContent>
-            {/* </Card> */}
+            </Card>
 
             {/* Interviews Tabs */}
             <Tabs defaultValue="all" className="space-y-6">

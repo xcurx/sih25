@@ -16,6 +16,7 @@ from models.schemas import (
     BulkAddJobsResponse,
     BulkAddResults
 )
+from models.schemas import Student, StudentRecommendationResponse
 from core.engine import get_engine
 
 router = APIRouter()
@@ -227,6 +228,77 @@ async def get_job(job_id: str):
         )
     
     return engine.jobs[job_id]
+
+
+@router.post("/students")
+async def add_student(student: Student):
+    """Add a new student to the recommendation system."""
+    engine = get_engine()
+
+    if not engine.is_model_loaded:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Recommendation model is not loaded"
+        )
+
+    if student.id in engine.students:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Student with ID {student.id} already exists."
+        )
+
+    success = engine.add_student(student)
+
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to add student to recommendation system"
+        )
+
+    return {"success": True, "message": f"Student '{student.name}' added successfully", "student_id": student.id}
+
+
+@router.post("/students/bulk")
+async def bulk_add_students(students: List[Student]):
+    """Bulk add students to the system."""
+    engine = get_engine()
+
+    if not engine.is_model_loaded:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Recommendation model is not loaded"
+        )
+
+    results = engine.bulk_add_students(students)
+    return {
+        "success": True,
+        "message": f"Processed {len(students)} students",
+        "added_count": len(results.get('added', [])),
+        "skipped_count": len(results.get('skipped', [])),
+        "failed_count": len(results.get('failed', [])),
+        "results": results
+    }
+
+
+@router.get("/opportunities/{opportunity_id}/students", response_model=StudentRecommendationResponse)
+async def get_students_for_opportunity(opportunity_id: str):
+    """Get candidate students for a given opportunity ID."""
+    engine = get_engine()
+
+    if not engine.is_model_loaded:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,    
+            detail="Recommendation model is not loaded"
+        )
+
+    candidates = engine.get_students_for_opportunity(opportunity_id)
+
+    return StudentRecommendationResponse(
+        success=True,
+        message=f"Found {len(candidates)} candidate(s)",
+        total_candidates=len(candidates),
+        candidates=candidates
+    )
 
 
 @router.get("/jobs", response_model=List[Opportunity])
