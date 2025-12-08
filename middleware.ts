@@ -7,6 +7,7 @@ const PUBLIC_PATHS = [
   "/resources",
   "/institutes",
   "/l_employers",
+  "/register-company",
 ];
 
 function isPublic(pathname: string) {
