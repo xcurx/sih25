@@ -15,7 +15,8 @@ import {
   MapPin,
   Video,
   CheckCircle2,
-  XCircle
+  XCircle,
+  Sparkles
 } from "lucide-react"
 import axios from "axios"
 import Link from "next/link"
@@ -248,6 +249,16 @@ export default function InterviewCard({
                 Full Details
               </Button>
             </Link>
+          )}
+          {isUpcoming && (
+            <Button
+              variant="outline"
+              onClick={() => onViewDetails(application)}
+              className="flex-1 w-full rounded-full border-amber-200 text-amber-700 hover:bg-amber-50"
+            >
+              <Sparkles className="mr-2 h-4 w-4" />
+              AI Prep
+            </Button>
           )}
           {application.interviewRel?.interviewLink && isUpcoming && iStatus === "scheduled" && (
             <Button
