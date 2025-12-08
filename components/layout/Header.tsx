@@ -126,7 +126,7 @@ export default function Header() {
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
           <Link href="/" aria-label="Go to main landing page" className="group flex items-center gap-3 rounded-full bg-white/80 px-3 py-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow">
             <Image
-              src="/globe.svg"
+              src="/Logo_Saksham.png"
               alt="Saksham"
               width={40}
               height={40}

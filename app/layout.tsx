@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { DM_Sans } from "next/font/google"
 import { Suspense } from "react"
 import { SessionProvider } from "next-auth/react"
+import Script from "next/script"
 import "./globals.css"
 import { Toaster } from "@/components/ui/sonner"
 
@@ -25,11 +26,21 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`font-sans ${dmSans.variable}`}>
+      <body className={`${dmSans.variable} font-sans`}>
         <Suspense fallback={<div>Loading...</div>}>
           <SessionProvider>{children}</SessionProvider>
           <Toaster />
         </Suspense>
+        {/* Chatbase Chatbot Script */}
+        <Script
+          id="chatbase-chatbot"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="Zaw5ljD95IMrwuX4g9Rge";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+            `,
+          }}
+        />
       </body>
     </html>
   )
