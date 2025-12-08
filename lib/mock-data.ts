@@ -10,7 +10,14 @@ export const mockStudents: Student[] = [
     batch: 3,
     cgpa: 8.5,
     avatar: "/diverse-students-studying.png",
-    resume: "/resume-john-doe.pdf",
+    resumes: [
+      {
+        id: "resume-1",
+        name: "Main Resume",
+        resumeUrl: "/resume-john-doe.pdf",
+        uploadedAt: new Date().toISOString(),
+      },
+    ],
     skills: ["React", "Node.js", "Python", "Machine Learning", "SQL"],
     projects: [
       {

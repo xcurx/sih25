@@ -28,7 +28,15 @@ export async function GET(
             branch: true,
             batch: true,
             cgpa: true,
-            resume: true,
+            resumes: {
+              orderBy: { uploadedAt: "desc" },
+              select: {
+                id: true,
+                name: true,
+                resumeUrl: true,
+                uploadedAt: true,
+              },
+            },
             skills: true,
             github: true,
             linkedin: true,

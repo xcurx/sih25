@@ -1,36 +1,50 @@
 "use client"
 
 import { useRef, useState, useEffect } from "react"
-import { useSession } from "next-auth/react"
 import axios from "axios"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { TabsContent } from "@/components/ui/tabs"
 import { uploader } from "@/lib/uploader"
-import {
-  Download,
-  Upload,
-  FileText,
-  Trash2,
-  Loader2,
-  ExternalLink
-} from "lucide-react"
+import { StudentResume } from "@/lib/types"
+import { Download, Upload, FileText, Trash2, Loader2, ExternalLink } from "lucide-react"
 
 interface ResumeProps {
-  resume?: string | null
-  onResumeUpdate?: (url: string | null) => void
+  resumes?: StudentResume[]
+  onResumesChange?: (resumes: StudentResume[]) => void
+  isLoading?: boolean
 }
 
-const Resume = ({ resume, onResumeUpdate }: ResumeProps) => {
+const Resume = ({ resumes = [], onResumesChange, isLoading = false }: ResumeProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
-  const [deleting, setDeleting] = useState(false)
-  const [currentResume, setCurrentResume] = useState<string | null>(resume || null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [resumeList, setResumeList] = useState<StudentResume[]>(resumes)
 
   useEffect(() => {
-    setCurrentResume(resume || null)
-  }, [resume])
+    setResumeList(resumes || [])
+  }, [resumes])
+
+  const updateResumes = (next: StudentResume[]) => {
+    setResumeList(next)
+    onResumesChange?.(next)
+  }
+
+  const getUniqueDisplayName = (fileName: string) => {
+    const baseName = fileName.replace(/\.[^/.]+$/, "") || "Resume"
+    if (!resumeList.some((item) => item.name === baseName)) {
+      return baseName
+    }
+
+    let counter = 1
+    let candidate = `${baseName} (${counter})`
+    while (resumeList.some((item) => item.name === candidate)) {
+      counter += 1
+      candidate = `${baseName} (${counter})`
+    }
+    return candidate
+  }
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -50,16 +64,21 @@ const Resume = ({ resume, onResumeUpdate }: ResumeProps) => {
 
     setUploading(true)
     try {
-      const result = await uploader(file, 'resumes')
+      const result = await uploader(file, "resumes")
 
       if (!result) {
         throw new Error("Upload failed")
       }
 
-      await axios.put("/api/student/resume", { url: result.url })
+      const displayName = getUniqueDisplayName(file.name)
+      const response = await axios.post("/api/student/resume", { url: result.url, name: displayName })
 
-      setCurrentResume(result.url)
-      onResumeUpdate?.(result.url)
+      if (!response.data?.resume) {
+        throw new Error("Resume metadata missing")
+      }
+
+      const updated = [response.data.resume as StudentResume, ...resumeList]
+      updateResumes(updated)
       toast.success("Resume uploaded successfully!")
     } catch (error) {
       console.error("Upload error:", error)
@@ -72,44 +91,37 @@ const Resume = ({ resume, onResumeUpdate }: ResumeProps) => {
     }
   }
 
-  const handleDelete = async () => {
-    if (!currentResume) return
-
-    setDeleting(true)
+  const handleDelete = async (resumeId: string) => {
+    setDeletingId(resumeId)
     try {
-      await axios.delete("/api/student/resume")
-      setCurrentResume(null)
-      onResumeUpdate?.(null)
+      await axios.delete("/api/student/resume", { data: { resumeId } })
+      const updated = resumeList.filter((resume) => resume.id !== resumeId)
+      updateResumes(updated)
       toast.success("Resume deleted successfully!")
     } catch (error) {
       console.error("Delete error:", error)
       toast.error("Failed to delete resume")
     } finally {
-      setDeleting(false)
+      setDeletingId(null)
     }
   }
 
-  const handleView = () => {
-    if (currentResume) {
-      // google gocs viewer to display pdf inline
-      const viewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(currentResume)}&embedded=true`
-      window.open(viewerUrl, "_blank")
-    }
+  const handleView = (url: string) => {
+    const viewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`
+    window.open(viewerUrl, "_blank")
   }
 
-  const handleDownload = () => {
-    if (currentResume) {
-      window.open(currentResume, "_blank")
-    }
+  const handleDownload = (url: string) => {
+    window.open(url, "_blank")
   }
 
   return (
     <TabsContent value="documents" className="space-y-6">
       <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-lg">
         <CardHeader>
-          <CardTitle className="text-slate-900">Resume</CardTitle>
+          <CardTitle className="text-slate-900">Resumes</CardTitle>
           <CardDescription className="text-slate-600">
-            Upload and manage your resume (PDF format only, max 5MB)
+            Upload and manage multiple resumes (PDF format only, max 5MB)
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -131,7 +143,7 @@ const Resume = ({ resume, onResumeUpdate }: ResumeProps) => {
               )}
             </div>
             <h3 className="font-semibold text-slate-900 mb-2">
-              {currentResume ? "Replace Resume" : "Upload Resume"}
+              {resumeList.length > 0 ? "Add another resume" : "Upload Resume"}
             </h3>
             <p className="text-sm text-slate-600 mb-4">
               {uploading ? "Uploading your resume..." : "Upload your latest resume in PDF format"}
@@ -152,59 +164,70 @@ const Resume = ({ resume, onResumeUpdate }: ResumeProps) => {
             </Button>
           </div>
 
-          {/* Current Resume */}
-          {currentResume && (
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 border border-slate-200 rounded-2xl bg-slate-50/60">
-              <div className="flex items-center space-x-4">
-                <div className="p-3 bg-gradient-to-br from-emerald-100 to-emerald-50 rounded-2xl">
-                  <FileText className="h-5 w-5 text-emerald-600" />
-                </div>
-                <div>
-                  <p className="font-semibold text-slate-900">Current Resume</p>
-                  <p className="text-sm text-slate-600">PDF Document</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="rounded-full border-slate-200 hover:bg-slate-50"
-                  onClick={handleView}
-                >
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  View
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="rounded-full border-slate-200 hover:bg-slate-50"
-                  onClick={handleDownload}
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Download
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="rounded-full border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
-                  onClick={handleDelete}
-                  disabled={deleting}
-                >
-                  {deleting ? (
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  ) : (
-                    <Trash2 className="h-4 w-4 mr-2" />
-                  )}
-                  {deleting ? "Deleting..." : "Delete"}
-                </Button>
-              </div>
+          {/* Current Resumes */}
+          {isLoading ? (
+            <div className="text-center py-4 text-sm text-slate-500 flex items-center justify-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+              Loading resumes...
             </div>
-          )}
-
-          {/* No Resume State */}
-          {!currentResume && (
+          ) : resumeList.length > 0 ? (
+            <div className="space-y-3">
+              {resumeList.map((resume) => (
+                <div
+                  key={resume.id}
+                  className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 border border-slate-200 rounded-2xl bg-slate-50/60"
+                >
+                  <div className="flex items-center space-x-4">
+                    <div className="p-3 bg-gradient-to-br from-emerald-100 to-emerald-50 rounded-2xl">
+                      <FileText className="h-5 w-5 text-emerald-600" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-slate-900">{resume.name}</p>
+                      <p className="text-xs text-slate-500">
+                        Uploaded {new Date(resume.uploadedAt).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="rounded-full border-slate-200 hover:bg-slate-50"
+                      onClick={() => handleView(resume.resumeUrl)}
+                    >
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      View
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="rounded-full border-slate-200 hover:bg-slate-50"
+                      onClick={() => handleDownload(resume.resumeUrl)}
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Download
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="rounded-full border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+                      onClick={() => handleDelete(resume.id)}
+                      disabled={deletingId === resume.id}
+                    >
+                      {deletingId === resume.id ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4 mr-2" />
+                      )}
+                      {deletingId === resume.id ? "Deleting..." : "Delete"}
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
             <div className="text-center py-4">
-              <p className="text-sm text-slate-500">No resume uploaded yet</p>
+              <p className="text-sm text-slate-500">No resumes uploaded yet</p>
             </div>
           )}
         </CardContent>

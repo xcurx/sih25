@@ -26,7 +26,11 @@ export const GET = async (req: NextRequest) => {
         cgpa: true,
         phone: true,
         skills: true,
-        resume: true,
+        resumes: {
+          select: {
+            id: true,
+          },
+        },
         linkedin: true,
         github: true,
         mentorId: true,
@@ -46,7 +50,7 @@ export const GET = async (req: NextRequest) => {
       student.cgpa,
       student.phone,
       student.skills && student.skills.length > 0,
-      student.resume,
+      student.resumes && student.resumes.length > 0,
       student.linkedin,
       student.github,
     ];

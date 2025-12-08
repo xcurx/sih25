@@ -100,6 +100,7 @@ export default function StudentProfilePage() {
   }
 
   const placementInfo = getPlacementStatus()
+  const primaryResume = student.resumes && student.resumes.length > 0 ? student.resumes[0].resumeUrl : null
 
   return (
     <div className="relative p-6 max-w-6xl w-full mx-auto space-y-6">
@@ -122,7 +123,7 @@ export default function StudentProfilePage() {
             <CardHeader className="pb-4">
               <div className="flex flex-col md:flex-row md:items-start gap-6">
                 <Avatar className="h-24 w-24 rounded-2xl border-4 border-white shadow-lg">
-                  <AvatarImage src={student.resume || "/placeholder.svg"} alt={student.name} />
+                  <AvatarImage src={"/placeholder.svg"} alt={student.name} />
                   <AvatarFallback className="rounded-2xl bg-gradient-to-br from-sky-100 to-blue-100 text-sky-700 text-2xl font-bold">
                     {student.name.split(" ").map((n) => n[0]).join("")}
                   </AvatarFallback>
@@ -174,8 +175,8 @@ export default function StudentProfilePage() {
                     </Button>
                   </a>
                 )}
-                {student.resume && (
-                  <a href={student.resume} target="_blank" rel="noopener noreferrer">
+                {primaryResume && (
+                  <a href={primaryResume} target="_blank" rel="noopener noreferrer">
                     <Button variant="outline" size="sm" className="rounded-full bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100">
                       <FileText className="h-4 w-4 mr-2" />
                       Resume
@@ -375,8 +376,8 @@ export default function StudentProfilePage() {
                   Send Email
                 </Button>
               </a>
-              {student.resume && (
-                <a href={student.resume} target="_blank" rel="noopener noreferrer">
+              {primaryResume && (
+                <a href={primaryResume} target="_blank" rel="noopener noreferrer">
                   <Button variant="outline" className="w-full rounded-full justify-start mt-3">
                     <FileText className="h-4 w-4 mr-2" />
                     Download Resume
@@ -412,3 +413,6 @@ export default function StudentProfilePage() {
     </div>
   )
 }
+
+
+
