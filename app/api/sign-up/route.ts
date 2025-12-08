@@ -145,5 +145,17 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ message: "Employer sign-up successful", employer }, { status: 200 });
     }
 
+    client.send({
+        to: [{ email, name }],
+        from: { email: "cell@gmail.com", name: "Placement Cell" },
+        subject: "Welcome",
+        text: welcomeEmailTemplate({
+            email,
+            name,
+            role: roll,
+            loginUrl: "https://placement-cell.example.com/sign-in",
+        })
+    })
+
     return NextResponse.json({ error: "Invalid role specified" }, { status: 400 });
 }
