@@ -100,9 +100,11 @@ export default function MissionSection() {
                   <Link href="/employers" className="inline-block">
                     <Button variant="outline" className="rounded-full border-sky-200 px-5 py-2 text-sky-700">Hire through the mission</Button>
                   </Link>
-
-                  <Link href="/resources#policy" className="text-sm text-slate-600 hover:text-slate-900">Read policy & compliance</Link>
                 </div>
+
+                <Link href="/resources#policy" className="text-sm text-slate-600 hover:text-slate-900">
+                  Read policy & compliance
+                </Link>
 
                 <div className="mt-6 grid w-full max-w-4xl gap-3 sm:grid-cols-3">
                   <Stat label="Institutions onboarded" value="280+" />
@@ -113,35 +115,41 @@ export default function MissionSection() {
             </div>
           </section>
 
-          <section className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl border border-slate-200 bg-white/95 p-6 text-center shadow-lg">
+          <section className="grid gap-6 lg:grid-cols-2">
+            <div className="rounded-2xl border border-slate-200 bg-white/95 p-6 shadow-lg">
               <p className="text-xs font-semibold uppercase tracking-widest text-sky-600">Platform snapshot</p>
-              <div className="mt-4 space-y-3 text-sm text-slate-700">
-                <div className="flex flex-col items-center gap-1">
+              <div className="mt-4 grid gap-4 text-sm text-slate-700 sm:grid-cols-2">
+                <div className="flex items-start gap-3">
                   <Users className="h-5 w-5 text-sky-600" />
-                  <p className="font-semibold text-slate-900">Inclusive reach</p>
-                  <p className="text-xs text-slate-600">Students from urban and remote institutes.</p>
+                  <div>
+                    <p className="font-semibold text-slate-900">Inclusive reach</p>
+                    <p className="text-xs text-slate-600">Students from urban and remote institutes with verified profiles.</p>
+                  </div>
                 </div>
-                <div className="flex flex-col items-center gap-1">
+                <div className="flex items-start gap-3">
                   <Sparkles className="h-5 w-5 text-sky-600" />
-                  <p className="font-semibold text-slate-900">Smart discovery</p>
-                  <p className="text-xs text-slate-600">Recommendations and readiness nudges.</p>
+                  <div>
+                    <p className="font-semibold text-slate-900">Smart discovery</p>
+                    <p className="text-xs text-slate-600">AI nudges, readiness signals, and filtered shortlists for recruiters.</p>
+                  </div>
                 </div>
-                <hr className="my-2 border-slate-100" />
-                <div className="space-y-1 text-xs text-slate-600">
+                <div className="rounded-lg bg-slate-50 p-3 text-xs text-slate-600 sm:col-span-2">
                   <p className="font-semibold text-slate-900">Helpline</p>
-                  <p>+91 011 4000 1122</p>
-                  <p>support@placement.gov.in</p>
+                  <p>+91 011 4000 1122 · support@placement.gov.in</p>
                   <p className="pt-1 text-[11px] uppercase tracking-[0.2em] text-slate-500">Mon–Sat · 9:00 — 18:00</p>
                 </div>
               </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white/95 p-6 text-center shadow-lg">
+            <div className="rounded-2xl border border-slate-200 bg-white/95 p-6 shadow-lg">
               <p className="text-xs font-semibold uppercase tracking-widest text-sky-600">Get mission updates</p>
+              <div className="mt-3 text-sm text-slate-700">
+                <p className="font-semibold text-slate-900">Monthly brief</p>
+                <p className="text-xs text-slate-600">Policy changes, new hiring partners, and product rollout notes in one email.</p>
+              </div>
               <form onSubmit={handleSubscribe} className="mt-4 flex flex-col gap-3">
                 <div className="space-y-2 text-left">
-                  <Label htmlFor="subscribe-email" className="text-xs text-slate-600">Email address</Label>
+                  <Label htmlFor="subscribe-email" className="text-xs text-slate-600">Work email</Label>
                   <Input
                     id="subscribe-email"
                     placeholder="name@institute.edu.in"
@@ -149,6 +157,10 @@ export default function MissionSection() {
                     onChange={(e) => setEmail(e.target.value)}
                     aria-label="Subscribe email"
                   />
+                </div>
+                <div className="space-y-2 text-left text-xs text-slate-600">
+                  <p>What you get: rollout alerts, compliance updates, and quarterly metrics.</p>
+                  <p>No spam. Unsubscribe anytime.</p>
                 </div>
                 <Button type="submit" className="rounded-full bg-sky-600 px-4 py-2 text-white">{subscribed ? "Subscribed" : "Subscribe"}</Button>
               </form>
@@ -169,8 +181,8 @@ export default function MissionSection() {
           </div>
         </div>
 
-        <div className="mb-12 space-y-6">
-          <Card className="rounded-2xl border border-white/60 bg-white/95 text-center shadow-sm">
+        <div className="mb-12 grid gap-6 lg:grid-cols-3">
+          <Card className="rounded-2xl border border-white/60 bg-white/95 shadow-sm lg:col-span-2">
             <CardHeader>
               <CardTitle className="text-lg font-semibold text-slate-900">Programs & initiatives</CardTitle>
               <CardDescription className="text-sm text-slate-600">Concrete initiatives to increase readiness & adoption</CardDescription>
@@ -180,17 +192,18 @@ export default function MissionSection() {
                 <li><strong>Campus Ambassador Program:</strong> Local ambassadors accelerate adoption and training at institutes.</li>
                 <li><strong>Employer Fellowship:</strong> Curated employer cohorts run focused hiring windows and mentorship drives.</li>
                 <li><strong>Micro-cert diplomas:</strong> Short verified courses that make students discoverable for role-specific hiring.</li>
+                <li><strong>Placement Ops Playbook:</strong> Templates for JD intake, interview rubrics, and offer rollouts.</li>
               </ul>
             </CardContent>
           </Card>
 
-          <Card className="rounded-2xl border border-white/60 bg-white/95 text-center shadow-sm">
+          <Card className="rounded-2xl border border-white/60 bg-white/95 shadow-sm">
             <CardHeader>
               <CardTitle className="text-lg font-semibold text-slate-900">Roadmap</CardTitle>
               <CardDescription className="text-sm text-slate-600">Planned milestones for the next 12 months</CardDescription>
             </CardHeader>
             <CardContent>
-              <ol className="list-decimal space-y-3 pl-5 text-sm text-slate-700 text-left sm:text-center sm:pl-0 sm:list-none">
+              <ol className="list-decimal space-y-3 pl-5 text-sm text-slate-700">
                 <li><strong>Q1:</strong> Onboard 500 institutes; regional language support.</li>
                 <li><strong>Q2:</strong> Employer API & analytics for placement cells.</li>
                 <li><strong>Q3:</strong> Integrate micro-cert badges & verified transcripts.</li>
@@ -199,13 +212,13 @@ export default function MissionSection() {
             </CardContent>
           </Card>
 
-          <div className="rounded-2xl border border-white/60 bg-white/95 p-6 text-center shadow-sm">
+          <div className="rounded-2xl border border-white/60 bg-white/95 p-6 shadow-sm lg:col-span-3">
             <p className="text-xs font-semibold uppercase tracking-widest text-sky-600">Quick resources</p>
-            <ul className="mt-3 space-y-2 text-sm text-slate-700">
-              <li><Link href="/resources#onboard" className="hover:text-slate-900">Institute onboarding guide</Link></li>
-              <li><Link href="/resources#api" className="hover:text-slate-900">Employer API docs</Link></li>
-              <li><Link href="/resources#policy" className="hover:text-slate-900">Policy & compliance</Link></li>
-            </ul>
+            <div className="mt-3 grid gap-3 text-sm text-slate-700 sm:grid-cols-3">
+              <Link href="/resources#onboard" className="rounded-lg border border-slate-100 bg-white p-3 text-left hover:text-slate-900">Institute onboarding guide</Link>
+              <Link href="/resources#api" className="rounded-lg border border-slate-100 bg-white p-3 text-left hover:text-slate-900">Employer API docs</Link>
+              <Link href="/resources#policy" className="rounded-lg border border-slate-100 bg-white p-3 text-left hover:text-slate-900">Policy & compliance</Link>
+            </div>
           </div>
         </div>
 
