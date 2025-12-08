@@ -55,11 +55,8 @@ export function CompanyForm({ onCompaniesUpdate }: CompanyFormProps) {
     } finally {
       setCompaniesLoading(false)
     }
-  }, [onCompaniesUpdate])
-
-  useEffect(() => {
-    fetchCompanies()
-  }, [fetchCompanies])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleSubmit = async () => {
     if (!form.name || !form.description) {

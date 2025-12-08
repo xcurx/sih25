@@ -29,6 +29,18 @@ export async function POST(req: NextRequest) {
             },
         })
 
+        await client.send({
+            to: [{ email, name }],
+            from: { email: "cell@gmail.com", name: "Placement Cell" },
+            subject: "Welcome",
+            html: welcomeEmailTemplate({
+                email,
+                name,
+                role: roll,
+                loginUrl: "https://placement-cell.example.com/sign-in",
+            })
+        })
+
         return NextResponse.json({ message: "Student sign-up successful", student }, { status: 200 });
     }
 
@@ -49,6 +61,18 @@ export async function POST(req: NextRequest) {
             },
         })
 
+        await client.send({
+            to: [{ email, name }],
+            from: { email: "cell@gmail.com", name: "Placement Cell" },
+            subject: "Welcome",
+            html: welcomeEmailTemplate({
+                email,
+                name,
+                role: roll,
+                loginUrl: "https://placement-cell.example.com/sign-in",
+            })
+        })
+
         return NextResponse.json({ message: "Faculty sign-up successful", faculty }, { status: 200 });
     }
 
@@ -67,6 +91,18 @@ export async function POST(req: NextRequest) {
                 name,
                 password,
             },
+        })
+
+        await client.send({
+            to: [{ email, name }],
+            from: { email: "cell@gmail.com", name: "Placement Cell" },
+            subject: "Welcome",
+            html: welcomeEmailTemplate({
+                email,
+                name,
+                role: roll,
+                loginUrl: "https://placement-cell.example.com/sign-in",
+            })
         })
 
         return NextResponse.json({ message: "Placement cell sign-up successful", placmentCell }, { status: 200 });
@@ -94,20 +130,20 @@ export async function POST(req: NextRequest) {
             },
         })
 
+        await client.send({
+            to: [{ email, name }],
+            from: { email: "cell@gmail.com", name: "Placement Cell" },
+            subject: "Welcome",
+            html: welcomeEmailTemplate({
+                email,
+                name,
+                role: roll,
+                loginUrl: "https://placement-cell.example.com/sign-in",
+            })
+        })
+
         return NextResponse.json({ message: "Employer sign-up successful", employer }, { status: 200 });
     }
-
-    client.send({
-        to: [{ email, name }],
-        from: { email: "cell@gmail.com", name: "Placement Cell" },
-        subject: "Welcome",
-        text: welcomeEmailTemplate({
-            email,
-            name,
-            role: roll,
-            loginUrl: "https://placement-cell.example.com/sign-in",
-        })
-    })
 
     return NextResponse.json({ error: "Invalid role specified" }, { status: 400 });
 }
