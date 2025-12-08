@@ -135,9 +135,10 @@ export default function OpportunityDetailPage() {
       setResumes((prev) => [newResume, ...prev])
       setSelectedResume(newResume.id)
       toast.success("Resume uploaded successfully")
-    } catch (error) {
+    } catch (error: any) {
       console.error(error)
-      toast.error("Failed to upload resume")
+      const errorMessage = error?.message || "Failed to upload resume"
+      toast.error(errorMessage)
     } finally {
       setUploadingResume(false)
       if (fileInputRef.current) {
