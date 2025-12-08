@@ -1,4 +1,6 @@
 
+'use client'
+
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -7,10 +9,12 @@ import { JobCardProps } from "@/lib/props"
 import axios from "axios"
 import { Briefcase, Building2, Calendar, Clock, DollarSign, ExternalLink, Layers, MapPin, Star, Users } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 
 export default function JobCard({ job, setJobs }: JobCardProps) {
+  const router = useRouter()
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [loading, setLoading] = useState(false);
   const [sendingApproval, setSendingApproval] = useState(false);
@@ -35,20 +39,12 @@ export default function JobCard({ job, setJobs }: JobCardProps) {
     }
   }
 
-  const handleApply = async () => {
-    setLoading(true);
-    try {
-        const res = await axios.post(`/api/student/apply/${job.id}`, { withCredentials: true });
-        // Update the job state to reflect the application
-        setJobs(prevJobs => prevJobs.map(j => j.id === job.id ? { ...j, applied: true, _count: { applications: j._count.applications + 1 } } : j));
-        setLoading(false);
-        toast.success("Application submitted successfully");
-    } catch (error) {
-        setLoading(false);
-        toast.error("Failed to submit application");   
-    } finally {
-        setLoading(false);
-    }
+  const handleApply = () => {
+    if (isExpired || job.applied) return
+    setLoading(true)
+    router.push(`/jobs/${job.id}?apply=1`)
+    toast.info("Select a resume on the job page to complete your application")
+    setLoading(false)
   } 
 
   return (

@@ -13,15 +13,49 @@ export const POST = async (req: NextRequest, context: { params: Promise<{ id: st
 
     const { id } = await context.params;
 
-    const { coverLetter } = await req.json();
+    let body: { coverLetter?: string; resumeId?: string } = {};
+    try {
+        body = await req.json();
+    } catch {
+        // ignore empty body
+    }
+
+    const { coverLetter, resumeId } = body;
+
+    if (!resumeId || typeof resumeId !== "string") {
+        return NextResponse.json({ message: "Please select a resume before applying" }, { status: 400 });
+    }
 
     try {
-        const opportunity = await prisma.opportunity.findUnique({
-            where: { id }
-        })
+        const [opportunity, student, resume] = await Promise.all([
+            prisma.opportunity.findUnique({
+                where: { id }
+            }),
+            prisma.student.findUnique({
+                where: { id: session.user.id },
+                select: { cgpa: true }
+            }),
+            prisma.resume.findFirst({
+                where: { id: resumeId, studentId: session.user.id }
+            })
+        ])
 
         if (!opportunity) {
             return NextResponse.json({ message: "Opportunity not found" }, { status: 404 });
+        }
+
+        if (!resume) {
+            return NextResponse.json({ message: "Selected resume not found" }, { status: 404 });
+        }
+
+        if (opportunity.cgpa !== null && opportunity.cgpa !== undefined) {
+            const studentCgpa = student?.cgpa ?? 0;
+            if (studentCgpa < opportunity.cgpa) {
+                return NextResponse.json(
+                    { message: `Minimum CGPA of ${opportunity.cgpa} is required to apply` },
+                    { status: 400 }
+                );
+            }
         }
 
         const existingApplication = await prisma.application.findFirst({
@@ -44,6 +78,7 @@ export const POST = async (req: NextRequest, context: { params: Promise<{ id: st
                 studentId: session.user.id,
                 opportunityId: id,
                 coverLetter,
+                resumeId: resume.id,
             }
         })
 

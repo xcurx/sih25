@@ -133,6 +133,8 @@ model Application {
   studentRel Student @relation(fields: [studentId], references: [id])
   opportunityId String
   opportunityRel Opportunity @relation(fields: [opportunityId], references: [id])
+  resumeId String?
+  resumeRel Resume? @relation("ResumeApplications", fields: [resumeId], references: [id])
   appliedAt DateTime @default(now())
   status ApplicationStatus @default(applied)
   coverLetter String?
@@ -231,6 +233,7 @@ model Resume {
   resumeUrl String
   name String
   uploadedAt DateTime @default(now())
+  applications Application[] @relation("ResumeApplications")
 
   @@unique([studentId, name])
 }

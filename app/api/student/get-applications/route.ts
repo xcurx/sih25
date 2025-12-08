@@ -17,6 +17,14 @@ export const GET = async (req: NextRequest) => {
                 studentId: session?.user.id
             },
             include: {
+                resumeRel: {
+                    select: {
+                        id: true,
+                        name: true,
+                        resumeUrl: true,
+                        uploadedAt: true,
+                    },
+                },
                 opportunityRel: {
                     include: {
                         companyRel: true

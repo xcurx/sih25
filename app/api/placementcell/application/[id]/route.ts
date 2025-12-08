@@ -19,6 +19,14 @@ export async function GET(
     const application = await prisma.application.findUnique({
       where: { id },
       include: {
+        resumeRel: {
+          select: {
+            id: true,
+            name: true,
+            resumeUrl: true,
+            uploadedAt: true,
+          },
+        },
         studentRel: {
           select: {
             id: true,

@@ -84,6 +84,7 @@ export interface Opportunity {
   salary: number
   postedAt: string
   applicationDeadline: string
+  cgpa?: number | null
   requirements: string[]
   eligibleDepartments: string[]
   skillsRequired: string[]
@@ -106,6 +107,8 @@ export interface Application {
   status: "applied" | "reviewed" | "shortlisted" | "rejected" | "accepted" | "mentor_approval_needed"
   appliedAt: string
   coverLetter?: string
+  resumeId?: string
+  resumeRel?: StudentResume
   opportunityRel: Opportunity
   mentorApproved?: boolean
 }
@@ -360,6 +363,7 @@ export interface OpportunityDetail {
   salary: number
   postedAt: string
   applicationDeadline: string
+  cgpa?: number | null
   requirements: string[]
   eligibleDepartments: string[]
   skillsRequired: string[]
@@ -371,6 +375,7 @@ export interface OpportunityDetail {
     id: string
     status: string
     appliedAt: string
+    resume?: StudentResume
   }
   companyRel?: {
     id: string
@@ -399,6 +404,8 @@ export interface ApplicationDetail {
   status: string
   appliedAt: string
   coverLetter?: string
+  resumeId?: string
+  resumeRel?: StudentResume
   mentorApproved?: boolean
   opportunityRel: {
     id: string

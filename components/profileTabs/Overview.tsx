@@ -137,7 +137,7 @@ const Overview = ({isEditing}: {isEditing:boolean}) => {
                     <Label htmlFor="phone" className="text-slate-700 font-medium">Phone</Label>
                     <Input
                       id="phone"
-                      value={student.phone as string}
+                      value={student.phone ?? ""}
                       disabled={true}
                       className="rounded-full border-slate-200 bg-white disabled:bg-slate-50"
                       onChange={(e) => setStudent({ ...student, phone: e.target.value })}
@@ -149,7 +149,7 @@ const Overview = ({isEditing}: {isEditing:boolean}) => {
                       id="cgpa"
                       type="number"
                       step="0.1"
-                      value={student.cgpa as number}
+                      value={student.cgpa ?? ""}
                       disabled={true}
                       className="rounded-full border-slate-200 bg-white disabled:bg-slate-50"
                       onChange={(e) => setStudent({ ...student, cgpa: Number.parseFloat(e.target.value) })}

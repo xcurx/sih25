@@ -16,36 +16,50 @@ export const GET = async (
   }
 
   try {
-    const opportunity = await prisma.opportunity.findUnique({
-      where: { id },
-      include: {
-        companyRel: true,
-        employerRel: {
-          select: {
-            id: true,
-            name: true,
-            position: true,
-            email: true,
-            linkedin: true,
+    const [opportunity, student] = await Promise.all([
+      prisma.opportunity.findUnique({
+        where: { id },
+        include: {
+          companyRel: true,
+          employerRel: {
+            select: {
+              id: true,
+              name: true,
+              position: true,
+              email: true,
+              linkedin: true,
+            },
+          },
+          applications: {
+            where: {
+              studentId: session.user.id,
+            },
+            select: {
+              id: true,
+              status: true,
+              appliedAt: true,
+              resumeRel: {
+                select: {
+                  id: true,
+                  name: true,
+                  resumeUrl: true,
+                  uploadedAt: true,
+                },
+              },
+            },
+          },
+          _count: {
+            select: {
+              applications: true,
+            },
           },
         },
-        applications: {
-          where: {
-            studentId: session.user.id,
-          },
-          select: {
-            id: true,
-            status: true,
-            appliedAt: true,
-          },
-        },
-        _count: {
-          select: {
-            applications: true,
-          },
-        },
-      },
-    });
+      }),
+      prisma.student.findUnique({
+        where: { id: session.user.id },
+        select: { cgpa: true },
+      }),
+    ]);
 
     if (!opportunity) {
       return NextResponse.json(
@@ -54,14 +68,26 @@ export const GET = async (
       );
     }
 
+    const userApplicationRecord = opportunity.applications[0];
+    const { applications, ...baseOpportunity } = opportunity;
+
     const opportunityWithApplied = {
-      ...opportunity,
-      applied: opportunity.applications.length > 0,
-      userApplication: opportunity.applications[0] || null,
-      applications: undefined,
+      ...baseOpportunity,
+      applied: Boolean(userApplicationRecord),
+      userApplication: userApplicationRecord
+        ? {
+            id: userApplicationRecord.id,
+            status: userApplicationRecord.status,
+            appliedAt: userApplicationRecord.appliedAt,
+            resume: userApplicationRecord.resumeRel ?? undefined,
+          }
+        : null,
     };
 
-    return NextResponse.json({ opportunity: opportunityWithApplied }, { status: 200 });
+    return NextResponse.json(
+      { opportunity: opportunityWithApplied, studentCgpa: student?.cgpa ?? null },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error fetching opportunity:", error);
     return NextResponse.json(
