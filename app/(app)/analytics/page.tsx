@@ -50,11 +50,12 @@ const companyData = [
   { name: "InnovateTech", hires: 12, avgSalary: 680000, type: "Technology" },
 ]
 
+// Updated salaryDistribution to match the new color scheme concept
 const salaryDistribution = [
-  { range: "3-5 LPA", count: 45, color: "#22c55e" },
-  { range: "5-8 LPA", count: 78, color: "#3b82f6" },
-  { range: "8-12 LPA", count: 52, color: "#f97316" },
-  { range: "12+ LPA", count: 28, color: "#ef4444" },
+  { range: "3-5 LPA", count: 45, color: "#94b8f2" }, // Previously a darker green/blue
+  { range: "5-8 LPA", count: 78, color: "#49cca1" }, // Previously a darker blue - now the main placement color
+  { range: "8-12 LPA", count: 52, color: "#f97316" }, // Kept for high contrast/alert (Orange)
+  { range: "12+ LPA", count: 28, color: "#fa7f7f" }, // New high salary color (Red/Error like)
 ]
 
 const skillDemand = [
@@ -68,11 +69,12 @@ const skillDemand = [
   { skill: "Docker", demand: 45, jobs: 8 },
 ]
 
+// Updated CHART_COLORS based on the requested color scheme
 const CHART_COLORS = {
-    APPLICATIONS: "#3b82f6",
-    INTERVIEWS: "#a855f7",
-    PLACEMENTS: "#10b981",
-    COMPANIES: "#164e63",
+    APPLICATIONS: "#94b8f2", // Light Blue (In Process)
+    INTERVIEWS: "#6a97f5",    // Slightly darker blue for contrast
+    PLACEMENTS: "#49cca1",   // Teal Green (Placed)
+    COMPANIES: "#9ca3af",    // Gray for non-core data
     GRID: "#f1f5f9",
     TEXT: "#64748b",
 }
@@ -174,7 +176,7 @@ export default function AnalyticsPage() {
 
         <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Placement Funnel */}
+            {/* Placement Funnel - Updated Colors */}
             <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
               <CardHeader className="border-b border-slate-100 pb-4">
                 <CardTitle className="text-lg text-slate-900">Placement Funnel</CardTitle>
@@ -195,7 +197,7 @@ export default function AnalyticsPage() {
               </CardContent>
             </Card>
 
-            {/* Salary Distribution */}
+            {/* Salary Distribution - Updated Colors and Data */}
             <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
               <CardHeader className="border-b border-slate-100 pb-4">
                 <CardTitle className="text-lg text-slate-900">Salary Distribution</CardTitle>
@@ -237,7 +239,7 @@ export default function AnalyticsPage() {
             </Card>
           </div>
 
-          {/* Monthly Trends */}
+          {/* Monthly Trends - Updated Colors */}
           <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
             <CardHeader className="border-b border-slate-100 pb-4">
               <CardTitle className="text-lg text-slate-900">Monthly Trends</CardTitle>
@@ -384,7 +386,7 @@ export default function AnalyticsPage() {
 
         <TabsContent value="trends" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Placements Over Time */}
+            {/* Placements Over Time - Updated Colors */}
             <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
               <CardHeader className="border-b border-slate-100 pb-4">
                 <CardTitle className="text-lg text-slate-900">Placements Over Time</CardTitle>
@@ -410,7 +412,7 @@ export default function AnalyticsPage() {
               </CardContent>
             </Card>
 
-            {/* Company Engagement */}
+            {/* Company Engagement - Updated Colors */}
             <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
               <CardHeader className="border-b border-slate-100 pb-4">
                 <CardTitle className="text-lg text-slate-900">Company Engagement</CardTitle>

@@ -17,19 +17,24 @@ import {
     Clock,
     CheckCircle2,
     FileText,
-    Briefcase
+    Briefcase,
+    XCircle
 } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 
 export default function JobPostingsPage() {
     const { data:session, status } = useSession() 
     const [searchTerm, setSearchTerm] = useState("")
     const [statusFilter, setStatusFilter] = useState("all")
+    const [sortOption, setSortOption] = useState("date-latest")
     const [jobs, setJobs] = useState<Opportunity[]>([])
+    const [activeTab, setActiveTab] = useState("all")
+    const [searchExpanded, setSearchExpanded] = useState(false)
     const router = useRouter()
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(true)
+    const searchPopupRef = useRef<HTMLDivElement>(null)
 
     const getOpportunities = async () => {
       setLoading(true);
@@ -50,8 +55,30 @@ export default function JobPostingsPage() {
       const matchesSearch =
         job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         job.companyRel?.name.toLowerCase().includes(searchTerm.toLowerCase())
+      
+      const matchesTab = 
+        activeTab === "all" || 
+        job.status === activeTab
+      
       const matchesStatus = statusFilter === "all" || job.status === statusFilter
-      return matchesSearch && matchesStatus
+      return matchesSearch && matchesTab && matchesStatus
+    }).sort((a, b) => {
+      switch (sortOption) {
+        case "title-a-z":
+          return a.title.localeCompare(b.title)
+        case "title-z-a":
+          return b.title.localeCompare(a.title)
+        case "company-a-z":
+          return (a.companyRel?.name || "").localeCompare(b.companyRel?.name || "")
+        case "company-z-a":
+          return (b.companyRel?.name || "").localeCompare(a.companyRel?.name || "")
+        // case "date-latest":
+        //   return new Date(b.updatedAt || b.id).getTime() - new Date(a.updatedAt || a.id).getTime()
+        // case "date-oldest":
+        //   return new Date(a.updatedAt || a.id).getTime() - new Date(b.updatedAt || b.id).getTime()
+        default:
+          return 0
+      }
     })
 
     const activeJobs = jobs.filter((job) => job.status === "active")
@@ -69,11 +96,26 @@ export default function JobPostingsPage() {
         { title: "Total Applications", value: totalApplicationsCount, caption: "Total received across all jobs", icon: FileText, accent: "bg-indigo-50 text-indigo-700" },
     ];
 
-
     useEffect(() => {
       if (status === "unauthenticated" || status === "loading") return
       getOpportunities();
     }, [status])
+
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (searchPopupRef.current && !searchPopupRef.current.contains(event.target as Node)) {
+          setSearchExpanded(false)
+        }
+      }
+
+      if (searchExpanded) {
+        document.addEventListener("mousedown", handleClickOutside)
+      }
+
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside)
+      }
+    }, [searchExpanded])
 
     if (status === "loading" || status === "unauthenticated" || loading) {
       return <Loader/>
@@ -84,19 +126,17 @@ export default function JobPostingsPage() {
     }
 
     return (
-      <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 max-w-6xl w-full mx-auto space-y-6 sm:space-y-8">
-        
+      <div className="w-full">
         {/* NEW GRADIENT HEADER SECTION */}
-        <section className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-4 sm:p-6 lg:p-8 shadow-lg">
+        <section className="relative overflow-hidden bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 space-y-6 max-w-7xl mx-auto">
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.08),transparent_55%)]" />
 
             <div className="relative space-y-6">
-                
                 {/* HEADER TEXT AND CTA BUTTON */}
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">Job Management Desk</p>
-                        <h1 className="mt-3 text-3xl font-bold text-slate-900">Oversee all job opportunities.</h1>
+                        <h1 className="mt-3 text-3xl font-semibold text-slate-900">Oversee all job opportunities.</h1>
                         <p className="mt-2 text-sm text-slate-600">
                            Manage active, draft, and closed job postings for students.
                         </p>
@@ -109,12 +149,12 @@ export default function JobPostingsPage() {
                     </Button>
                 </div>
 
-                {/* STATS CARDS (Reorganized from original body) */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
+                {/* STATS CARDS */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                     {uiStats.map((stat) => (
                         <Card 
                             key={stat.title} 
-                            className="border-slate-200 bg-white shadow-md rounded-xl transition-shadow hover:shadow-xl"
+                            className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl"
                         >
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-sm font-medium text-slate-500">{stat.title}</CardTitle>
@@ -123,7 +163,7 @@ export default function JobPostingsPage() {
                                 </div>
                             </CardHeader>
                             <CardContent>
-                                <div className="text-3xl font-bold text-slate-900">{stat.value}</div>
+                                <div className="text-2xl font-semibold text-slate-900">{stat.value}</div>
                                 <p className="text-xs text-slate-500">{stat.caption}</p>
                             </CardContent>
                         </Card>
@@ -132,100 +172,145 @@ export default function JobPostingsPage() {
             </div>
         </section>
 
-        {/* Search and Filter - Adjusted height, fixed width, and border styling */}
-        <Card className="shadow-lg border-slate-100 rounded-xl sm:rounded-2xl">
-            <CardContent className="p-4 sm:p-6">
-                <div className="flex flex-col md:flex-row gap-4 items-center">
-                    {/* Search Input (Flex-1 width) */}
-                    <div className="flex-1 relative w-full"> 
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                        <Input
-                            placeholder="Search jobs or companies..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-10 h-10 border-slate-200 focus:border-sky-500 rounded-lg transition" 
-                        />
-                    </div>
-                    {/* Select Dropdown (Fixed width on medium screens, h-10 height) */}
-                    <Select value={statusFilter} onValueChange={setStatusFilter}>
-                        <SelectTrigger 
-                            className="w-full md:w-48 h-10 border-slate-200 focus:ring-sky-500 rounded-lg hover:bg-sky-50 hover:border-sky-300"
-                        >
-                            <SelectValue placeholder="Filter by status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Status</SelectItem>
-                            <SelectItem value="active">Active</SelectItem>
-                            <SelectItem value="draft">Draft</SelectItem>
-                            <SelectItem value="closed">Closed</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-            </CardContent>
-        </Card>
-
-        {/* Job Listings with Tabs - Updated Tabs UI */}
-        <Tabs defaultValue="all" className="space-y-6">
-            {/* Tabs List with rounded, blue-themed trigger */}
-            <TabsList className="bg-slate-100 p-1 h-auto rounded-full">
-                <TabsTrigger 
-                    value="all" 
-                    className="rounded-full data-[state=active]:bg-sky-600 data-[state=active]:text-white data-[state=active]:shadow-md transition text-slate-700 hover:text-slate-900"
-                >
-                    All Jobs ({filteredJobs.length})
-                </TabsTrigger>
-                <TabsTrigger 
-                    value="active" 
-                    className="rounded-full data-[state=active]:bg-sky-600 data-[state=active]:text-white data-[state=active]:shadow-md transition text-slate-700 hover:text-slate-900"
-                >
+        {/* Sticky Filter Bar */}
+        <div className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm">
+          <div className="max-w-7xl mx-auto px-6 py-4">
+            {/* Main Filter Row */}
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                {/* Tabs */}
+                <div className="flex items-center bg-slate-100 rounded-full p-1">
+                  <button
+                    onClick={() => setActiveTab("all")}
+                    className={`px-3 py-2 rounded-full text-sm font-medium transition whitespace-nowrap ${
+                      activeTab === "all"
+                        ? "bg-sky-600 text-white shadow-sm"
+                        : "text-slate-700 hover:text-slate-900"
+                    }`}
+                  >
+                    All ({jobs.length})
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("active")}
+                    className={`px-3 py-2 rounded-full text-sm font-medium transition whitespace-nowrap ${
+                      activeTab === "active"
+                        ? "bg-sky-600 text-white shadow-sm"
+                        : "text-slate-700 hover:text-slate-900"
+                    }`}
+                  >
                     Active ({activeJobs.length})
-                </TabsTrigger>
-                <TabsTrigger 
-                    value="draft" 
-                    className="rounded-full data-[state=active]:bg-sky-600 data-[state=active]:text-white data-[state=active]:shadow-md transition text-slate-700 hover:text-slate-900"
-                >
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("draft")}
+                    className={`px-3 py-2 rounded-full text-sm font-medium transition whitespace-nowrap ${
+                      activeTab === "draft"
+                        ? "bg-sky-600 text-white shadow-sm"
+                        : "text-slate-700 hover:text-slate-900"
+                    }`}
+                  >
                     Drafts ({draftJobs.length})
-                </TabsTrigger>
-                <TabsTrigger 
-                    value="closed" 
-                    className="rounded-full data-[state=active]:bg-sky-600 data-[state=active]:text-white data-[state=active]:shadow-md transition text-slate-700 hover:text-slate-900"
-                >
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("closed")}
+                    className={`px-3 py-2 rounded-full text-sm font-medium transition whitespace-nowrap ${
+                      activeTab === "closed"
+                        ? "bg-sky-600 text-white shadow-sm"
+                        : "text-slate-700 hover:text-slate-900"
+                    }`}
+                  >
                     Closed ({closedJobs.length})
-                </TabsTrigger>
-            </TabsList>
+                  </button>
+                </div>
 
-            <TabsContent value="all" className="space-y-3 sm:space-y-4">
-                {filteredJobs.length > 0 ? (
-                    filteredJobs.map((job) => (
-                        <JobPostingCard key={job.id} job={job} />
-                    ))
-                ) : (
-                    <div className="text-center py-10 border border-slate-200 rounded-xl bg-slate-50">
-                        <Briefcase className="h-8 w-8 text-slate-400 mx-auto mb-3" />
-                        <p className="text-lg font-medium text-slate-600">No jobs found matching your criteria.</p>
-                        <p className="text-sm text-slate-400">Try adjusting your search term or status filter.</p>
-                    </div>
-                )}
-            </TabsContent>
+                {/* Circular Search Button */}
+                <button
+                  onClick={() => setSearchExpanded(!searchExpanded)}
+                  className={`h-10 w-10 rounded-full flex items-center justify-center transition ${
+                    searchExpanded
+                      ? "bg-sky-600 text-white shadow-md"
+                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                  }`}
+                >
+                  <Search className="h-4 w-4" />
+                </button>
+              </div>
 
-            <TabsContent value="active" className="space-y-3 sm:space-y-4">
-                {activeJobs.map((job) => (
-                    <JobPostingCard key={job.id} job={job} />
-                ))}
-            </TabsContent>
+              <div className="flex items-center gap-3">
+                {/* Status Filter */}
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-[180px] h-10 border-slate-200 focus:ring-sky-600 rounded-lg">
+                    <SelectValue placeholder="Filter by status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="draft">Draft</SelectItem>
+                    <SelectItem value="closed">Closed</SelectItem>
+                  </SelectContent>
+                </Select>
 
-            <TabsContent value="draft" className="space-y-3 sm:space-y-4">
-                {draftJobs.map((job) => (
-                    <JobPostingCard key={job.id} job={job} />
-                ))}
-            </TabsContent>
+                {/* Sort Filter */}
+                <Select value={sortOption} onValueChange={setSortOption}>
+                  <SelectTrigger className="w-[180px] h-10 border-slate-200 focus:ring-sky-600 rounded-lg">
+                    <SelectValue placeholder="Sort by" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="date-latest">Date: Latest First</SelectItem>
+                    <SelectItem value="date-oldest">Date: Oldest First</SelectItem>
+                    <SelectItem value="title-a-z">Title: A–Z</SelectItem>
+                    <SelectItem value="title-z-a">Title: Z–A</SelectItem>
+                    <SelectItem value="company-a-z">Company: A–Z</SelectItem>
+                    <SelectItem value="company-z-a">Company: Z–A</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
 
-            <TabsContent value="closed" className="space-y-3 sm:space-y-4">
-                {closedJobs.map((job) => (
-                    <JobPostingCard key={job.id} job={job} />
-                ))}
-            </TabsContent>
-        </Tabs>
+            {/* Search Popup - Appears Below Filter Row */}
+            {searchExpanded && (
+              <div 
+                ref={searchPopupRef}
+                className="mt-3 animate-in slide-in-from-top-2 duration-200"
+              >
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Input
+                    placeholder="Search jobs or companies..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    autoFocus
+                    className="pl-10 pr-10 h-10 border-slate-200 focus:border-sky-600 rounded-lg"
+                  />
+                  {searchTerm && (
+                    <button
+                      onClick={() => setSearchTerm("")}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    >
+                      <XCircle className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Job Listings */}
+        <div className="space-y-4 mt-6 max-w-7xl mx-auto px-6 pb-8">
+          {filteredJobs.length > 0 ? (
+            filteredJobs.map((job) => (
+              <JobPostingCard key={job.id} job={job} />
+            ))
+          ) : (
+            <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
+              <CardContent className="p-12 text-center">
+                <Briefcase className="h-12 w-12 mx-auto text-slate-400 mb-4" />
+                <p className="text-lg font-medium text-slate-600">No jobs found matching your criteria.</p>
+                <p className="text-sm text-slate-400">Try adjusting your search term or status filter.</p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
       </div>
     )
 }

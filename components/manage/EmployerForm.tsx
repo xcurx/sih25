@@ -91,7 +91,7 @@ export function EmployerForm({ companies, companiesLoading, companiesError, onRe
     <Card className="border-slate-200 bg-white/95 shadow-lg">
       <CardHeader>
         <div className="flex flex-col gap-3">
-          <Badge variant="secondary" className="w-fit gap-2 rounded-full bg-amber-50 text-amber-700">
+          <Badge variant="secondary" className="w-fit gap-2 rounded-full bg-sky-50 text-sky-600">
             <Briefcase className="h-4 w-4" />
             Employer access
           </Badge>
@@ -173,7 +173,7 @@ export function EmployerForm({ companies, companiesLoading, companiesError, onRe
             <Button
               type="submit"
               disabled={loading || companies.length === 0}
-              className="rounded-full bg-amber-500 text-white hover:bg-amber-600"
+              className="rounded-full bg-sky-600 text-white hover:bg-sky-700"
             >
               {loading ? "Creating..." : "Create employer"}
             </Button>

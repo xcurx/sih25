@@ -12,10 +12,10 @@ import { formatDistanceToNow } from "date-fns"
 
 // Custom colors for the Bar Chart
 const ACCENT_COLORS = {
-    APPLICATIONS: "#3b82f6",
-    PLACEMENTS: "#10b981",
+    APPLICATIONS: "#94b8f2",
+    PLACEMENTS: "#49cca1",
     BACKGROUND: "#e0f2fe",
-    TEXT: "#0f172a",
+    TEXT: "#64748b",
 }
 
 interface DashboardStats {
@@ -186,12 +186,9 @@ export default function PlacementCellDashboard() {
                 </div>
             </section>
 
-
-            {/* Analytics & Recent Activities */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
-                {/* Placement Analytics Card (Bar Chart) */}
-                <Card className="lg:col-span-2 border-slate-200 bg-white shadow-lg rounded-xl">
+            {/* Placement Analytics Card (Full Width) */}
+            <div className="grid grid-cols-1 gap-6">
+                <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
                     <CardHeader className="border-b border-slate-100 pb-4">
                         <CardTitle className="text-xl text-slate-900">Placement Analytics</CardTitle>
                         <CardDescription>Monthly application and placement trends</CardDescription>
@@ -218,24 +215,28 @@ export default function PlacementCellDashboard() {
                         )}
                     </CardContent>
                 </Card>
+            </div>
 
-                {/* Recent Activities Card */}
+            {/* Recent Activities & Top Recruiters (Side by Side) */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                              {/* Recent Activities Card */}
                 <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
                     <CardHeader className="border-b border-slate-100 pb-4">
                         <CardTitle className="text-xl text-slate-900">Recent Activities</CardTitle>
                         <CardDescription>Latest system activities</CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-4 pt-6">
+                    <CardContent className="space-y-2 pt-4">
                         {activities.length > 0 ? (
                             activities.slice(0, 5).map((activity) => (
-                                <div key={activity.id} className="flex items-start space-x-4 p-3 rounded-lg hover:bg-slate-50 transition">
+                                <div key={activity.id} className="flex items-start space-x-3 p-2 rounded-lg hover:bg-slate-50 transition">
                                     <div className={`p-2 rounded-full shrink-0 ${getActivityIconBg(activity.type)}`}>
                                         {getActivityIcon(activity.type)}
                                     </div>
                                     <div className="flex-1 text-sm min-w-0">
                                         <p className="font-semibold text-slate-800">{activity.title}</p>
-                                        <p className="text-slate-600 truncate">{activity.description}</p>
-                                        <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
+                                        <p className="text-slate-600 truncate text-xs">{activity.description}</p>
+                                        <p className="text-xs text-slate-400 mt-0.5 flex items-center gap-1">
                                             <Clock className="h-3 w-3" />
                                             {formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true })}
                                         </p>
@@ -249,12 +250,44 @@ export default function PlacementCellDashboard() {
                         )}
                     </CardContent>
                 </Card>
+
+                {/* Top Recruiters Card */}
+                <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
+                    <CardHeader className="border-b border-slate-100 pb-4">
+                        <CardTitle className="text-xl text-slate-900">Top Recruiters</CardTitle>
+                        <CardDescription>Companies with the highest placement count</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                        {topRecruiters.length > 0 ? (
+                            topRecruiters.map((recruiter) => (
+                                <div key={recruiter.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100">
+                                    <div className="flex items-center space-x-3">
+                                        <Avatar className="h-8 w-8">
+                                            <AvatarFallback className="bg-sky-100 text-sky-700 font-semibold">
+                                                {recruiter.name.charAt(0)}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <p className="font-medium text-slate-800">{recruiter.name}</p>
+                                    </div>
+                                    <Badge variant="secondary" className="bg-sky-100 text-sky-700 font-bold">
+                                        {recruiter.placementCount} Placement{recruiter.placementCount !== 1 ? 's' : ''}
+                                    </Badge>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="text-center py-8 text-slate-500">
+                                No placement data available
+                            </div>
+                        )}
+                        <Button variant="ghost" className="w-full justify-center text-sky-600 hover:bg-sky-50 rounded-lg mt-4">
+                            View All Partners
+                        </Button>
+                    </CardContent>
+                </Card>
             </div>
 
-            {/* Placement Status & Top Recruiters */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                
-                {/* Placement Status Card */}
+            {/* Placement Status (Bottom) */}
+            <div className="grid grid-cols-1 gap-6">
                 <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
                     <CardHeader>
                         <CardTitle className="text-xl text-slate-900">Placement Status</CardTitle>
@@ -292,40 +325,6 @@ export default function PlacementCellDashboard() {
                                 <p className="text-xs text-slate-500">Placements</p>
                             </div>
                         </div>
-                    </CardContent>
-                </Card>
-
-                {/* Top Recruiters Card */}
-                <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
-                    <CardHeader>
-                        <CardTitle className="text-xl text-slate-900">Top Recruiters</CardTitle>
-                        <CardDescription>Companies with the highest placement count</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                        {topRecruiters.length > 0 ? (
-                            topRecruiters.map((recruiter) => (
-                                <div key={recruiter.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100">
-                                    <div className="flex items-center space-x-3">
-                                        <Avatar className="h-8 w-8">
-                                            <AvatarFallback className="bg-sky-100 text-sky-700 font-semibold">
-                                                {recruiter.name.charAt(0)}
-                                            </AvatarFallback>
-                                        </Avatar>
-                                        <p className="font-medium text-slate-800">{recruiter.name}</p>
-                                    </div>
-                                    <Badge variant="secondary" className="bg-sky-100 text-sky-700 font-bold">
-                                        {recruiter.placementCount} Placement{recruiter.placementCount !== 1 ? 's' : ''}
-                                    </Badge>
-                                </div>
-                            ))
-                        ) : (
-                            <div className="text-center py-8 text-slate-500">
-                                No placement data available
-                            </div>
-                        )}
-                        <Button variant="ghost" className="w-full justify-center text-sky-600 hover:bg-sky-50 rounded-lg mt-4">
-                            View All Partners
-                        </Button>
                     </CardContent>
                 </Card>
             </div>
