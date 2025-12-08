@@ -150,7 +150,8 @@ class RecommendationEngine:
                     cgpa=s.get('cgpa'),
                     phone=s.get('phone'),
                     skills=s.get('skills') or [],
-                    projects=s.get('projects') or []
+                    projects=s.get('projects') or [],
+                    placed=s.get('placed', False)
                 )
 
                 self.students[student.id] = student
@@ -347,6 +348,7 @@ class RecommendationEngine:
         """Return list of students matching an opportunity.
 
         Rules:
+        - Only suggest unplaced students (placed=False)
         - Strict: CGPA must be >= opportunity.cgpa (if specified)
         - Loose: skills overlap > 50% of opportunity.skillsRequired
         """
@@ -359,6 +361,10 @@ class RecommendationEngine:
 
         matches: List[Student] = []
         for s in self.students.values():
+            # Only suggest unplaced students
+            if s.placed:
+                continue
+
             # Strict CGPA check
             if job.cgpa is not None:
                 try:

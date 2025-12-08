@@ -45,6 +45,7 @@ class Student(BaseModel):
     phone: Optional[str] = None
     skills: List[str] = []
     projects: List[Project] = []
+    placed: bool = False
 
 
 class CandidateMatch(BaseModel):

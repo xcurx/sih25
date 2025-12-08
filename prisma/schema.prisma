@@ -35,6 +35,7 @@ model Student {
   resumes Resume[]
   linkedin String?
   github String?
+  placed Boolean @default(false)
   applications Application[]
   mentorId String?
   mentorRel Faculty? @relation(fields: [mentorId], references: [id])
