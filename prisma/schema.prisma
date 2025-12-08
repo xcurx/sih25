@@ -43,6 +43,7 @@ model Student {
   projects Project[]
   nofiications Notification[]
   Feedbacks Feedback[]
+  matchedOpportunities MatchedStudent[]
 }
 
 model Faculty {
@@ -112,6 +113,7 @@ model Opportunity {
   salary String?
   postedAt DateTime @default(now())
   applicationDeadline DateTime
+  cgpa Float?
   requirements String[]
   eligibleDepartments String[]
   skillsRequired String[]
@@ -124,6 +126,7 @@ model Opportunity {
   companyRel Company @relation(fields: [companyId], references: [id])
   applications Application[]
   internships Internship[]
+  matchedStudents MatchedStudent[]
 }
 
 model Application {
@@ -234,6 +237,19 @@ model Resume {
   @@unique([studentId, name])
 }
 
+model MatchedStudent {
+  id String @id @default(cuid())
+  studentId String
+  studentRel Student @relation(fields: [studentId], references: [id])
+  opportunityId String
+  opportunityRel Opportunity @relation(fields: [opportunityId], references: [id])
+  status MatchStatus @default(pending)
+  emailSent Boolean @default(false)
+  createdAt DateTime @default(now())
+
+  @@unique([studentId, opportunityId])
+}
+
 enum Status {
   draft
   active
@@ -271,5 +287,11 @@ enum NotificationType {
 enum CompanyRequestStatus {
   pending
   approved
+  rejected
+}
+
+enum MatchStatus {
+  pending
+  accepted
   rejected
 }

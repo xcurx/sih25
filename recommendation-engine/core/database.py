@@ -18,7 +18,7 @@ from psycopg2.extras import RealDictCursor, execute_values
 import numpy as np
 from dotenv import load_dotenv
 
-from models.schemas import Opportunity
+from models.schemas import Opportunity, Student
 
 # Load environment variables
 load_dotenv()
@@ -80,10 +80,16 @@ class DatabaseManager:
                             eligible_departments JSONB DEFAULT '[]',
                             additional_info TEXT,
                             status VARCHAR(50) DEFAULT 'active',
+                            cgpa FLOAT,
                             embedding vector(384),
                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                         );
+                    """)
+                    
+                    # Add cgpa column if it doesn't exist (migration for existing tables)
+                    cur.execute("""
+                        ALTER TABLE jobs ADD COLUMN IF NOT EXISTS cgpa FLOAT;
                     """)
                     
                     # Create index on status for faster filtering
@@ -96,6 +102,30 @@ class DatabaseManager:
                     cur.execute("""
                         CREATE INDEX IF NOT EXISTS idx_jobs_embedding 
                         ON jobs USING ivfflat (embedding vector_cosine_ops)
+                        WITH (lists = 100);
+                    """)
+
+                    # Create students table
+                    cur.execute("""
+                        CREATE TABLE IF NOT EXISTS students (
+                            id VARCHAR(255) PRIMARY KEY,
+                            email VARCHAR(255) UNIQUE NOT NULL,
+                            name VARCHAR(500) NOT NULL,
+                            branch VARCHAR(255),
+                            batch INTEGER,
+                            cgpa FLOAT,
+                            phone VARCHAR(50),
+                            skills JSONB DEFAULT '[]',
+                            projects JSONB DEFAULT '[]',
+                            embedding vector(384),
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                        );
+                    """)
+
+                    cur.execute("""
+                        CREATE INDEX IF NOT EXISTS idx_students_embedding 
+                        ON students USING ivfflat (embedding vector_cosine_ops)
                         WITH (lists = 100);
                     """)
                     
@@ -125,9 +155,9 @@ class DatabaseManager:
                         INSERT INTO jobs (
                             id, title, description, type, location,
                             skills_required, requirements, eligible_departments,
-                            additional_info, status, embedding
+                            additional_info, status, cgpa, embedding
                         ) VALUES (
-                            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+                            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
                         )
                         ON CONFLICT (id) DO UPDATE SET
                             title = EXCLUDED.title,
@@ -139,6 +169,7 @@ class DatabaseManager:
                             eligible_departments = EXCLUDED.eligible_departments,
                             additional_info = EXCLUDED.additional_info,
                             status = EXCLUDED.status,
+                            cgpa = EXCLUDED.cgpa,
                             embedding = EXCLUDED.embedding,
                             updated_at = CURRENT_TIMESTAMP;
                     """, (
@@ -152,6 +183,7 @@ class DatabaseManager:
                         json.dumps(job.eligibleDepartments or []),
                         job.additionalInfo,
                         job.status,
+                        job.cgpa,
                         embedding_list
                     ))
                     
@@ -187,6 +219,7 @@ class DatabaseManager:
                             json.dumps(job.eligibleDepartments or []),
                             job.additionalInfo,
                             job.status,
+                            job.cgpa,
                             embedding_list
                         ))
                     
@@ -196,7 +229,7 @@ class DatabaseManager:
                         INSERT INTO jobs (
                             id, title, description, type, location,
                             skills_required, requirements, eligible_departments,
-                            additional_info, status, embedding
+                            additional_info, status, cgpa, embedding
                         ) VALUES %s
                         ON CONFLICT (id) DO UPDATE SET
                             title = EXCLUDED.title,
@@ -208,6 +241,7 @@ class DatabaseManager:
                             eligible_departments = EXCLUDED.eligible_departments,
                             additional_info = EXCLUDED.additional_info,
                             status = EXCLUDED.status,
+                            cgpa = EXCLUDED.cgpa,
                             embedding = EXCLUDED.embedding,
                             updated_at = CURRENT_TIMESTAMP;
                         """,
@@ -221,6 +255,161 @@ class DatabaseManager:
             logger.error(f"Failed to bulk save jobs: {e}")
             return 0
     
+    def save_student(self, student: Student, embedding: np.ndarray) -> bool:
+        """Save a single student with embedding."""
+        if not self.is_configured:
+            return False
+
+        try:
+            with self.get_connection() as conn:
+                with conn.cursor() as cur:
+                    embedding_list = embedding.tolist() if hasattr(embedding, 'tolist') else embedding
+
+                    cur.execute("""
+                        INSERT INTO students (
+                            id, email, name, branch, batch, cgpa, phone, skills, projects, embedding
+                        ) VALUES (
+                            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+                        )
+                        ON CONFLICT (id) DO UPDATE SET
+                            email = EXCLUDED.email,
+                            name = EXCLUDED.name,
+                            branch = EXCLUDED.branch,
+                            batch = EXCLUDED.batch,
+                            cgpa = EXCLUDED.cgpa,
+                            phone = EXCLUDED.phone,
+                            skills = EXCLUDED.skills,
+                            projects = EXCLUDED.projects,
+                            embedding = EXCLUDED.embedding,
+                            updated_at = CURRENT_TIMESTAMP;
+                    """, (
+                        student.id,
+                        student.email,
+                        student.name,
+                        student.branch,
+                        student.batch,
+                        student.cgpa,
+                        student.phone,
+                        json.dumps(student.skills or []),
+                        json.dumps([p.dict() for p in (student.projects or [])]),
+                        embedding_list
+                    ))
+
+            logger.debug(f"Saved student to database: {student.id}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Failed to save student {student.id}: {e}")
+            return False
+
+    def save_students_bulk(self, students_with_embeddings: List[tuple]) -> int:
+        """Bulk save students with embeddings."""
+        if not self.is_configured or not students_with_embeddings:
+            return 0
+
+        try:
+            with self.get_connection() as conn:
+                with conn.cursor() as cur:
+                    values = []
+                    for student, embedding in students_with_embeddings:
+                        embedding_list = embedding.tolist() if hasattr(embedding, 'tolist') else embedding
+                        values.append((
+                            student.id,
+                            student.email,
+                            student.name,
+                            student.branch,
+                            student.batch,
+                            student.cgpa,
+                            student.phone,
+                            json.dumps(student.skills or []),
+                            json.dumps([p.dict() for p in (student.projects or [])]),
+                            embedding_list
+                        ))
+
+                    execute_values(
+                        cur,
+                        """
+                        INSERT INTO students (
+                            id, email, name, branch, batch, cgpa, phone, skills, projects, embedding
+                        ) VALUES %s
+                        ON CONFLICT (id) DO UPDATE SET
+                            email = EXCLUDED.email,
+                            name = EXCLUDED.name,
+                            branch = EXCLUDED.branch,
+                            batch = EXCLUDED.batch,
+                            cgpa = EXCLUDED.cgpa,
+                            phone = EXCLUDED.phone,
+                            skills = EXCLUDED.skills,
+                            projects = EXCLUDED.projects,
+                            embedding = EXCLUDED.embedding,
+                            updated_at = CURRENT_TIMESTAMP;
+                        """,
+                        values
+                    )
+
+            logger.info(f"Bulk saved {len(students_with_embeddings)} students to database")
+            return len(students_with_embeddings)
+
+        except Exception as e:
+            logger.error(f"Failed to bulk save students: {e}")
+            return 0
+
+    def load_all_students(self) -> List[Dict[str, Any]]:
+        """Load all students with embeddings from the database."""
+        if not self.is_configured:
+            return []
+
+        try:
+            with self.get_connection() as conn:
+                with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                    cur.execute("""
+                        SELECT id, email, name, branch, batch, cgpa, phone, skills, projects, embedding
+                        FROM students;
+                    """)
+                    rows = cur.fetchall()
+
+            students_data = []
+            for row in rows:
+                embedding = None
+                if row['embedding']:
+                    embedding_str = row['embedding']
+                    if isinstance(embedding_str, str):
+                        embedding = np.array(json.loads(embedding_str))
+                    else:
+                        embedding = np.array(embedding_str)
+
+                students_data.append({
+                    'id': row['id'],
+                    'email': row['email'],
+                    'name': row['name'],
+                    'branch': row['branch'],
+                    'batch': row['batch'],
+                    'cgpa': row['cgpa'],
+                    'phone': row['phone'],
+                    'skills': row['skills'] or [],
+                    'projects': row['projects'] or [],
+                    'embedding': embedding
+                })
+
+            logger.info(f"Loaded {len(students_data)} students from database")
+            return students_data
+
+        except Exception as e:
+            logger.error(f"Failed to load students from database: {e}")
+            return []
+
+    def get_student_count(self) -> int:
+        if not self.is_configured:
+            return 0
+        try:
+            with self.get_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("SELECT COUNT(*) FROM students;")
+                    return cur.fetchone()[0]
+        except Exception as e:
+            logger.error(f"Failed to get student count: {e}")
+            return 0
+    
     def load_all_jobs(self) -> List[Dict[str, Any]]:
         if not self.is_configured:
             return []
@@ -232,7 +421,7 @@ class DatabaseManager:
                         SELECT 
                             id, title, description, type, location,
                             skills_required, requirements, eligible_departments,
-                            additional_info, status, embedding
+                            additional_info, status, cgpa, embedding
                         FROM jobs;
                     """)
                     
@@ -261,6 +450,7 @@ class DatabaseManager:
                     'eligibleDepartments': row['eligible_departments'] or [],
                     'additionalInfo': row['additional_info'],
                     'status': row['status'],
+                    'cgpa': row['cgpa'],
                     'embedding': embedding
                 })
             
