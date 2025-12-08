@@ -726,3 +726,174 @@ export function certificateUploadedTemplate(data: CertificateUploadedEmailData):
 </html>
   `.trim()
 }
+
+// Welcome Email Template
+interface WelcomeEmailData {
+  name: string
+  email: string
+  role: "student" | "faculty" | "placement-cell" | "employer"
+  companyName?: string
+  loginUrl: string
+}
+
+export function welcomeEmailTemplate(data: WelcomeEmailData): string {
+  const { name, email, role, companyName, loginUrl } = data
+
+  const roleDisplayName: Record<string, string> = {
+    student: "Student",
+    faculty: "Faculty Mentor",
+    "placement-cell": "Placement Cell Admin",
+    employer: "Employer Representative",
+  }
+
+  const roleDescription: Record<string, string> = {
+    student:
+      "explore job opportunities, track your applications, manage your profile, and connect with potential employers",
+    faculty:
+      "mentor students, review and approve applications, and help guide students through their placement journey",
+    "placement-cell":
+      "manage the entire placement process, create opportunities, onboard companies, and oversee student placements",
+    employer:
+      "post job opportunities, review student applications, schedule interviews, and find the best talent for your organization",
+  }
+
+  const roleIcon: Record<string, string> = {
+    student: "🎓",
+    faculty: "👨‍🏫",
+    "placement-cell": "🏛️",
+    employer: "💼",
+  }
+
+  const roleColor: Record<string, { primary: string; light: string }> = {
+    student: { primary: "#0ea5e9", light: "#f0f9ff" },
+    faculty: { primary: "#8b5cf6", light: "#f5f3ff" },
+    "placement-cell": { primary: "#10b981", light: "#ecfdf5" },
+    employer: { primary: "#f59e0b", light: "#fffbeb" },
+  }
+
+  const colors = roleColor[role] || roleColor.student
+
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to Placement Portal</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f1f5f9;">
+  <table role="presentation" style="width: 100%; border-collapse: collapse;">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
+        <table role="presentation" style="width: 100%; max-width: 600px; border-collapse: collapse; background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
+          
+          <!-- Header -->
+          <tr>
+            <td style="padding: 32px 40px; background: linear-gradient(135deg, ${colors.primary} 0%, #3b82f6 100%); border-radius: 16px 16px 0 0; text-align: center;">
+              <div style="font-size: 48px; margin-bottom: 16px;">${roleIcon[role]}</div>
+              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">Welcome to Placement Portal!</h1>
+              <p style="margin: 12px 0 0 0; color: #e0f2fe; font-size: 14px;">Your account has been created successfully</p>
+            </td>
+          </tr>
+          
+          <!-- Greeting -->
+          <tr>
+            <td style="padding: 32px 40px 16px 40px;">
+              <p style="margin: 0; color: #334155; font-size: 18px;">Hello <strong>${name}</strong>,</p>
+              <p style="margin: 16px 0 0 0; color: #64748b; font-size: 15px; line-height: 1.7;">
+                We're excited to have you on board! Your account has been set up as a <strong style="color: ${colors.primary};">${roleDisplayName[role]}</strong>${companyName ? ` at <strong>${companyName}</strong>` : ""}.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Account Details Card -->
+          <tr>
+            <td style="padding: 0 40px;">
+              <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: ${colors.light}; border-radius: 12px; border: 1px solid #e2e8f0;">
+                <tr>
+                  <td style="padding: 24px;">
+                    <h3 style="margin: 0 0 16px 0; color: #0f172a; font-size: 16px; font-weight: 600;">📋 Your Account Details</h3>
+                    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                      <tr>
+                        <td style="padding: 8px 0; color: #64748b; font-size: 14px; width: 100px;">Email:</td>
+                        <td style="padding: 8px 0; color: #0f172a; font-size: 14px; font-weight: 500;">${email}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0; color: #64748b; font-size: 14px;">Role:</td>
+                        <td style="padding: 8px 0;">
+                          <span style="display: inline-block; padding: 4px 12px; background-color: ${colors.primary}; color: #ffffff; font-size: 12px; font-weight: 600; border-radius: 20px;">
+                            ${roleDisplayName[role]}
+                          </span>
+                        </td>
+                      </tr>
+                      ${
+                        companyName
+                          ? `
+                      <tr>
+                        <td style="padding: 8px 0; color: #64748b; font-size: 14px;">Company:</td>
+                        <td style="padding: 8px 0; color: #0f172a; font-size: 14px; font-weight: 500;">${companyName}</td>
+                      </tr>
+                      `
+                          : ""
+                      }
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- What You Can Do -->
+          <tr>
+            <td style="padding: 24px 40px;">
+              <h3 style="margin: 0 0 12px 0; color: #0f172a; font-size: 16px; font-weight: 600;">🚀 What You Can Do</h3>
+              <p style="margin: 0; color: #64748b; font-size: 14px; line-height: 1.7;">
+                As a ${roleDisplayName[role].toLowerCase()}, you can ${roleDescription[role]}.
+              </p>
+            </td>
+          </tr>
+
+          <!-- CTA Button -->
+          <tr>
+            <td style="padding: 8px 40px 32px 40px;" align="center">
+              <a href="${loginUrl}" style="display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, ${colors.primary} 0%, #3b82f6 100%); color: #ffffff; text-decoration: none; font-size: 16px; font-weight: 600; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                🔐 Login to Your Account
+              </a>
+            </td>
+          </tr>
+
+          <!-- Security Notice -->
+          <tr>
+            <td style="padding: 0 40px 24px 40px;">
+              <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #fef3c7; border-radius: 8px; border-left: 4px solid #f59e0b;">
+                <tr>
+                  <td style="padding: 12px 16px;">
+                    <p style="margin: 0; color: #92400e; font-size: 13px;">
+                      <strong>🔒 Security Tip:</strong> Your temporary password was set by the administrator. We recommend changing it after your first login for better security.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 24px 40px; background-color: #f8fafc; border-radius: 0 0 16px 16px; border-top: 1px solid #e2e8f0;">
+              <p style="margin: 0 0 8px 0; color: #64748b; font-size: 12px; text-align: center;">
+                If you have any questions, feel free to reach out to the placement cell.
+              </p>
+              <p style="margin: 0; color: #94a3b8; font-size: 12px; text-align: center;">
+                © ${new Date().getFullYear()} Placement Portal. All rights reserved.
+              </p>
+            </td>
+          </tr>
+          
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `.trim()
+}

@@ -11,6 +11,7 @@ import Overview from "@/components/profileTabs/Overview"
 import Preferences from "@/components/profileTabs/Preferences"
 import Projects from "@/components/profileTabs/Projects"
 import Settings from "@/components/profileTabs/Settings"
+import Experience from "@/components/profileTabs/Experience"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
@@ -73,10 +74,14 @@ export default function ProfilePage() {
       </div>
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6 bg-slate-100/60 rounded-2xl">
+        <TabsList className="grid w-full grid-cols-7 bg-slate-100/60 rounded-2xl">
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <User className="h-4 w-4" />
             Overview
+          </TabsTrigger>
+          <TabsTrigger value="experience" className="flex items-center gap-2">
+            <Briefcase className="h-4 w-4" />
+            Experience
           </TabsTrigger>
           <TabsTrigger value="projects" className="flex items-center gap-2">
             <Code className="h-4 w-4" />
@@ -87,7 +92,7 @@ export default function ProfilePage() {
             Certificates
           </TabsTrigger>
           <TabsTrigger value="preferences" className="flex items-center gap-2">
-            <Briefcase className="h-4 w-4" />
+            <FileText className="h-4 w-4" />
             Preferences
           </TabsTrigger>
           <TabsTrigger value="documents" className="flex items-center gap-2">
@@ -101,6 +106,7 @@ export default function ProfilePage() {
         </TabsList>
 
         <Overview isEditing={isEditing} />
+        <Experience />
         <Projects />
         <Certificates />
         <Preferences isEditing />

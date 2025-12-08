@@ -34,10 +34,10 @@ export function StudentForm() {
     setFeedback(null)
 
     try {
-      const response = await fetch("/api/sign-up/student", {
+      const response = await fetch("/api/sign-up", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, roll: "student" }),
       })
 
       const data = await response.json()

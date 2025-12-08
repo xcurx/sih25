@@ -143,8 +143,8 @@ function PublicLanding() {
               </p>
               <div className="flex flex-col gap-4 text-sm sm:flex-row">
                 <Button size="lg" className="bg-sky-600 text-white hover:bg-sky-500" asChild>
-                  <Link href="/sign-in">
-                    Access Portal
+                  <Link href="/register-company">
+                    Register your Company
                     <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
                   </Link>
                 </Button>

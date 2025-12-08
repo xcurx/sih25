@@ -1,14 +1,16 @@
 "use client"
 
+import Link from "next/link"
 import { useState, useCallback, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { redirect } from "next/navigation"
-import { ShieldCheck } from "lucide-react"
+import { Inbox, ShieldCheck } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { StudentForm } from "@/components/manage/StudentForm"
 import { FacultyForm } from "@/components/manage/FacultyForm"
 import { CompanyForm } from "@/components/manage/CompanyForm"
 import { EmployerForm } from "@/components/manage/EmployerForm"
+import { Button } from "@/components/ui/button"
 
 interface Company {
   id: string
@@ -20,6 +22,8 @@ export default function ManagePage() {
   const [companies, setCompanies] = useState<Company[]>([])
   const [companiesLoading, setCompaniesLoading] = useState(false)
   const [companiesError, setCompaniesError] = useState("")
+  const [requestsCount, setRequestsCount] = useState(0)
+  const [requestsLoading, setRequestsLoading] = useState(false)
 
   const fetchCompanies = useCallback(async () => {
     setCompaniesLoading(true)
@@ -39,11 +43,25 @@ export default function ManagePage() {
     }
   }, [])
 
+  const fetchRequestSummary = useCallback(async () => {
+    setRequestsLoading(true)
+    try {
+      const response = await fetch("/api/placementcell/company-requests?summary=1")
+      if (response.ok) {
+        const data = await response.json()
+        setRequestsCount(data.pendingCount ?? 0)
+      }
+    } finally {
+      setRequestsLoading(false)
+    }
+  }, [])
+
   useEffect(() => {
     if (status === "authenticated" && session?.user?.role === "placement-cell") {
       fetchCompanies()
+      fetchRequestSummary()
     }
-  }, [status, session, fetchCompanies])
+  }, [status, session, fetchCompanies, fetchRequestSummary])
 
   if (status === "loading") {
     return (
@@ -75,6 +93,19 @@ export default function ManagePage() {
               Provision student or faculty accounts instantly. These users can sign in with the credentials you set and update their details later.
             </p>
           </div>
+          <Button
+            variant="outline"
+            className="relative gap-2 rounded-full border-slate-200 text-slate-700 hover:bg-slate-100"
+            asChild
+          >
+            <Link href="/manage/requests">
+              <Inbox className="h-4 w-4" />
+              Review company requests
+              <Badge variant="secondary" className="ml-1 rounded-full bg-slate-100 text-slate-700">
+                {requestsLoading ? "..." : requestsCount}
+              </Badge>
+            </Link>
+          </Button>
         </div>
       </section>
 

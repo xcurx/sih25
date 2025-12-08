@@ -53,10 +53,10 @@ export function EmployerForm({ companies, companiesLoading, companiesError, onRe
     setFeedback(null)
 
     try {
-      const response = await fetch("/api/sign-up/employer", {
+      const response = await fetch("/api/sign-up", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, roll: "employer" }),
       })
 
       const data = await response.json()

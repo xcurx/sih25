@@ -7,6 +7,7 @@ const PUBLIC_PATHS = [
   "/resources",
   "/institutes",
   "/l_employers",
+  "/register-company",
 ];
 
 function isPublic(pathname: string) {
@@ -37,6 +38,6 @@ export const middleware = async (req: NextRequest) => {
 }
 
 export const config = {
-    matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+    matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.*\\.png$|.*\\.jpg$|.*\\.jpeg$|.*\\.gif$|.*\\.svg$|.*\\.ico$|.*\\.webp$).*)"],
     runtime: "nodejs",
 };
