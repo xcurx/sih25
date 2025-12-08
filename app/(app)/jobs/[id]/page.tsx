@@ -4,28 +4,36 @@ import Loader from "@/components/loader/Loader"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { OpportunityDetail } from "@/lib/types"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { OpportunityDetail, StudentResume } from "@/lib/types"
+import { uploader } from "@/lib/uploader"
 import axios from "axios"
 import {
+  AlertTriangle,
   ArrowLeft,
   Briefcase,
   Building2,
   Calendar,
   Clock,
-  DollarSign,
+  
   ExternalLink,
+  FileText,
   Layers,
   Linkedin,
   Mail,
   MapPin,
   Send,
+  Star,
+  Upload,
   User,
   Users,
+  Loader2,
 } from "lucide-react"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { ChangeEvent, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 
 export default function OpportunityDetailPage() {
@@ -36,10 +44,20 @@ export default function OpportunityDetailPage() {
   const [loading, setLoading] = useState(true)
   const [applying, setApplying] = useState(false)
   const [sendingApproval, setSendingApproval] = useState(false)
+  const [resumes, setResumes] = useState<StudentResume[]>([])
+  const [resumesLoading, setResumesLoading] = useState(false)
+  const [selectedResume, setSelectedResume] = useState<string | null>(null)
+  const [uploadingResume, setUploadingResume] = useState(false)
+  const [studentCgpa, setStudentCgpa] = useState<number | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const isStudent = session?.user?.role === "student"
+  const isStaff = session?.user?.role === "faculty" || session?.user?.role === "placement-cell"
+  const selectedResumeDetails = selectedResume ? resumes.find((resume) => resume.id === selectedResume) : null
+  const meetsCgpaRequirement = !opportunity?.cgpa || (studentCgpa ?? 0) >= (opportunity?.cgpa ?? 0)
 
   const fetchOpportunity = async () => {
     try {
-      const apiUrl = session?.user?.role === "faculty" || session?.user?.role === "placement-cell"
+      const apiUrl = isStaff
         ? `/api/placementcell/opportunity/${params.id}`
         : `/api/student/opportunity/${params.id}`
       
@@ -48,6 +66,7 @@ export default function OpportunityDetailPage() {
       })
       if (res.status === 200) {
         setOpportunity(res.data.opportunity)
+        setStudentCgpa(res.data.studentCgpa ?? null)
       }
     } catch (error) {
       console.error(error)
@@ -57,19 +76,115 @@ export default function OpportunityDetailPage() {
     }
   }
 
+  const fetchResumes = async () => {
+    if (!isStudent) return
+    setResumesLoading(true)
+    try {
+      const res = await axios.get("/api/student/resume", { withCredentials: true })
+      const list: StudentResume[] = res.data?.resumes || []
+      setResumes(list)
+      if (!selectedResume && list.length > 0) {
+        setSelectedResume(list[0].id)
+      } else if (selectedResume && !list.some((resume) => resume.id === selectedResume)) {
+        setSelectedResume(list[0]?.id ?? null)
+      } else if (list.length === 0) {
+        setSelectedResume(null)
+      }
+    } catch (error) {
+      console.error(error)
+      toast.error("Failed to load resumes")
+    } finally {
+      setResumesLoading(false)
+    }
+  }
+
+  const handleResumeFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    if (file.type !== "application/pdf") {
+      toast.error("Please upload a PDF file")
+      event.target.value = ""
+      return
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File size must be under 5MB")
+      event.target.value = ""
+      return
+    }
+
+    setUploadingResume(true)
+    try {
+      const uploadResult = await uploader(file, "resumes")
+      if (!uploadResult?.url) {
+        throw new Error("Upload failed")
+      }
+
+      const displayName = file.name.replace(/\.[^/.]+$/, "") || "Resume"
+      const response = await axios.post(
+        "/api/student/resume",
+        { url: uploadResult.url, name: displayName },
+        { withCredentials: true }
+      )
+      const newResume: StudentResume | undefined = response.data?.resume
+      if (!newResume) {
+        throw new Error("Resume metadata missing")
+      }
+
+      setResumes((prev) => [newResume, ...prev])
+      setSelectedResume(newResume.id)
+      toast.success("Resume uploaded successfully")
+    } catch (error: any) {
+      console.error(error)
+      const errorMessage = error?.message || "Failed to upload resume"
+      toast.error(errorMessage)
+    } finally {
+      setUploadingResume(false)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""
+      }
+    }
+  }
+
   const handleApply = async () => {
     if (!opportunity) return
+    if (!selectedResume) {
+      toast.error("Please select a resume before applying")
+      return
+    }
+    if (opportunity.cgpa && (studentCgpa ?? 0) < opportunity.cgpa) {
+      toast.error(`Minimum CGPA of ${opportunity.cgpa} is required to apply`)
+      return
+    }
+    const resumeDetails = resumes.find((resume) => resume.id === selectedResume)
     setApplying(true)
     try {
-      const res = await axios.post(`/api/student/apply/${opportunity.id}`, {
-        withCredentials: true,
-      })
+      const res = await axios.post(
+        `/api/student/apply/${opportunity.id}`,
+        { resumeId: selectedResume },
+        { withCredentials: true }
+      )
+      const application = res.data?.application
       setOpportunity((prev) =>
-        prev ? { ...prev, applied: true, _count: { applications: (prev._count?.applications || 0) + 1 } } : null
+        prev
+          ? {
+              ...prev,
+              applied: true,
+              userApplication: {
+                id: application?.id ?? prev.userApplication?.id ?? "",
+                status: application?.status ?? "applied",
+                appliedAt: application?.appliedAt ?? new Date().toISOString(),
+                resume: resumeDetails,
+              },
+              _count: { applications: (prev._count?.applications || 0) + 1 },
+            }
+          : null
       )
       toast.success("Application submitted successfully")
-    } catch (error) {
-      toast.error("Failed to submit application")
+    } catch (error: any) {
+      const message = error?.response?.data?.message || "Failed to submit application"
+      toast.error(message)
     } finally {
       setApplying(false)
     }
@@ -77,11 +192,17 @@ export default function OpportunityDetailPage() {
 
   const handleApproval = async () => {
     if (!opportunity) return
+     if (opportunity.cgpa && (studentCgpa ?? 0) < opportunity.cgpa) {
+      toast.error(`Minimum CGPA of ${opportunity.cgpa} is required to request approval`)
+      return
+    }
     setSendingApproval(true)
     try {
-      await axios.post(`/api/student/send-mentor-approval/${opportunity.id}`, {
-        withCredentials: true,
-      })
+      await axios.post(
+        `/api/student/send-mentor-approval/${opportunity.id}`,
+        {},
+        { withCredentials: true }
+      )
       setOpportunity((prev) => (prev ? { ...prev, applied: true } : null))
       toast.success("Mentor approval request sent successfully")
     } catch (error) {
@@ -95,6 +216,11 @@ export default function OpportunityDetailPage() {
     if (status === "loading" || status === "unauthenticated") return
     fetchOpportunity()
   }, [status, params.id])
+
+  useEffect(() => {
+    if (status !== "authenticated" || !isStudent) return
+    fetchResumes()
+  }, [status, isStudent])
 
   if (status === "loading" || loading) {
     return <Loader />
@@ -117,8 +243,6 @@ export default function OpportunityDetailPage() {
   )
   const isExpired = daysUntilDeadline <= 0
   const isUrgent = daysUntilDeadline <= 7 && daysUntilDeadline > 0
-  const isStudent = session?.user?.role === "student"
-  const isStaff = session?.user?.role === "faculty" || session?.user?.role === "placement-cell"
 
   return (
     <div className="relative p-6 max-w-5xl w-full mx-auto space-y-6">
@@ -165,7 +289,7 @@ export default function OpportunityDetailPage() {
                   <span className="capitalize">{opportunity.type}</span>
                 </div>
                 <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-4 py-2 text-sm font-semibold text-emerald-700">
-                  <DollarSign className="h-4 w-4" />
+                
                   <span>₹{opportunity.salary?.toLocaleString()}</span>
                 </div>
                 <Badge
@@ -278,6 +402,30 @@ export default function OpportunityDetailPage() {
                     View Application
                   </Button>
                 </Link>
+                {opportunity.userApplication.resume && (
+                  <div className="rounded-2xl border border-slate-200 bg-white/80 p-4 mt-2 flex items-center gap-3">
+                    <div className="rounded-2xl bg-slate-100 p-3">
+                      <FileText className="h-5 w-5 text-slate-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-slate-900">
+                        {opportunity.userApplication.resume.name}
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        Uploaded {new Date(opportunity.userApplication.resume.uploadedAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <Button asChild variant="outline" size="sm" className="rounded-full">
+                      <a
+                        href={opportunity.userApplication.resume.resumeUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        View
+                      </a>
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
@@ -328,7 +476,14 @@ export default function OpportunityDetailPage() {
               <CardHeader>
                 <CardTitle className="text-lg font-semibold text-slate-900">Apply Now</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-5">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="application/pdf"
+                  className="hidden"
+                  onChange={handleResumeFileChange}
+                />
                 <div className="flex items-center gap-2 rounded-2xl border border-slate-100 bg-slate-50/60 px-4 py-3">
                   <Users className="h-4 w-4 text-slate-500" />
                   <span className="text-sm font-medium text-slate-700">
@@ -348,10 +503,131 @@ export default function OpportunityDetailPage() {
                   </div>
                 </div>
 
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-white/80 px-4 py-3">
+                    <Star className="h-5 w-5 text-sky-600" />
+                    <div>
+                      <p className="text-xs text-slate-500">Your CGPA</p>
+                      <p className="text-lg font-semibold text-slate-900">
+                        {studentCgpa !== null && studentCgpa !== undefined ? studentCgpa.toFixed(2) : "N/A"}
+                      </p>
+                    </div>
+                  </div>
+                  {opportunity.cgpa && (
+                    <div className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-white/80 px-4 py-3">
+                      <Star className="h-5 w-5 text-emerald-600" />
+                      <div>
+                        <p className="text-xs text-slate-500">Minimum Required</p>
+                        <p className="text-lg font-semibold text-slate-900">{opportunity.cgpa.toFixed(2)}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {!meetsCgpaRequirement && opportunity.cgpa && (
+                  <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                    <AlertTriangle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                    <span>
+                      You need a CGPA of at least {opportunity.cgpa.toFixed(2)} to apply for this opportunity.
+                    </span>
+                  </div>
+                )}
+
+                {!opportunity.applied && (
+                  <div className="space-y-3 rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-semibold text-slate-900">Resume</p>
+                        <p className="text-xs text-slate-500">Select the resume you want to attach</p>
+                      </div>
+                      {resumesLoading && <Loader2 className="h-4 w-4 animate-spin text-slate-500" />}
+                    </div>
+
+                    {resumes.length > 0 ? (
+                      <>
+                        <Label className="text-xs uppercase tracking-wide text-slate-400">Choose resume</Label>
+                        <Select value={selectedResume ?? undefined} onValueChange={setSelectedResume}>
+                          <SelectTrigger className="rounded-2xl border-slate-200 bg-white">
+                            <SelectValue placeholder="Select resume" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {resumes.map((resume) => (
+                              <SelectItem key={resume.id} value={resume.id}>
+                                {resume.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedResumeDetails && (
+                            <Button asChild variant="outline" size="sm" className="rounded-full border-slate-200">
+                              <a
+                                href={selectedResumeDetails.resumeUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <FileText className="mr-2 h-4 w-4" />
+                                View Selected
+                              </a>
+                            </Button>
+                          )}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="rounded-full border-sky-200 text-sky-700 hover:bg-sky-50"
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={uploadingResume}
+                          >
+                            {uploadingResume ? (
+                              <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Uploading...
+                              </>
+                            ) : (
+                              <>
+                                <Upload className="mr-2 h-4 w-4" />
+                                Upload New
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="rounded-2xl border border-dashed border-slate-200 bg-white/80 p-4 text-center">
+                        <p className="text-sm text-slate-600 mb-3">Upload a resume to apply for this role.</p>
+                        <Button
+                          variant="outline"
+                          className="rounded-full border-sky-200 text-sky-700 hover:bg-sky-50"
+                          onClick={() => fileInputRef.current?.click()}
+                          disabled={uploadingResume}
+                        >
+                          {uploadingResume ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Uploading...
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="mr-2 h-4 w-4" />
+                              Upload Resume
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {!opportunity.applied && !selectedResume && !resumesLoading && (
+                  <p className="text-xs text-amber-600">
+                    Select or upload a resume to enable the apply button.
+                  </p>
+                )}
+
                 <div className="space-y-2 pt-2">
                   {!opportunity.applied && (
                     <Button
-                      disabled={isExpired || sendingApproval}
+                      disabled={isExpired || sendingApproval || !meetsCgpaRequirement}
                       className="w-full rounded-full bg-sky-100 text-sky-700 hover:bg-sky-200 border border-sky-200"
                       variant="outline"
                       onClick={handleApproval}
@@ -361,7 +637,14 @@ export default function OpportunityDetailPage() {
                     </Button>
                   )}
                   <Button
-                    disabled={isExpired || opportunity.applied || applying}
+                    disabled={
+                      isExpired ||
+                      opportunity.applied ||
+                      applying ||
+                      !meetsCgpaRequirement ||
+                      !selectedResume ||
+                      resumesLoading
+                    }
                     className={`w-full rounded-full ${
                       opportunity.applied
                         ? "bg-emerald-100 text-emerald-700 border-emerald-200"

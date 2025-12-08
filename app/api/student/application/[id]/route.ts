@@ -22,6 +22,14 @@ export const GET = async (
         studentId: session.user.id, // Ensure the student can only access their own applications
       },
       include: {
+        resumeRel: {
+          select: {
+            id: true,
+            name: true,
+            resumeUrl: true,
+            uploadedAt: true,
+          },
+        },
         opportunityRel: {
           include: {
             companyRel: true,

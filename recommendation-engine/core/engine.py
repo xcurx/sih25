@@ -20,6 +20,7 @@ from models.schemas import (
     Highlights,
     MatchResult
 )
+from models.schemas import Student
 from core.database import get_database, DatabaseManager
 from core.embeddings import get_embedding_service, EmbeddingService
 
@@ -44,6 +45,7 @@ class RecommendationEngine:
         Uses HuggingFace Inference API for embeddings instead of local models.
         """
         self.jobs: Dict[str, Opportunity] = {}  # job_id -> Opportunity (metadata only)
+        self.students: Dict[str, Student] = {}  # student_id -> Student (metadata only)
         self._lock = threading.Lock()
         self._model_loaded = False
         self._db: DatabaseManager = get_database()
@@ -88,6 +90,8 @@ class RecommendationEngine:
         if self._db.initialize_tables():
             # Load jobs from database (metadata only)
             self._load_jobs_from_db()
+            # Load students from database (metadata only)
+            self._load_students_from_db()
         else:
             logger.warning("Failed to initialize database tables")
     
@@ -113,7 +117,8 @@ class RecommendationEngine:
                     requirements=job_data['requirements'],
                     eligibleDepartments=job_data['eligibleDepartments'],
                     additionalInfo=job_data['additionalInfo'],
-                    status=job_data['status']
+                    status=job_data['status'],
+                    cgpa=job_data.get('cgpa')
                 )
                 
                 # Store only metadata in memory (embeddings stay in DB)
@@ -124,6 +129,36 @@ class RecommendationEngine:
                 logger.error(f"Failed to load job {job_data.get('id')}: {e}")
         
         logger.info(f"Loaded {loaded_count} jobs metadata from database")
+
+    def _load_students_from_db(self):
+        """Load all student metadata from database into memory (no embeddings)."""
+        students_data = self._db.load_all_students()
+
+        if not students_data:
+            logger.info("No students found in database")
+            return
+
+        loaded_count = 0
+        for s in students_data:
+            try:
+                student = Student(
+                    id=s['id'],
+                    email=s['email'],
+                    name=s['name'],
+                    branch=s.get('branch'),
+                    batch=s.get('batch'),
+                    cgpa=s.get('cgpa'),
+                    phone=s.get('phone'),
+                    skills=s.get('skills') or [],
+                    projects=s.get('projects') or []
+                )
+
+                self.students[student.id] = student
+                loaded_count += 1
+            except Exception as e:
+                logger.error(f"Failed to load student {s.get('id')}: {e}")
+
+        logger.info(f"Loaded {loaded_count} students metadata from database")
     
     @property
     def is_model_loaded(self) -> bool:
@@ -159,6 +194,30 @@ class RecommendationEngine:
         if job.additionalInfo:
             parts.append(job.additionalInfo)
         
+        return " ".join(parts)
+
+    def _create_student_text(self, student: Student) -> str:
+        """Create a text representation of a student for embedding."""
+        parts = [student.name]
+        if student.skills:
+            parts.append(f"Skills: {', '.join(student.skills)}")
+        # include project titles and descriptions
+        proj_texts = []
+        for p in student.projects or []:
+            try:
+                # p may be dict if loaded from DB
+                title = p.get('title') if isinstance(p, dict) else getattr(p, 'title', None)
+                desc = p.get('description') if isinstance(p, dict) else getattr(p, 'description', None)
+                if title:
+                    proj_texts.append(title)
+                if desc:
+                    proj_texts.append(desc)
+            except Exception:
+                continue
+
+        if proj_texts:
+            parts.append("Projects: " + " ".join(proj_texts))
+
         return " ".join(parts)
     
     def _create_user_query_text(self, request: RecommendationRequest) -> str:
@@ -218,6 +277,113 @@ class RecommendationEngine:
             except Exception as e:
                 logger.error(f"Failed to add job {job.id}: {e}")
                 return False
+
+    def add_student(self, student: Student) -> bool:
+        """Add a student to the system (generate embedding and persist)."""
+        if not self._model_loaded:
+            logger.error("Embedding service not ready. Cannot add student.")
+            return False
+
+        with self._lock:
+            try:
+                student_text = self._create_student_text(student)
+                embedding = self._embedding_service.get_embedding(student_text)
+
+                if embedding is None:
+                    logger.error(f"Failed to get embedding for student {student.id}")
+                    return False
+
+                # Store metadata in memory
+                self.students[student.id] = student
+
+                # Persist
+                self._db.save_student(student, embedding)
+
+                logger.info(f"Added student: {student.id} - {student.name}")
+                return True
+            except Exception as e:
+                logger.error(f"Failed to add student {student.id}: {e}")
+                return False
+
+    def bulk_add_students(self, students: List[Student]) -> dict:
+        """
+        Bulk add students. Returns results dict with added/skipped/failed lists.
+        """
+        results = {"added": [], "skipped": [], "failed": []}
+
+        if not self._model_loaded:
+            logger.error("Embedding service not ready. Cannot add students.")
+            for s in students:
+                results['failed'].append({"id": s.id, "error": "Embedding service not ready"})
+            return results
+
+        students_with_embeddings = []
+
+        with self._lock:
+            for s in students:
+                try:
+                    if s.id in self.students:
+                        results['skipped'].append({"id": s.id, "reason": "Student already exists"})
+                        continue
+
+                    text = self._create_student_text(s)
+                    embedding = self._embedding_service.get_embedding(text)
+                    if embedding is None:
+                        results['failed'].append({"id": s.id, "error": "Failed to get embedding"})
+                        continue
+
+                    self.students[s.id] = s
+                    students_with_embeddings.append((s, embedding))
+                    results['added'].append(s.id)
+                except Exception as e:
+                    results['failed'].append({"id": s.id, "error": str(e)})
+
+            if students_with_embeddings:
+                self._db.save_students_bulk(students_with_embeddings)
+
+        return results
+
+    def get_students_for_opportunity(self, opportunity_id: str) -> List[Student]:
+        """Return list of students matching an opportunity.
+
+        Rules:
+        - Strict: CGPA must be >= opportunity.cgpa (if specified)
+        - Loose: skills overlap > 50% of opportunity.skillsRequired
+        """
+        if opportunity_id not in self.jobs:
+            logger.warning(f"Opportunity {opportunity_id} not found in memory")
+            return []
+
+        job = self.jobs[opportunity_id]
+        required_skills = job.skillsRequired or []
+
+        matches: List[Student] = []
+        for s in self.students.values():
+            # Strict CGPA check
+            if job.cgpa is not None:
+                try:
+                    if s.cgpa is None or float(s.cgpa) < float(job.cgpa):
+                        continue
+                except Exception:
+                    continue
+
+            # Loose skills check
+            if required_skills:
+                student_skills = [x.lower().strip() for x in (s.skills or [])]
+                req_skills = [x.lower().strip() for x in required_skills]
+                if not req_skills:
+                    continue
+
+                matching = set(student_skills).intersection(set(req_skills))
+                pct = len(matching) / len(req_skills) if req_skills else 0
+                if pct <= 0.5:
+                    continue
+
+            # If passed checks, include
+            matches.append(s)
+
+        logger.info(f"Found {len(matches)} candidate(s) for opportunity {opportunity_id}")
+        return matches
     
     def remove_job(self, job_id: str) -> bool:
         """

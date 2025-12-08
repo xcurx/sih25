@@ -15,7 +15,7 @@ import {
   Calendar,
   CheckCircle,
   Clock,
-  DollarSign,
+ 
   ExternalLink,
   FileText,
   Linkedin,
@@ -190,7 +190,7 @@ export default function ApplicationDetailPage() {
                   <span className="capitalize">{application.opportunityRel.type}</span>
                 </div>
                 <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-4 py-2 text-sm font-semibold text-emerald-700">
-                  <DollarSign className="h-4 w-4" />
+                 
                   <span>₹{application.opportunityRel.salary?.toLocaleString()}</span>
                 </div>
               </div>
@@ -435,6 +435,24 @@ export default function ApplicationDetailPage() {
                   View Full Job Details
                 </Button>
               </Link>
+              {application.resumeRel && (
+                <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4 flex items-center gap-3">
+                  <div className="rounded-full bg-slate-100 p-3">
+                    <FileText className="h-4 w-4 text-slate-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-slate-900">{application.resumeRel.name}</p>
+                    <p className="text-xs text-slate-500">
+                      Uploaded {new Date(application.resumeRel.uploadedAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <Button asChild variant="outline" size="sm" className="rounded-full">
+                    <a href={application.resumeRel.resumeUrl} target="_blank" rel="noopener noreferrer">
+                      View
+                    </a>
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
 

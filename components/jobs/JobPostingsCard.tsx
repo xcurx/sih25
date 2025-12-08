@@ -24,7 +24,6 @@ import {
   Building2,
   Calendar,
   Clock,
-  DollarSign,
   Edit,
   ExternalLink,
   Eye,
@@ -33,6 +32,7 @@ import {
   MoreHorizontal,
   Trash2,
   Users,
+  Sparkles,
 } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
@@ -98,7 +98,6 @@ export default function JobPostingCard({ job }: { job: Opportunity }) {
                   <span className="capitalize">{job.type}</span>
                 </div>
                 <div className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1.5 text-sm font-semibold text-emerald-700">
-                  <DollarSign className="h-3.5 w-3.5" />
                   <span>₹{job.salary}</span>
                 </div>
               </div>
@@ -194,6 +193,12 @@ export default function JobPostingCard({ job }: { job: Opportunity }) {
             </Button>
           </Link>
           <ApplicationsDialog opportunity={job} />
+          <Link href={`/job-postings/${job.id}/recommended-students`}>
+            <Button variant="outline" className="rounded-full border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100 hover:border-purple-300">
+              <Sparkles className="h-4 w-4 mr-2" />
+              View Recommended Students
+            </Button>
+          </Link>
         </div>
       </CardContent>
     </Card>
