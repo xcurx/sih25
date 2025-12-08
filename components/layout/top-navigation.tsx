@@ -42,7 +42,6 @@ const navigationItems = {
     { name: "Recommendations", href: "/recommendation", icon: Sparkles },
     { name: "My Applications", href: "/applications", icon: FileText },
     { name: "Internships", href: "/internships", icon: Briefcase },
-    { name: "Profile", href: "/profile", icon: Users },
     { name: "Interviews", href: "/interviews", icon: Calendar },
   ],
   faculty: [
@@ -207,28 +206,34 @@ export function TopNavigation() {
           {(session.user.role === "student" || session.user.role === "employer" || session.user.role === "faculty") && (
             <Notifications />
           )}
-          
-          <div className="hidden text-right sm:flex sm:flex-col">
-            <span className="text-sm font-semibold text-slate-900">{session.user.name}</span>
-            <span className="text-xs uppercase tracking-[0.2em] text-slate-500">
-              {session.user.role.replace("-", " ")}
-            </span>
-          </div>
-          <Avatar className="h-10 w-10 border border-slate-200">
-            <AvatarImage src="/placeholder.svg" alt={session.user.name} />
-            <AvatarFallback>
-              {session.user.name
-                .split(" ")
-                .map((n) => n[0])
-                .join("")
-                .slice(0, 2)
-                .toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
+
+          <Link
+            href="/profile"
+            className="group inline-flex items-center gap-2.5 rounded-full border border-sky-100 bg-gradient-to-r from-sky-50 via-white to-sky-50 px-3 py-1.5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+          >
+            <Avatar className="h-9 w-9 border border-sky-100 shadow-inner shadow-white/60">
+              <AvatarImage src="/placeholder.svg" alt={session.user.name} />
+              <AvatarFallback>
+                {session.user.name
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")
+                  .slice(0, 2)
+                  .toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="hidden text-left sm:block">
+              <span className="block text-sm font-semibold leading-tight text-slate-900 group-hover:text-sky-800">{session.user.name}</span>
+              <span className="block text-[11px] uppercase tracking-[0.18em] text-slate-500 group-hover:text-sky-600">
+                {session.user.role.replace("-", " ")}
+              </span>
+            </div>
+          </Link>
+
           <Button
             variant="outline"
             size="sm"
-            className="hidden border-slate-200 text-slate-600 hover:bg-slate-100 sm:inline-flex"
+            className="hidden border-sky-200 text-sky-800 shadow-sm hover:bg-sky-50 sm:inline-flex"
             onClick={() => signOut({ callbackUrl: "/sign-in" })}
           >
             <LogOut className="mr-2 h-4 w-4" aria-hidden="true" />
@@ -260,6 +265,15 @@ export function TopNavigation() {
                 )
               })}
               <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/profile"
+                  className="flex w-full items-center gap-2 rounded-md bg-sky-50 text-sm font-medium text-sky-800"
+                >
+                  <Users className="h-4 w-4" aria-hidden="true" />
+                  Profile
+                </Link>
+              </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => signOut({ callbackUrl: "/sign-in" })}>
                 <LogOut className="mr-2 h-4 w-4" aria-hidden="true" />
                 Sign out

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { GraduationCap, Globe, Sparkles, Type } from "lucide-react";
+import { GraduationCap, Globe, Sparkles, Type, Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
 import React, { useState, useEffect } from "react";
 
@@ -11,6 +11,7 @@ export default function Header() {
   const [fontScale, setFontScale] = useState(1);
   const [isReading, setIsReading] = useState(false);
   const [accessibilityMessage, setAccessibilityMessage] = useState<string | null>(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
 
   const navLinks = [
@@ -27,6 +28,10 @@ export default function Header() {
       }
     };
   }, []);
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
 
   function handleScreenReaderNarration() {
     if (typeof window === "undefined") return;
@@ -121,8 +126,12 @@ export default function Header() {
       </div>
 
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-white shadow-sm backdrop-blur">
-        <div className="mx-auto flex max-w-[1280px] flex-wrap items-center justify-between gap-3 px-4 py-3">
-          <Link href="/" aria-label="Go to main landing page" className="group flex items-center gap-3 rounded-full bg-white/80 px-3 py-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow">
+        <div className="relative mx-auto flex max-w-[1280px] items-center justify-between gap-3 px-4 py-3 md:gap-4">
+          <Link
+            href="/"
+            aria-label="Go to main landing page"
+            className="group flex shrink-0 items-center gap-3 rounded-full bg-white/80 px-3 py-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow"
+          >
             <Image
               src="/Logo_Saksham.png"
               alt="Saksham"
@@ -162,6 +171,16 @@ export default function Header() {
           </nav>
 
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+            <button
+              type="button"
+              aria-label="Open navigation menu"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:shadow md:hidden"
+              onClick={() => setMobileOpen((v) => !v)}
+              aria-expanded={mobileOpen}
+            >
+              <Menu className="h-5 w-5" aria-hidden="true" />
+            </button>
+
             <Link href="/sign-in" className="group">
               <Button
                 size="sm"
@@ -174,6 +193,31 @@ export default function Header() {
             </Link>
           </div>
         </div>
+
+        {mobileOpen && (
+          <div className="absolute right-4 top-full mt-2 w-60 md:hidden">
+            <nav className="overflow-hidden rounded-xl border border-slate-200 bg-white/95 shadow-lg ring-1 ring-slate-900/5">
+              <div className="flex flex-col">
+                {navLinks.map((link) => {
+                  const isActive = pathname === link.href || pathname.startsWith(`${link.href}/`);
+                  return (
+                    <Link
+                      key={link.name}
+                      href={link.href}
+                      className={`flex items-center justify-between px-3 py-2 text-sm font-medium transition hover:bg-sky-50 ${
+                        isActive ? "text-sky-700" : "text-slate-700"
+                      }`}
+                      aria-current={isActive ? "page" : undefined}
+                    >
+                      <span>{link.name}</span>
+                      <span className="text-[10px] uppercase tracking-[0.18em] text-slate-400">Go</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </nav>
+          </div>
+        )}
       </header>
     </div>
   );

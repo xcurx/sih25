@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { TabsContent } from "@/components/ui/tabs"
 import { Student } from "@/lib/generated/prisma"
-import { Plus, Mail, Phone, GraduationCap } from "lucide-react"
+import { Plus, Mail, Phone, GraduationCap, X, ChevronDown, Check } from "lucide-react"
 import axios from "axios"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog"
 import { DialogDescription } from "@radix-ui/react-dialog"
@@ -19,22 +19,59 @@ const commonSkills = [
   "JavaScript",
   "Python",
   "Java",
-  "React.js",
+  "C#",
+  "C++",
+  "Go",
+  "Rust",
+  "Kotlin",
+  "Swift",
+  "PHP",
+  "Ruby",
+  "React",
+  "Next.js",
   "Node.js",
-  "SQL",
-  "MongoDB",
-  "Machine Learning",
-  "Data Analysis",
-  "AWS",
-  "Docker",
-  "Git",
-  "HTML/CSS",
+  "Express",
+  "NestJS",
+  "GraphQL",
+  "Apollo",
+  "Redux",
+  "React Query",
   "TypeScript",
   "Angular",
   "Vue.js",
-  "Spring Boot",
-  "Django",
-  "Flask",
+  "Svelte",
+  "Tailwind CSS",
+  "HTML/CSS",
+  "SQL",
+  "PostgreSQL",
+  "MySQL",
+  "MongoDB",
+  "Redis",
+  "Elasticsearch",
+  "Kafka",
+  "RabbitMQ",
+  "Docker",
+  "Kubernetes",
+  "AWS",
+  "GCP",
+  "Azure",
+  "CI/CD",
+  "Git",
+  "Linux",
+  "Machine Learning",
+  "Data Analysis",
+  "Pandas",
+  "NumPy",
+  "TensorFlow",
+  "PyTorch",
+  "OpenCV",
+  "Testing",
+  "Jest",
+  "Cypress",
+  "Playwright",
+  "Security",
+  "Performance Optimization",
+  "System Design",
 ]
 
 const Overview = ({isEditing}: {isEditing:boolean}) => {
@@ -137,7 +174,7 @@ const Overview = ({isEditing}: {isEditing:boolean}) => {
                     <Label htmlFor="phone" className="text-slate-700 font-medium">Phone</Label>
                     <Input
                       id="phone"
-                      value={student.phone as string}
+                      value={student.phone ?? ""}
                       disabled={true}
                       className="rounded-full border-slate-200 bg-white disabled:bg-slate-50"
                       onChange={(e) => setStudent({ ...student, phone: e.target.value })}
@@ -149,7 +186,7 @@ const Overview = ({isEditing}: {isEditing:boolean}) => {
                       id="cgpa"
                       type="number"
                       step="0.1"
-                      value={student.cgpa as number}
+                      value={student.cgpa ?? ""}
                       disabled={true}
                       className="rounded-full border-slate-200 bg-white disabled:bg-slate-50"
                       onChange={(e) => setStudent({ ...student, cgpa: Number.parseFloat(e.target.value) })}
@@ -161,31 +198,41 @@ const Overview = ({isEditing}: {isEditing:boolean}) => {
           </div>
 
           <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-lg">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <div className="rounded-full bg-sky-100 p-2">
-                  <GraduationCap className="h-5 w-5 text-sky-600" />
+            <CardHeader className="pb-0">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="rounded-full bg-sky-100 p-2">
+                    <GraduationCap className="h-5 w-5 text-sky-600" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-slate-900">Skills</CardTitle>
+                    <CardDescription className="text-slate-600">Your technical and professional skills</CardDescription>
+                  </div>
                 </div>
-                <div>
-                  <CardTitle className="text-slate-900">Skills</CardTitle>
-                  <CardDescription className="text-slate-600">Your technical and professional skills</CardDescription>
-                </div>
+                {isEditing && (
+                  <AddSkillDropdown skills={student.skills || []} setStudent={setStudent}/>
+                )}
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-4">
               <div className="flex flex-wrap gap-2">
                 {student.skills?.map((skill, index) => (
-                  <Badge 
-                    key={index} 
-                    variant="secondary"
-                    className="rounded-full border-sky-200 bg-sky-50 text-sky-700 hover:bg-sky-100"
+                  <span
+                    key={index}
+                    className="inline-flex items-center gap-1 rounded-full bg-sky-500 px-3 py-1 text-sm font-medium text-white shadow-sm transition hover:bg-sky-600"
                   >
                     {skill}
-                  </Badge>
+                    {isEditing && (
+                      <button
+                        onClick={() => removeSkill(student, setStudent, skill)}
+                        className="rounded-full p-0.5 hover:bg-white/20"
+                        aria-label={`Remove ${skill}`}
+                      >
+                        <X className="h-3.5 w-3.5" aria-hidden="true" />
+                      </button>
+                    )}
+                  </span>
                 ))}
-                {isEditing && (
-                  <AddSkillDiaglog skills={student.skills} setStudent={setStudent}/>
-                )}
               </div>
             </CardContent>
           </Card>
@@ -193,15 +240,26 @@ const Overview = ({isEditing}: {isEditing:boolean}) => {
   )
 }
 
-const AddSkillDiaglog = ({ 
+const removeSkill = (student: Student | undefined, setStudent: React.Dispatch<React.SetStateAction<Student | undefined>>, skillToRemove: string) => {
+  if (!student) return
+  const updatedSkills = student.skills?.filter(s => s !== skillToRemove) || []
+  setStudent({ ...student, skills: updatedSkills })
+  axios.post('/api/student/profile/skills', { skills: updatedSkills }, { withCredentials: true }).catch(error => {
+    console.error('Error removing skill:', error)
+  })
+}
+
+const AddSkillDropdown = ({ 
     skills, 
     setStudent 
 }: { 
-    skills:string[], 
+    skills: string[], 
     setStudent: React.Dispatch<React.SetStateAction<Student | undefined>> 
 }) => {
-    const [selectedSkills, setSelectedSkills] = useState<string[]>(skills || []);
-    const [open, setOpen] = useState(false);
+    const [selectedSkills, setSelectedSkills] = useState<string[]>(skills || [])
+    const [open, setOpen] = useState(false)
+    const [filter, setFilter] = useState("")
+    const dropdownRef = useRef<HTMLDivElement | null>(null)
 
     const toggleSkill = (skill: string) => {
       setSelectedSkills((prevSkills) =>
@@ -211,76 +269,91 @@ const AddSkillDiaglog = ({
       )
     }
 
+    const handleSave = async () => {
+      try {
+        const response = await axios.post('/api/student/profile/skills', { skills: selectedSkills }, { withCredentials: true })
+        setStudent(prev => ({...prev, skills: response.data.user.skills} as Student))
+        setOpen(false)
+      } catch (error) {
+        console.error('Error updating skills:', error)
+      }
+    }
+
+    // Close dropdown on outside click
+    useEffect(() => {
+      const handleClickOutside = (e: MouseEvent) => {
+        if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+          setOpen(false)
+        }
+      }
+      document.addEventListener("mousedown", handleClickOutside)
+      return () => document.removeEventListener("mousedown", handleClickOutside)
+    }, [])
+
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="rounded-full border-sky-200 hover:bg-sky-50"
-            >
-              <Plus className="h-4 w-4 mr-1" />
-              Add Skill
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="rounded-3xl">
-            <DialogHeader>
-              <DialogTitle className="text-slate-900">Choose your skills</DialogTitle>
-              <DialogDescription className="text-slate-600">
-                Select the skills that best represent your expertise and experience.    
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-h-[300px] overflow-y-auto">
-              {commonSkills.map((skill) => (
-                <div key={skill} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={skill}
-                    checked={selectedSkills.includes(skill)}
-                    onCheckedChange={() => toggleSkill(skill)}
-                    className="border-slate-300 data-[state=checked]:bg-sky-600 data-[state=checked]:border-sky-600"
-                  />
-                  <Label htmlFor={skill} className="text-sm text-slate-700">
-                    {skill}
-                  </Label>
-                </div>
-              ))}
-            </div>
-            {selectedSkills?.length > 0 && (
-              <div className="mt-4 rounded-2xl bg-slate-50 p-4">
-                <Label className="text-slate-700 font-medium">Selected Skills:</Label>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {selectedSkills.map((skill) => (
-                    <Badge 
-                      key={skill} 
-                      variant="outline"
-                      className="rounded-full border-sky-200 bg-white text-sky-700"
-                    >
-                      {skill}
-                    </Badge>
-                  ))}
-                </div>
+        <div className="relative" ref={dropdownRef}>
+          <Button 
+            type="button"
+            variant="outline" 
+            size="sm"
+            onClick={() => setOpen((v) => !v)}
+            className="rounded-full border-sky-200 text-sky-700 hover:bg-sky-50 flex items-center gap-1"
+          >
+            <Plus className="h-4 w-4" />
+            Add Skill
+            <ChevronDown className={`h-3.5 w-3.5 transition ${open ? "rotate-180" : "rotate-0"}`} />
+          </Button>
+
+          {open && (
+            <div className="absolute right-0 z-20 mt-2 w-64 rounded-lg border border-slate-200 bg-white shadow-lg ring-1 ring-slate-100">
+              <div className="p-2 border-b border-slate-100">
+                <Input
+                  autoFocus
+                  value={filter}
+                  onChange={(e) => setFilter(e.target.value)}
+                  placeholder="Type to filter skills..."
+                  className="h-9 rounded-md border-slate-300"
+                />
               </div>
-            )}
-            <DialogFooter className="w-full">
-                <Button 
-                 className="w-full rounded-full bg-gradient-to-r from-sky-600 to-blue-600 text-white hover:from-sky-700 hover:to-blue-700"
-                 onClick={async () => {
-                    // if (selectedSkills)
-                    try {
-                        const student = await axios.post('/api/student/profile/skills', { skills: selectedSkills }, { withCredentials: true })
-                        console.log(student)    
-                        setStudent(prev => ({...prev, skills: student.data.user.skills} as Student))
-                        setOpen(false)
-                    } catch (error) {
-                        
-                    }
-                 }}
+              <div className="max-h-56 overflow-y-auto p-2 space-y-1">
+                {commonSkills
+                  .filter((skill) => skill.toLowerCase().includes(filter.toLowerCase()))
+                  .map((skill) => {
+                    const selected = selectedSkills.includes(skill)
+                    return (
+                      <div
+                        key={skill}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => toggleSkill(skill)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") toggleSkill(skill)
+                        }}
+                        className={`flex w-full items-center justify-between rounded-md px-2 py-2 text-sm transition focus:outline-none focus:ring-2 focus:ring-sky-200 ${
+                          selected ? "bg-sky-50 text-sky-800" : "text-slate-700 hover:bg-sky-50"
+                        }`}
+                      >
+                        <span className="text-left">{skill}</span>
+                        {selected && <Check className="h-4 w-4 text-sky-600" aria-hidden="true" />}
+                      </div>
+                    )
+                  })}
+                {commonSkills.filter((skill) => skill.toLowerCase().includes(filter.toLowerCase())).length === 0 && (
+                  <p className="px-2 py-2 text-sm text-slate-500">No matches</p>
+                )}
+              </div>
+              <div className="border-t border-slate-100 p-2">
+                <Button
+                  type="button"
+                  onClick={handleSave}
+                  className="w-full bg-sky-600 hover:bg-sky-700 rounded-lg text-white text-sm"
                 >
-                    Add Skills
+                  Save Skills
                 </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+              </div>
+            </div>
+          )}
+        </div>
     )
 }
 

@@ -24,7 +24,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-white/70 bg-white/90 p-5 text-center shadow-sm">
+    <div className="rounded-2xl border border-white/70 bg-white/90 p-5 text-center shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-md">
       <dt className="text-xs uppercase tracking-[0.2em] text-slate-500">{label}</dt>
       <dd className="mt-2 text-2xl font-semibold text-slate-900">{value}</dd>
     </div>
@@ -41,7 +41,7 @@ function Benefit({
   desc: string;
 }) {
   return (
-    <Card className="rounded-2xl border border-white/60 bg-white/95 text-center shadow-sm">
+    <Card className="rounded-2xl border border-white/60 bg-white/95 text-center shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
       <CardHeader className="flex flex-col items-center gap-3">
         <div className="rounded-lg bg-sky-50 p-2">
           <Icon className="h-6 w-6 text-sky-600" />
@@ -58,7 +58,7 @@ function Benefit({
 function FAQRow({ q, a }: { q: string; a: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-md">
       <button
         onClick={() => setOpen(!open)}
         className="flex w-full items-start justify-between text-left"
@@ -75,9 +75,20 @@ function FAQRow({ q, a }: { q: string; a: React.ReactNode }) {
 export default function EmployerSection() {
   return (
     <section id="employers" className="mx-auto max-w-7xl px-4">
-      <div className="mb-12 space-y-6">
-        <div className="rounded-3xl bg-gradient-to-br from-white via-sky-50 to-blue-50 p-10 text-center shadow-2xl">
-          <div className="flex flex-col items-center gap-4">
+      <div className="mb-12 grid gap-6 lg:grid-cols-[2fr,1fr] lg:items-stretch">
+        <div
+          className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-white via-sky-50 to-blue-50 p-10 text-center shadow-2xl"
+          aria-hidden={false}
+        >
+          <div
+            className="pointer-events-none absolute inset-0 opacity-40"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle at 1px 1px, rgba(14,165,233,0.14) 1px, transparent 0)",
+              backgroundSize: "30px 30px",
+            }}
+          />
+          <div className="relative z-10 flex flex-col items-center gap-4">
             <div className="rounded-full bg-sky-100 p-3">
               <Building2 className="h-6 w-6 text-sky-600" />
             </div>
@@ -96,13 +107,13 @@ export default function EmployerSection() {
 
             <div className="flex flex-wrap justify-center gap-3">
               <Link href="/employers/register">
-                <Button className="rounded-full bg-sky-600 text-white hover:bg-sky-500">
+                <Button className="rounded-full bg-sky-600 text-white shadow-md transition-transform duration-300 hover:-translate-y-[2px] hover:bg-sky-500">
                   Register as employer
                 </Button>
               </Link>
 
               <Link href="/resources#employer-api">
-                <Button variant="outline" className="rounded-full border-sky-200 text-sky-700">
+                <Button variant="outline" className="rounded-full border-sky-200 text-sky-700 shadow-sm transition-transform duration-300 hover:-translate-y-[2px]">
                   Explore Employer API
                 </Button>
               </Link>
@@ -116,37 +127,39 @@ export default function EmployerSection() {
           </div>
         </div>
 
-        <aside className="rounded-2xl border border-white/60 bg-white/95 p-6 text-center shadow-md">
-          <p className="text-xs font-semibold uppercase tracking-widest text-sky-600">
-            Why employers choose us
-          </p>
+        <aside className="rounded-2xl border border-white/60 bg-white/95 p-6 text-center shadow-md transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
+          <div className="grid gap-4 sm:grid-cols-2 sm:text-center">
+            <div className="mx-auto max-w-sm">
+              <p className="text-xs font-semibold uppercase tracking-widest text-sky-600">
+                Why employers choose us
+              </p>
 
-          <ul className="mt-4 space-y-3 text-sm text-slate-700">
-            <li className="flex flex-col items-center gap-1">
-              <CheckCircle className="h-4 w-4 text-sky-600" />
-              Verified student identity & academic history
-            </li>
-            <li className="flex flex-col items-center gap-1">
-              <Sparkles className="h-4 w-4 text-sky-600" />
-              AI-driven candidate recommendations
-            </li>
-            <li className="flex flex-col items-center gap-1">
-              <BarChart3 className="h-4 w-4 text-sky-600" />
-              Detailed hiring analytics & reporting
-            </li>
-          </ul>
+              <ul className="mt-4 space-y-3 text-sm text-slate-700">
+                <li className="flex items-center justify-center gap-3">
+                  <CheckCircle className="h-4 w-4 text-sky-600" />
+                  <span>Verified student identity & academic history</span>
+                </li>
+                <li className="flex items-center justify-center gap-3">
+                  <Sparkles className="h-4 w-4 text-sky-600" />
+                  <span>AI-driven candidate recommendations</span>
+                </li>
+                <li className="flex items-center justify-center gap-3">
+                  <BarChart3 className="h-4 w-4 text-sky-600" />
+                  <span>Detailed hiring analytics & reporting</span>
+                </li>
+              </ul>
+            </div>
 
-          <hr className="my-4 border-slate-100" />
-
-          <div className="space-y-1 text-sm text-slate-700">
-            <p className="font-semibold text-slate-900">Need help?</p>
-            <p className="text-slate-600">Mon–Sat, 9:00 — 18:00</p>
-            <p className="flex items-center justify-center gap-2 text-slate-700">
-              <Phone className="h-4 w-4 text-sky-600" /> +91 011 4000 1122
-            </p>
-            <p className="flex items-center justify-center gap-2 text-slate-700">
-              <Mail className="h-4 w-4 text-sky-600" /> support@placement.gov.in
-            </p>
+            <div className="mx-auto max-w-xs rounded-xl border border-slate-100 bg-white p-4 text-sm text-slate-700">
+              <p className="text-xs font-semibold uppercase tracking-widest text-sky-600">Need help?</p>
+              <p className="mt-2 text-slate-900">Mon–Sat, 9:00 — 18:00</p>
+              <p className="mt-3 flex items-center justify-center gap-2 text-slate-700">
+                <Phone className="h-4 w-4 text-sky-600" /> +91 011 4000 1122
+              </p>
+              <p className="mt-2 flex items-center justify-center gap-2 text-slate-700">
+                <Mail className="h-4 w-4 text-sky-600" /> support@placement.gov.in
+              </p>
+            </div>
           </div>
         </aside>
       </div>
@@ -179,8 +192,8 @@ export default function EmployerSection() {
         </div>
       </div>
 
-      <div className="mb-12 space-y-6">
-        <Card className="rounded-2xl border border-white/60 bg-white/90 text-center shadow-sm">
+      <div className="mb-12 grid gap-6 lg:grid-cols-3">
+        <Card className="rounded-2xl border border-white/60 bg-white/90 text-left shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-slate-900">
               How hiring works on the mission platform
@@ -190,16 +203,31 @@ export default function EmployerSection() {
             </CardDescription>
           </CardHeader>
 
-          <CardContent className="space-y-3 text-sm text-slate-700">
-            <p><strong>1. Register & verify:</strong> Employers complete KYC verification and get access to recruitment tools.</p>
-            <p><strong>2. Post opportunities:</strong> Use structured fields for eligibility, skills, salary, location, etc.</p>
-            <p><strong>3. Discover candidates:</strong> Search, filter, and shortlist using smart AI recommendations.</p>
-            <p><strong>4. Manage applications:</strong> Track applications, schedule interviews, and record feedback.</p>
-            <p><strong>5. Final selection:</strong> Issue offers, track acceptance, and access analytics for hiring cycles.</p>
+          <CardContent className="grid gap-4 text-sm text-slate-700 sm:grid-cols-[1.6fr,1fr]">
+            <div className="space-y-3">
+              <p><strong>1. Register & verify:</strong> Employers complete KYC verification and get access to recruitment tools.</p>
+              <p><strong>2. Post opportunities:</strong> Use structured fields for eligibility, skills, salary, location, etc.</p>
+              <p><strong>3. Discover candidates:</strong> Search, filter, and shortlist using smart AI recommendations.</p>
+              <p><strong>4. Manage applications:</strong> Track applications, schedule interviews, and record feedback.</p>
+              <p><strong>5. Final selection:</strong> Issue offers, track acceptance, and access analytics for hiring cycles.</p>
+            </div>
+
+            <div className="rounded-xl border border-slate-100 bg-white p-4 text-center text-sm text-slate-700 shadow-sm">
+              <p className="text-xs font-semibold uppercase tracking-widest text-sky-600">Service window</p>
+              <p className="mt-2 flex items-center justify-center gap-2">
+                <Clock className="h-4 w-4 text-sky-600" /> Mon–Sat · 9:00 — 18:00 IST
+              </p>
+              <p className="mt-2 flex items-center justify-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-sky-600" /> Data minimization & audit logs
+              </p>
+              <p className="mt-2 flex items-center justify-center gap-2">
+                <Users className="h-4 w-4 text-sky-600" /> Dedicated success desk for drives
+              </p>
+            </div>
           </CardContent>
         </Card>
 
-        <Card className="rounded-2xl border border-white/60 bg-white/90 text-center shadow-sm">
+        <Card className="flex flex-col justify-between rounded-2xl border border-white/60 bg-white/90 text-left shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-slate-900">Employer programs</CardTitle>
             <CardDescription className="text-sm text-slate-600">
@@ -211,22 +239,8 @@ export default function EmployerSection() {
             <p><strong>Campus Hiring Program:</strong> Coordinate multi-institute drives with automation.</p>
             <p><strong>Startup Hiring Track:</strong> Support for startups seeking interns or entry-level talent.</p>
             <p><strong>Women-in-Tech Fellowship:</strong> Programs to onboard and hire women candidates in STEM.</p>
+            <p><strong>Executive Outreach Desk:</strong> One-stop support for enterprise offers, NDAs, and SLA-bound timelines.</p>
           </CardContent>
-        </Card>
-
-        <Card className="rounded-2xl border border-white/60 bg-white/90 p-5 text-center shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-widest text-sky-600">
-            Quick assistance
-          </p>
-
-          <div className="mt-3 space-y-3 text-sm text-slate-700">
-            <p className="flex items-center justify-center gap-2">
-              <Phone className="h-4 w-4 text-sky-600" /> +91 011 4000 1122
-            </p>
-            <p className="flex items-center justify-center gap-2">
-              <Mail className="h-4 w-4 text-sky-600" /> employer-support@placement.gov.in
-            </p>
-          </div>
         </Card>
       </div>
 
@@ -259,26 +273,41 @@ export default function EmployerSection() {
         </div>
       </div>
 
-      <div className="mb-12 rounded-2xl border border-white/60 bg-white/90 p-10 text-center shadow-sm">
-        <h4 className="text-xl font-semibold text-slate-900">
-          Ready to hire with transparency and precision?
-        </h4>
+      <div className="mb-12">
+        <Card className="grid gap-6 rounded-2xl border border-white/60 bg-white/90 p-8 text-center shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg lg:grid-cols-2 lg:items-center">
+          <div className="flex flex-col items-center text-center">
+            <h4 className="text-xl font-semibold text-slate-900">Ready to hire with transparency and precision?</h4>
+            <p className="mt-2 max-w-xl text-sm text-slate-600">
+              Join leading employers hiring through the National Internship & Placement Mission.
+            </p>
+            <div className="mt-4 flex flex-wrap justify-center gap-3">
+              <Link href="/employers/register">
+                <Button className="rounded-full bg-sky-600 text-white shadow-sm transition-transform duration-300 hover:-translate-y-[2px]">Register now</Button>
+              </Link>
 
-        <p className="mt-2 text-sm text-slate-600">
-          Join leading employers hiring through the National Internship & Placement Mission.
-        </p>
+              <Link href="/resources#employer-api">
+                <Button variant="outline" className="rounded-full border-sky-200 text-sky-700 shadow-sm transition-transform duration-300 hover:-translate-y-[2px]">
+                  View API documentation
+                </Button>
+              </Link>
+            </div>
+          </div>
 
-        <div className="mt-4 flex justify-center gap-3">
-          <Link href="/employers/register">
-            <Button className="rounded-full bg-sky-600 text-white">Register now</Button>
-          </Link>
-
-          <Link href="/resources#employer-api">
-            <Button variant="outline" className="rounded-full border-sky-200 text-sky-700">
-              View API documentation
-            </Button>
-          </Link>
-        </div>
+          <div className="rounded-xl border border-slate-100 bg-white p-6 text-center text-sm text-slate-700 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-widest text-sky-600">Quick assistance</p>
+            <div className="mt-3 space-y-2">
+              <p className="flex items-center justify-center gap-2">
+                <Phone className="h-4 w-4 text-sky-600" /> +91 011 4000 1122
+              </p>
+              <p className="flex items-center justify-center gap-2">
+                <Mail className="h-4 w-4 text-sky-600" /> employer-support@placement.gov.in
+              </p>
+              <p className="flex items-center justify-center gap-2">
+                <Clock className="h-4 w-4 text-sky-600" /> Mon–Sat, 9:00 — 18:00
+              </p>
+            </div>
+          </div>
+        </Card>
       </div>
     </section>
   );
