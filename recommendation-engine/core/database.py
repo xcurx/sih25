@@ -117,10 +117,16 @@ class DatabaseManager:
                             phone VARCHAR(50),
                             skills JSONB DEFAULT '[]',
                             projects JSONB DEFAULT '[]',
+                            placed BOOLEAN DEFAULT FALSE,
                             embedding vector(384),
                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                         );
+                    """)
+
+                    # Add placed column if it doesn't exist (migration for existing tables)
+                    cur.execute("""
+                        ALTER TABLE students ADD COLUMN IF NOT EXISTS placed BOOLEAN DEFAULT FALSE;
                     """)
 
                     cur.execute("""
@@ -267,9 +273,9 @@ class DatabaseManager:
 
                     cur.execute("""
                         INSERT INTO students (
-                            id, email, name, branch, batch, cgpa, phone, skills, projects, embedding
+                            id, email, name, branch, batch, cgpa, phone, skills, projects, placed, embedding
                         ) VALUES (
-                            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+                            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
                         )
                         ON CONFLICT (id) DO UPDATE SET
                             email = EXCLUDED.email,
@@ -280,6 +286,7 @@ class DatabaseManager:
                             phone = EXCLUDED.phone,
                             skills = EXCLUDED.skills,
                             projects = EXCLUDED.projects,
+                            placed = EXCLUDED.placed,
                             embedding = EXCLUDED.embedding,
                             updated_at = CURRENT_TIMESTAMP;
                     """, (
@@ -292,6 +299,7 @@ class DatabaseManager:
                         student.phone,
                         json.dumps(student.skills or []),
                         json.dumps([p.dict() for p in (student.projects or [])]),
+                        student.placed,
                         embedding_list
                     ))
 
@@ -323,6 +331,7 @@ class DatabaseManager:
                             student.phone,
                             json.dumps(student.skills or []),
                             json.dumps([p.dict() for p in (student.projects or [])]),
+                            student.placed,
                             embedding_list
                         ))
 
@@ -330,7 +339,7 @@ class DatabaseManager:
                         cur,
                         """
                         INSERT INTO students (
-                            id, email, name, branch, batch, cgpa, phone, skills, projects, embedding
+                            id, email, name, branch, batch, cgpa, phone, skills, projects, placed, embedding
                         ) VALUES %s
                         ON CONFLICT (id) DO UPDATE SET
                             email = EXCLUDED.email,
@@ -341,6 +350,7 @@ class DatabaseManager:
                             phone = EXCLUDED.phone,
                             skills = EXCLUDED.skills,
                             projects = EXCLUDED.projects,
+                            placed = EXCLUDED.placed,
                             embedding = EXCLUDED.embedding,
                             updated_at = CURRENT_TIMESTAMP;
                         """,
@@ -363,7 +373,7 @@ class DatabaseManager:
             with self.get_connection() as conn:
                 with conn.cursor(cursor_factory=RealDictCursor) as cur:
                     cur.execute("""
-                        SELECT id, email, name, branch, batch, cgpa, phone, skills, projects, embedding
+                        SELECT id, email, name, branch, batch, cgpa, phone, skills, projects, placed, embedding
                         FROM students;
                     """)
                     rows = cur.fetchall()
@@ -388,6 +398,7 @@ class DatabaseManager:
                     'phone': row['phone'],
                     'skills': row['skills'] or [],
                     'projects': row['projects'] or [],
+                    'placed': row.get('placed', False),
                     'embedding': embedding
                 })
 
