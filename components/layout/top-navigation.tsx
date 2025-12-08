@@ -151,7 +151,7 @@ export function TopNavigation() {
             <div
               ref={scrollerRef}
               onWheel={handleWheelScroll}
-              className="flex w-full items-center gap-1 overflow-x-auto scroll-smooth whitespace-nowrap px-1 [scrollbar-width:none] [-ms-overflow-style:'none'] [&::-webkit-scrollbar]:hidden"
+              className="flex w-full items-center justify-evenly gap-1 overflow-x-auto scroll-smooth whitespace-nowrap px-1 [scrollbar-width:none] [-ms-overflow-style:'none'] [&::-webkit-scrollbar]:hidden"
             >
               {navItems.map((item) => {
                 const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
