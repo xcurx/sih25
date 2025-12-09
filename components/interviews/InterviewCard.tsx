@@ -251,15 +251,16 @@ export default function InterviewCard({
               </Button>
             </Link>
           )}
-          {isUpcoming && session?.user?.role === "student" && (
-            <Button
-              variant="outline"
-              onClick={() => onViewDetails(application)}
-              className="flex-1 w-full rounded-full border-amber-200 text-amber-700 hover:bg-amber-50"
-            >
-              <Sparkles className="mr-2 h-4 w-4" />
-              AI Prep
-            </Button>
+          {isUpcoming && session?.user?.role === "student" && application.interviewRel && (
+            <Link href={`/interviews/${application.interviewRel.id}/ai-prep`} className="flex-1 w-full">
+              <Button
+                variant="outline"
+                className="w-full rounded-full border-amber-200 text-amber-700 hover:bg-amber-50"
+              >
+                <Sparkles className="mr-2 h-4 w-4" />
+                AI Prep
+              </Button>
+            </Link>
           )}
           {application.interviewRel?.interviewLink && isUpcoming && iStatus === "scheduled" && (
             <Button

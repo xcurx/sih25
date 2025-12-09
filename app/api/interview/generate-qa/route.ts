@@ -1,5 +1,6 @@
 import { auth } from "@/auth"
 import { NextRequest, NextResponse } from "next/server"
+
 type GenerateRequestBody = {
   jobTitle?: string
   companyName?: string
@@ -13,18 +14,88 @@ type QAItem = {
   answer: string
 }
 
+const buildLocalQuestionSet = ({
+  jobTitle,
+  companyName,
+  description,
+  skills,
+  requirements,
+}: {
+  jobTitle: string
+  companyName?: string
+  description: string
+  skills: string[]
+  requirements: string[]
+}): QAItem[] => {
+  const trimmedSkills = skills.filter(Boolean)
+  const trimmedRequirements = requirements.filter(Boolean)
+  const summaryPoints = description
+    .split(/[\n\.]/)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
+  const primaryFocus = summaryPoints.slice(0, 2)
+  const primarySkill = trimmedSkills[0]
+  const secondarySkill = trimmedSkills[1]
+  const requirementSnippet = trimmedRequirements.slice(0, 2)
+  const companyLabel = companyName || "the company"
+
+  const questions: QAItem[] = []
+
+  questions.push({
+    question: `How would you position yourself for the ${jobTitle} role at ${companyLabel}?`,
+    answer: `I would begin by summarizing the most relevant results that align with ${companyLabel}'s product and team priorities. Specifically, I would highlight my experience with ${
+      primarySkill || "the core technologies mentioned"
+    } and tie it back to the business focus described in the job overview.`,
+  })
+
+  if (primarySkill) {
+    questions.push({
+      question: `Can you walk me through a project where you applied ${primarySkill}?`,
+      answer: `A recent project required heavy use of ${primarySkill}. I led the effort by defining acceptance criteria, setting up instrumentation, and validating the solution end-to-end. The outcome improved key KPIs and mirrors the expectations listed for this role.`,
+    })
+  }
+
+  if (requirementSnippet.length) {
+    questions.push({
+      question: `How would you handle ${
+        requirementSnippet[0]
+      } if you joined ${companyLabel}?`,
+      answer: `I would start by breaking the requirement into measurable milestones, collaborating with cross-functional teams, and ensuring we have reliable telemetry. A similar initiative I owned helped us de-risk rollout and shorten feedback loops.`,
+    })
+  }
+
+  if (secondarySkill) {
+    questions.push({
+      question: `The job description emphasizes ${secondarySkill}. What makes you confident here?`,
+      answer: `My background includes multiple deliveries in ${secondarySkill}. I typically begin by auditing existing gaps, drafting an execution plan, and then pairing with teammates to ensure the design meets both technical and user-facing constraints.`,
+    })
+  }
+
+  questions.push({
+    question: "Describe your approach to behavioral or stakeholder questions for this opportunity.",
+    answer:
+      "I map my responses to the STAR format, focusing on fast context-setting, quantifying the impact, and showing how I partner with PMs, designers, and leadership. This keeps the conversation structured and relevant to the hiring panel.",
+  })
+
+  if (primaryFocus.length) {
+    questions.push({
+      question: "Based on the team's focus, what would be your first 30-60-90 day priorities?",
+      answer: `In the first month I would build relationships, understand the current deployment pipeline, and document quick wins described in the job summary: ${
+        primaryFocus[0]
+      }. Next, I would tackle deeper optimization areas like ${
+        primaryFocus[1] || "the remaining scope mentioned"
+      } to accelerate impact.`,
+    })
+  }
+
+  return questions.slice(0, 5)
+}
+
 export const POST = async (req: NextRequest) => {
   const session = await auth()
 
   if (!session) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
-  }
-
-  if (!process.env.HF_API_KEY) {
-    return NextResponse.json(
-      { message: "HF_API_KEY is not configured on the server." },
-      { status: 500 }
-    )
   }
 
   try {
@@ -34,87 +105,19 @@ export const POST = async (req: NextRequest) => {
     if (!jobTitle || !jobDescription) {
       return NextResponse.json(
         { message: "jobTitle and jobDescription are required." },
-        { status: 400 }
+        { status: 400 },
       )
     }
 
-    const systemPrompt = `
-You are an experienced technical interviewer. Generate five high-quality, role-specific interview questions
-and model answers tailored to the candidate's upcoming interview.
-Respond strictly with valid JSON matching this schema:
-{
-  "questions": [
-    { "question": string, "answer": string }
-  ]
-}
-
-Use the provided context to keep the questions specific and avoid duplicates.
-`
-
-    const userPrompt = `
-Job Title: ${jobTitle}
-Company: ${companyName || "N/A"}
-Job Description: ${jobDescription}
-Key Skills: ${skills.join(", ") || "Not specified"}
-Requirements: ${requirements.join(", ") || "Not specified"}
-
-Focus on behavioral + technical coverage where relevant. Keep answers concise (2-4 sentences).
-`
-
-    const model = process.env.HF_MODEL || "meta-llama/Meta-Llama-3-8B-Instruct"
-    const prompt = `${systemPrompt.trim()}\n${userPrompt.trim()}`
-
-    const hfResponse = await fetch("https://router.huggingface.co/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.HF_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model,
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-        temperature: 0.5,
-        max_tokens: 800,
-      }),
+    const questions = buildLocalQuestionSet({
+      jobTitle,
+      companyName,
+      description: jobDescription,
+      skills,
+      requirements,
     })
 
-    if (!hfResponse.ok) {
-      const errorText = await hfResponse.text()
-      throw new Error(`Hugging Face API error (${hfResponse.status}): ${errorText}`)
-    }
-
-    const hfData = await hfResponse.json()
-    const rawOutput = hfData?.choices?.[0]?.message?.content?.trim()
-
-    if (!rawOutput) {
-      throw new Error("OpenAI returned an empty response.")
-    }
-
-    let parsed: { questions: QAItem[] }
-    try {
-      parsed = JSON.parse(rawOutput)
-    } catch {
-      // Attempt to extract JSON substring
-      const jsonMatch = rawOutput.match(/\{[\s\S]*\}/)
-      if (!jsonMatch) {
-        throw new Error("Failed to parse AI response.")
-      }
-      parsed = JSON.parse(jsonMatch[0])
-    }
-
-    if (!Array.isArray(parsed.questions) || parsed.questions.length === 0) {
-      throw new Error("Generated response did not include questions.")
-    }
-
-    const trimmed = parsed.questions.slice(0, 5).map((qa) => ({
-      question: qa.question?.trim(),
-      answer: qa.answer?.trim(),
-    }))
-
-    return NextResponse.json({ questions: trimmed })
+    return NextResponse.json({ questions })
   } catch (error) {
     console.error("Interview prep generation failed:", error)
     if (error instanceof Error) {
