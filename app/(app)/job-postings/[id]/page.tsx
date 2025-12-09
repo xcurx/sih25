@@ -6,6 +6,13 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import axios from "axios"
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
   ArrowLeft,
   Briefcase,
   Building2,
@@ -13,8 +20,10 @@ import {
   CheckCircle,
   Clock,
   DollarSign,
+  Download,
   ExternalLink,
   FileText,
+  Filter,
   Layers,
   Linkedin,
   Mail,
@@ -101,6 +110,7 @@ export default function OpportunityDetailPage() {
   const [opportunity, setOpportunity] = useState<Opportunity | null>(null)
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
+  const [statusFilter, setStatusFilter] = useState<string>("all")
 
   const fetchOpportunity = async () => {
     try {
@@ -123,6 +133,66 @@ export default function OpportunityDetailPage() {
     if (status === "loading" || status === "unauthenticated") return
     fetchOpportunity()
   }, [status, params.id])
+
+  const exportToCSV = () => {
+    if (!opportunity || opportunity.applications.length === 0) {
+      toast.error("No applications to export")
+      return
+    }
+
+    // Filter applications based on current filter
+    const applicationsToExport = statusFilter === "all" 
+      ? opportunity.applications 
+      : opportunity.applications.filter(app => app.status === statusFilter)
+
+    if (applicationsToExport.length === 0) {
+      toast.error("No applications match the current filter")
+      return
+    }
+
+    // CSV headers
+    const headers = [
+      "Student Name",
+      "Email",
+      "Branch",
+      "Batch",
+      "CGPA",
+      "Application Status",
+      "Interview Scheduled",
+      "Applied At"
+    ]
+
+    // CSV rows
+    const rows = applicationsToExport.map(app => [
+      app.studentRel.name,
+      app.studentRel.email,
+      app.studentRel.branch,
+      app.studentRel.batch,
+      app.studentRel.cgpa,
+      app.status.replace(/_/g, ' '),
+      app.interviewRel ? new Date(app.interviewRel.scheduledAt).toLocaleString() : "Not Scheduled",
+      new Date(app.appliedAt).toLocaleDateString()
+    ])
+
+    // Create CSV content
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(","))
+    ].join("\n")
+
+    // Create and download file
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
+    const link = document.createElement("a")
+    const url = URL.createObjectURL(blob)
+    link.setAttribute("href", url)
+    link.setAttribute("download", `${opportunity.title.replace(/[^a-z0-9]/gi, '_')}_applications.csv`)
+    link.style.visibility = "hidden"
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    
+    toast.success(`Exported ${applicationsToExport.length} applications to CSV`)
+  }
 
   if (status === "loading" || loading) {
     return <Loader />
@@ -315,11 +385,40 @@ export default function OpportunityDetailPage() {
           {/* Applications Section */}
           <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-lg">
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between flex-wrap gap-3">
                 <CardTitle className="text-lg font-semibold text-slate-900 flex items-center gap-2">
                   <Users className="h-5 w-5 text-slate-600" />
                   Applications ({opportunity.applications.length})
                 </CardTitle>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <Filter className="h-4 w-4 text-slate-500" />
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                      <SelectTrigger className="w-[180px] rounded-full border-slate-200">
+                        <SelectValue placeholder="Filter by status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Status</SelectItem>
+                        <SelectItem value="applied">Applied</SelectItem>
+                        <SelectItem value="reviewed">Reviewed</SelectItem>
+                        <SelectItem value="shortlisted">Shortlisted</SelectItem>
+                        <SelectItem value="mentor_approval_needed">Mentor Approval Needed</SelectItem>
+                        <SelectItem value="accepted">Accepted</SelectItem>
+                        <SelectItem value="rejected">Rejected</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={exportToCSV}
+                    className="rounded-full border-slate-200 hover:bg-slate-100"
+                    disabled={opportunity.applications.length === 0}
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Export CSV
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             <CardContent>
@@ -330,46 +429,81 @@ export default function OpportunityDetailPage() {
                   </div>
                   <p className="text-slate-600">No applications yet.</p>
                 </div>
-              ) : (
-                <div className="space-y-3">
-                  {opportunity.applications.map((app) => (
-                    <Link key={app.id} href={`/applications/${app.id}`} className="block">
-                      <div className="group rounded-2xl border border-slate-200 bg-white p-4 transition-all hover:border-sky-200 hover:shadow-md cursor-pointer">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-4">
-                            <div className="rounded-full bg-gradient-to-br from-sky-100 to-blue-100 p-3">
-                              <User className="h-5 w-5 text-sky-600" />
-                            </div>
-                            <div>
-                              <h4 className="font-semibold text-slate-900 group-hover:text-sky-700 transition-colors">
-                                {app.studentRel.name}
-                              </h4>
-                              <div className="flex items-center gap-3 text-sm text-slate-600">
-                                <span>{app.studentRel.branch}</span>
-                                <span>•</span>
-                                <span>Batch {app.studentRel.batch}</span>
-                                <span>•</span>
-                                <span>CGPA: {app.studentRel.cgpa}</span>
+              ) : (() => {
+                const filteredApplications = opportunity.applications.filter(
+                  (app) => statusFilter === "all" || app.status === statusFilter
+                )
+                return filteredApplications.length === 0 ? (
+                  <div className="p-8 text-center">
+                    <div className="rounded-full bg-slate-100 p-4 w-fit mx-auto mb-4">
+                      <Filter className="h-8 w-8 text-slate-400" />
+                    </div>
+                    <p className="text-slate-600">No applications with &quot;{statusFilter.replace(/_/g, ' ')}&quot; status.</p>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => setStatusFilter("all")}
+                      className="mt-2 text-sky-600 hover:text-sky-700"
+                    >
+                      Clear filter
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {statusFilter !== "all" && (
+                      <div className="flex items-center justify-between mb-2 px-1">
+                        <p className="text-sm text-slate-500">
+                          Showing {filteredApplications.length} of {opportunity.applications.length} applications
+                        </p>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => setStatusFilter("all")}
+                          className="text-sky-600 hover:text-sky-700 h-auto py-1"
+                        >
+                          Clear filter
+                        </Button>
+                      </div>
+                    )}
+                    {filteredApplications.map((app) => (
+                      <Link key={app.id} href={`/applications/${app.id}`} className="block">
+                        <div className="group rounded-2xl border border-slate-200 bg-white p-4 transition-all hover:border-sky-200 hover:shadow-md cursor-pointer">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                              <div className="rounded-full bg-gradient-to-br from-sky-100 to-blue-100 p-3">
+                                <User className="h-5 w-5 text-sky-600" />
+                              </div>
+                              <div>
+                                <h4 className="font-semibold text-slate-900 group-hover:text-sky-700 transition-colors">
+                                  {app.studentRel.name}
+                                </h4>
+                                <div className="flex items-center gap-3 text-sm text-slate-600">
+                                  <span>{app.studentRel.branch}</span>
+                                  <span>•</span>
+                                  <span>Batch {app.studentRel.batch}</span>
+                                  <span>•</span>
+                                  <span>CGPA: {app.studentRel.cgpa}</span>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <Badge className={`rounded-full capitalize ${getStatusColor(app.status)}`}>
-                              {app.status.replace(/_/g, ' ')}
-                            </Badge>
-                            {app.interviewRel && (
-                              <Badge className="rounded-full bg-sky-100 text-sky-700">
-                                Interview Scheduled
+                            <div className="flex items-center gap-3">
+                              <Badge className={`rounded-full capitalize ${getStatusColor(app.status)}`}>
+                                {app.status.replace(/_/g, ' ')}
                               </Badge>
-                            )}
-                            <ExternalLink className="h-4 w-4 text-slate-400 group-hover:text-sky-600" />
+                              {app.interviewRel && app.status === "shortlisted" && (
+                                <Badge className="rounded-full bg-sky-100 text-sky-700">
+                                  Interview Scheduled
+                                </Badge>
+                              )}
+                              <ExternalLink className="h-4 w-4 text-slate-400 group-hover:text-sky-600" />
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              )}
+                      </Link>
+                    ))}
+                  </div>
+                )
+              })()}
             </CardContent>
           </Card>
         </div>

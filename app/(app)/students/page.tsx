@@ -1,1008 +1,574 @@
 "use client"
 
 import Loader from "@/components/loader/Loader"
-import StudentDetailsDialog from "@/components/students/StudentDetailsDialog"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import type { Student } from "@/lib/types"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { StudentProfile, StudentProfileStats } from "@/lib/types"
 import axios from "axios"
 import {
+  ArrowLeft,
   Award,
   Briefcase,
+  Building2,
+  Calendar,
+  Code,
   Download,
   ExternalLink,
-  Eye,
-  GraduationCap,
-  Mail,
-  Phone,
-  Search,
-  AlertCircle,
   FileText,
-  XCircle,
+  Github,
+  GraduationCap,
+  Linkedin,
+  Mail,
   MapPin,
-  Star,
-  Clock,
-  Users,
-  Calendar,
-  Layers,
-  Upload
+  Phone,
+  User,
 } from "lucide-react"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useEffect, useState, useRef, type ChangeEvent } from "react"
+import { useParams, useRouter } from "next/navigation"
+import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 
-const commonSkills = [
-  "JavaScript",
-  "Python",
-  "Java",
-  "C#",
-  "C++",
-  "Go",
-  "Rust",
-  "Kotlin",
-  "Swift",
-  "PHP",
-  "Ruby",
-  "React",
-  "Next.js",
-  "Node.js",
-  "Express",
-  "NestJS",
-  "GraphQL",
-  "Apollo",
-  "Redux",
-  "React Query",
-  "TypeScript",
-  "Angular",
-  "Vue.js",
-  "Svelte",
-  "Tailwind CSS",
-  "HTML/CSS",
-  "SQL",
-  "PostgreSQL",
-  "MySQL",
-  "MongoDB",
-  "Redis",
-  "Elasticsearch",
-  "Kafka",
-  "RabbitMQ",
-  "Docker",
-  "Kubernetes",
-  "AWS",
-  "GCP",
-  "Azure",
-  "CI/CD",
-  "Git",
-  "Linux",
-  "Machine Learning",
-  "Data Analysis",
-  "Pandas",
-  "NumPy",
-  "TensorFlow",
-  "PyTorch",
-  "OpenCV",
-  "Testing",
-  "Jest",
-  "Cypress",
-  "Playwright",
-  "Security",
-  "Performance Optimization",
-  "System Design",
-]
+export default function StudentProfilePage() {
+  const { data: session, status } = useSession()
+  const params = useParams()
+  const router = useRouter()
+  const [student, setStudent] = useState<StudentProfile | null>(null)
+  const [stats, setStats] = useState<StudentProfileStats | null>(null)
+  const [loading, setLoading] = useState(true)
 
-const branchOptions = [
-  "Computer Science",
-  "Information Technology",
-  "Electronics and Communication",
-  "Mechanical Engineering",
-  "Civil Engineering",
-  "Electrical Engineering",
-  "Mathematics",
-  "Physics",
-  "Chemistry",
-]
-
-const mentorIds = ["cmi17eufc0000engs4jy4kg44", "cmivusgxc0001fsfm6xmvdxho"]
-const CSV_HEADERS = [
-  "name",
-  "email",
-  "branch",
-  "batch",
-  "cgpa",
-  "phone",
-  "skills",
-  "github",
-  "linkedin",
-  "password",
-  "mentorId",
-] as const
-const DEFAULT_PASSWORD = "1234"
-
-type CsvHeader = (typeof CSV_HEADERS)[number]
-type CsvRow = Record<CsvHeader, string>
-
-interface StudentImportPayload {
-  email: string
-  name: string
-  password: string
-  branch?: string
-  batch?: number
-  cgpa?: number
-  phone?: string
-  skills?: string[]
-  github?: string
-  linkedin?: string
-  mentorId?: string
-}
-
-const slugify = (value: string) =>
-  value
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "") || "student"
-
-const randomFromArray = <T,>(items: T[]) => items[Math.floor(Math.random() * items.length)]
-
-const sanitizeBranch = (branch?: string | null) => {
-  if (branch && branchOptions.includes(branch)) {
-    return branch
-  }
-  return branchOptions[0]
-}
-
-const sanitizeSkillsList = (skills?: string[]) => {
-  const normalized = (skills || []).map((skill) => skill.trim()).filter(Boolean)
-  const filtered = normalized.filter((skill) => commonSkills.includes(skill))
-
-  if (filtered.length) {
-    return Array.from(new Set(filtered)).slice(0, 8)
-  }
-
-  // Provide at least a few fallback skills to keep CSV consistent
-  const shuffled = [...commonSkills]
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
-  }
-  return shuffled.slice(0, 4)
-}
-
-const skillsFromText = (value?: string) => {
-  if (!value) return sanitizeSkillsList([])
-  const split = value
-    .split(/[,;|]/)
-    .map((skill) => skill.trim())
-    .filter(Boolean)
-  return sanitizeSkillsList(split)
-}
-
-const ensureLink = (link: string | null | undefined, name: string, type: "github" | "linkedin") => {
-  if (link && link.trim().length > 0) {
-    return link.trim()
-  }
-  const slug = slugify(name)
-  return type === "github" ? `https://github.com/${slug}` : `https://www.linkedin.com/in/${slug}`
-}
-
-const ensureMentorId = (mentorId?: string | null) => {
-  if (mentorId && mentorIds.includes(mentorId)) {
-    return mentorId
-  }
-  return randomFromArray(mentorIds)
-}
-
-const formatCsvValue = (value: string | number | undefined | null) => {
-  const stringValue = value !== undefined && value !== null ? String(value) : ""
-  const sanitized = stringValue.replace(/\r?\n/g, " ").trim()
-  if (/[",\n]/.test(sanitized)) {
-    return `"${sanitized.replace(/"/g, '""')}"`
-  }
-  return sanitized
-}
-
-const buildCsvContent = (rows: CsvRow[]) => {
-  const headerLine = CSV_HEADERS.join(",")
-  const dataLines = rows.map((row) => CSV_HEADERS.map((key) => formatCsvValue(row[key])).join(","))
-  return [headerLine, ...dataLines].join("\n")
-}
-
-const tokenizeCsv = (content: string) => {
-  const rows: string[][] = []
-  let current = ""
-  let row: string[] = []
-  let inQuotes = false
-
-  for (let i = 0; i < content.length; i++) {
-    const char = content[i]
-    if (char === '"') {
-      if (inQuotes && content[i + 1] === '"') {
-        current += '"'
-        i++
-      } else {
-        inQuotes = !inQuotes
+  const fetchStudent = async () => {
+    try {
+      const res = await axios.get(`/api/placementcell/get-student-profile/${params.id}`, {
+        withCredentials: true,
+      })
+      if (res.status === 200) {
+        setStudent(res.data.student)
+        setStats(res.data.stats)
       }
-      continue
+    } catch (error) {
+      console.error(error)
+      toast.error("Failed to fetch student profile")
+    } finally {
+      setLoading(false)
     }
-
-    if (char === "," && !inQuotes) {
-      row.push(current)
-      current = ""
-      continue
-    }
-
-    if ((char === "\n" || char === "\r") && !inQuotes) {
-      if (char === "\r" && content[i + 1] === "\n") {
-        i++
-      }
-      row.push(current)
-      rows.push(row)
-      row = []
-      current = ""
-      continue
-    }
-
-    current += char
   }
 
-  if (row.length > 0 || current.trim().length > 0) {
-    row.push(current)
-    rows.push(row)
+  useEffect(() => {
+    if (status === "loading" || status === "unauthenticated") return
+    fetchStudent()
+  }, [status, params.id])
+
+  if (status === "loading" || loading) {
+    return <Loader />
   }
 
-  return rows.filter((line) => line.some((cell) => cell.trim().length > 0))
-}
-
-const parseCsvContent = (content: string): CsvRow[] => {
-  const rows = tokenizeCsv(content)
-  if (!rows.length) return []
-
-  const normalizedHeaders = rows[0].map((header) => header.trim().toLowerCase())
-  const missingHeaders = CSV_HEADERS.filter((header) => !normalizedHeaders.includes(header.toLowerCase()))
-
-  if (missingHeaders.length) {
-    throw new Error(`Missing headers: ${missingHeaders.join(", ")}`)
+  if (session?.user?.role !== "placement-cell" && session?.user?.role !== "faculty" && session?.user?.role !== "employer") {
+    router.push("/")
+    return null
   }
 
-  const headerIndexMap: Record<CsvHeader, number> = {} as Record<CsvHeader, number>
-  CSV_HEADERS.forEach((header) => {
-    headerIndexMap[header] = normalizedHeaders.indexOf(header.toLowerCase())
-  })
-
-  return rows.slice(1).map((row) => {
-    const record = {} as CsvRow
-    CSV_HEADERS.forEach((header) => {
-      const value = row[headerIndexMap[header]] ?? ""
-      record[header] = value.trim()
-    })
-    return record
-  })
-}
-
-const mapCsvRecordsToPayload = (records: CsvRow[]): StudentImportPayload[] =>
-  records
-    .map((record) => {
-      const name = record.name?.trim()
-      const email = record.email?.trim().toLowerCase()
-
-      if (!name || !email) {
-        return null
-      }
-
-      const batch = Number(record.batch)
-      const cgpa = Number(record.cgpa)
-
-      return {
-        name,
-        email,
-        password: DEFAULT_PASSWORD,
-        branch: sanitizeBranch(record.branch),
-        batch: Number.isFinite(batch) ? batch : undefined,
-        cgpa: Number.isFinite(cgpa) ? cgpa : undefined,
-        phone: record.phone || undefined,
-        skills: skillsFromText(record.skills),
-        github: ensureLink(record.github, name, "github"),
-        linkedin: ensureLink(record.linkedin, name, "linkedin"),
-        mentorId: ensureMentorId(record.mentorId),
-      }
-    })
-    .filter((record): record is StudentImportPayload => Boolean(record))
-
-interface CustomStudentCardProps {
-    student: Student;
-    onViewDetails: (student: Student) => void;
-}
-
-const CustomStudentCard = ({ student, onViewDetails }: CustomStudentCardProps) => {
-    const isPlaced = student.applications.some((app) => app.status === "accepted");
-    const isInProcess = student.applications.some((app) => ["applied", "shortlisted"].includes(app.status)) && !isPlaced;
-    const isUnplaced = !isPlaced && !isInProcess;
-
-    const statusBadge = () => {
-        if (isPlaced) return <Badge className="bg-emerald-500 hover:bg-emerald-500 text-white rounded-full border-0 px-3 py-0.5 text-xs font-medium">Placed</Badge>;
-        if (isInProcess) return <Badge className="bg-sky-500 hover:bg-sky-500 text-white rounded-full border-0 px-3 py-0.5 text-xs font-medium">In Process</Badge>;
-        return <Badge className="bg-amber-500 hover:bg-amber-500 text-white rounded-full border-0 px-3 py-0.5 text-xs font-medium">Unplaced</Badge>;
-    };
-
-    const getYear = (batch: number) => {
-        return 4 - (batch - 2025);
-    };
-
-    const skills = student.skills || ["JS", "Python", "SQL"]; 
-    const applicationsCount = student.applications?.length || 0;
-
+  if (!student) {
     return (
-        <Card className="border-slate-200 bg-white shadow-sm rounded-3xl transition hover:shadow-md">
-            <CardContent className="p-5">
-                {/* Header Section */}
-                <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-start gap-4">
-                        {/* Avatar */}
-                        <Avatar className="h-14 w-14 rounded-2xl">
-                            <AvatarImage src={student.avatar || "/placeholder.svg"} alt={student.name} />
-                            <AvatarFallback className="rounded-2xl bg-gradient-to-br from-blue-100 to-blue-200 text-blue-600 text-xl font-semibold">
-                                {student.name.charAt(0)}
-                            </AvatarFallback>
-                        </Avatar>
-                        
-                        {/* Name and Info */}
-                        <div>
-                            <div className="flex items-center gap-3 mb-1">
-                                <h3 className="text-xl font-semibold text-slate-900">{student.name}</h3>
-                                {statusBadge()}
-                            </div>
-                            <p className="text-sm text-slate-600 mb-2">
-                                {student.branch} • Year {getYear(student.batch)}
-                            </p>
-                            <div className="flex items-center gap-4 text-sm text-slate-600">
-                                <div className="flex items-center gap-2">
-                                    <Mail className="h-4 w-4 text-slate-400" />
-                                    <span>{student.email}</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <Phone className="h-4 w-4 text-slate-400" />
-                                    <span>{student.phone}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* CGPA */}
-                    <div className="text-right">
-                        <div className="text-3xl font-bold text-slate-900">
-                            {student.cgpa ? student.cgpa.toFixed(2) : 'N/A'}
-                        </div>
-                        <div className="text-xs text-slate-500 mt-0.5">CGPA</div>
-                    </div>
-                </div>
-
-                {/* Skills Section */}
-                <div className="mb-4">
-                    <h4 className="text-sm font-semibold text-slate-700 mb-2">Skills:</h4>
-                    <div className="flex flex-wrap gap-2">
-                        {skills.slice(0, 6).map((skill, index) => (
-                            <Badge 
-                                key={index} 
-                                variant="outline" 
-                                className="rounded-full border-slate-300 bg-slate-50 text-slate-700 px-3 py-1 text-xs font-normal"
-                            >
-                                {skill}
-                            </Badge>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Total Applications */}
-                <div className="flex items-center gap-2 text-slate-600 mb-4">
-                    <FileText className="h-4 w-4" />
-                    <span className="text-sm font-medium">{applicationsCount}</span>
-                    <span className="text-sm text-slate-500">Total Applications</span>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex items-center gap-3">
-                    <Button 
-                        variant="outline"
-                        onClick={() => onViewDetails(student)}
-                        className="border-sky-600 text-sky-600 hover:bg-sky-50"
-                    >
-                        <Eye className="h-4 w-4 mr-2" />
-                        Quick View
-                    </Button>
-                    <Link href={`/students/${student.id}`} className="ml-auto">
-                        <Button 
-                            className="rounded-full bg-sky-500 text-white hover:bg-sky-600"
-                        >
-                            <ExternalLink className="h-4 w-4 mr-2" />
-                            View Profile
-                        </Button>
-                    </Link>
-                </div>
-            </CardContent>
-        </Card>
-    );
-};
-
-// Job Card Component
-interface JobCardProps {
-    job?: any;
-}
-
-const JobCard = ({ job }: JobCardProps) => {
-    return (
-        <Card className="border-slate-200 bg-gradient-to-br from-blue-50/30 via-white to-purple-50/20 shadow-sm rounded-3xl">
-            <CardContent className="p-8">
-                {/* Header Section */}
-                <div className="flex items-start justify-between mb-8">
-                    <div className="flex items-start gap-4">
-                        {/* Company Icon */}
-                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center flex-shrink-0">
-                            <Briefcase className="w-7 h-7 text-blue-600" />
-                        </div>
-                        
-                        {/* Title and Company */}
-                        <div>
-                            <h2 className="text-xl font-bold text-slate-900 mb-1">SWE INTERN</h2>
-                            <p className="text-base text-slate-600">Microsoft</p>
-                        </div>
-                    </div>
-
-                    {/* Right Side Info */}
-                    <div className="flex items-start gap-6">
-                        <div className="flex items-center gap-2 text-slate-600">
-                            <MapPin className="w-4 h-4 text-blue-500" />
-                            <span className="text-sm font-medium">Gujarat, IND</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-slate-600">
-                            <Briefcase className="w-4 h-4 text-blue-500" />
-                            <span className="text-sm font-medium">Internship</span>
-                        </div>
-                        <div className="text-right">
-                            <span className="text-xl font-bold text-blue-600">₹30000</span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Status Badges */}
-                <div className="flex items-center gap-3 mb-8">
-                    <button className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-slate-100 transition">
-                        <Star className="w-5 h-5 text-slate-400" />
-                    </button>
-                    <Badge className="rounded-full bg-amber-50 text-amber-700 border border-amber-200 px-4 py-1.5 font-medium text-sm hover:bg-amber-50">
-                        <Clock className="w-3.5 h-3.5 mr-1.5" />
-                        3 days left
-                    </Badge>
-                    <Badge className="rounded-full bg-slate-50 text-slate-700 border border-slate-200 px-4 py-1.5 font-medium text-sm hover:bg-slate-50">
-                        <Users className="w-3.5 h-3.5 mr-1.5" />
-                        1 applicant
-                    </Badge>
-                </div>
-
-                {/* Skills and Departments Section */}
-                <div className="grid grid-cols-2 gap-12 mb-8">
-                    {/* Required Skills */}
-                    <div>
-                        <h3 className="text-sm font-medium text-slate-500 mb-3 flex items-center gap-2">
-                            <Layers className="w-4 h-4 text-slate-400" />
-                            Required Skills
-                        </h3>
-                        <div className="flex flex-wrap gap-2">
-                            <Badge 
-                                variant="outline"
-                                className="rounded-full border-blue-200 bg-blue-50 text-blue-600 px-3 py-1 text-sm font-normal hover:bg-blue-50"
-                            >
-                                JavaScript
-                            </Badge>
-                            <Badge 
-                                variant="outline"
-                                className="rounded-full border-blue-200 bg-blue-50 text-blue-600 px-3 py-1 text-sm font-normal hover:bg-blue-50"
-                            >
-                                Python
-                            </Badge>
-                        </div>
-                    </div>
-
-                    {/* Eligible Departments */}
-                    <div>
-                        <h3 className="text-sm font-medium text-slate-500 mb-3 flex items-center gap-2">
-                            <Briefcase className="w-4 h-4 text-slate-400" />
-                            Eligible Departments
-                        </h3>
-                        <div className="flex flex-wrap gap-2">
-                            <Badge 
-                                variant="outline"
-                                className="rounded-full border-purple-200 bg-purple-50 text-purple-600 px-3 py-1 text-sm font-normal hover:bg-purple-50"
-                            >
-                                Computer Science
-                            </Badge>
-                            <Badge 
-                                variant="outline"
-                                className="rounded-full border-purple-200 bg-purple-50 text-purple-600 px-3 py-1 text-sm font-normal hover:bg-purple-50"
-                            >
-                                Information Technology
-                            </Badge>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Dates Section */}
-                <div className="grid grid-cols-2 gap-12 mb-8">
-                    <div className="flex items-center gap-3">
-                        <Calendar className="w-4 h-4 text-slate-400" />
-                        <div>
-                            <p className="text-xs text-slate-500">Posted on</p>
-                            <p className="text-sm font-medium text-slate-700">12/9/2025</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <Clock className="w-4 h-4 text-slate-400" />
-                        <div>
-                            <p className="text-xs text-slate-500">Apply by</p>
-                            <p className="text-sm font-medium text-slate-700">12/11/2025</p>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex items-center gap-3">
-                    <Button 
-                        variant="ghost" 
-                        className="rounded-xl text-blue-600 hover:bg-blue-50 px-5 h-10"
-                    >
-                        <ExternalLink className="w-4 h-4 mr-2" />
-                        View Details
-                    </Button>
-                    <Button 
-                        variant="ghost"
-                        className="rounded-xl text-blue-500 hover:bg-blue-50 px-5 h-10"
-                    >
-                        Send Mentor Approval
-                    </Button>
-                    <Button 
-                        className="rounded-xl bg-blue-500 text-white hover:bg-blue-600 px-8 h-10 ml-auto"
-                    >
-                        Apply Now
-                    </Button>
-                </div>
-            </CardContent>
-        </Card>
-    );
-};
-
-export default function StudentsPage() {
-    const { data:session, status } = useSession();
-    const [searchTerm, setSearchTerm] = useState("")
-    const [departmentFilter, setDepartmentFilter] = useState("all")
-    const [yearFilter, setYearFilter] = useState("all")
-    const [activeTab, setActiveTab] = useState("all")
-    const [searchExpanded, setSearchExpanded] = useState(false)
-    const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
-    const [students, setStudents] = useState<Student[]>([])
-    const router = useRouter()
-    const [loading, setLoading] = useState(true)
-    const [isExporting, setIsExporting] = useState(false)
-    const [isImporting, setIsImporting] = useState(false)
-    const fileInputRef = useRef<HTMLInputElement>(null)
-    const searchPopupRef = useRef<HTMLDivElement>(null)
-
-    const getStudents = async () => {
-        setLoading(true);
-        try {
-          const res = await axios.get("/api/placementcell/get-students", { withCredentials: true });
-          if (res.status === 200) {
-            setStudents(res.data.students);
-          }
-        } catch (error) {
-          console.error("Error fetching students:", error);
-        } finally {
-          setLoading(false);
-        }
-    }
-
-    const handleExport = () => {
-        if (!students.length) {
-          toast.error("No students available to export")
-          return
-        }
-
-        try {
-          setIsExporting(true)
-          const csvRows: CsvRow[] = students.map((student) => {
-            const sanitizedSkills = sanitizeSkillsList(student.skills)
-            const mentorId = ensureMentorId(student.mentorId)
-            return {
-              name: student.name || "",
-              email: student.email || "",
-              branch: sanitizeBranch(student.branch),
-              batch: student.batch ? String(student.batch) : "",
-              cgpa: typeof student.cgpa === "number" ? student.cgpa.toString() : "",
-              phone: student.phone || "",
-              skills: sanitizedSkills.join("; "),
-              github: ensureLink(student.github, student.name, "github"),
-              linkedin: ensureLink(student.linkedin, student.name, "linkedin"),
-              password: DEFAULT_PASSWORD,
-              mentorId,
-            }
-          })
-
-          const csvContent = buildCsvContent(csvRows)
-          const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
-          const url = URL.createObjectURL(blob)
-          const link = document.createElement("a")
-          link.href = url
-          link.download = `students-${new Date().toISOString().split("T")[0]}.csv`
-          document.body.appendChild(link)
-          link.click()
-          document.body.removeChild(link)
-          URL.revokeObjectURL(url)
-          toast.success("Student data exported")
-        } catch (error) {
-          console.error("Export failed:", error)
-          toast.error("Failed to export students")
-        } finally {
-          setIsExporting(false)
-        }
-    }
-
-    const handleImportFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0]
-
-        if (!file) {
-          return
-        }
-
-        setIsImporting(true)
-
-        try {
-          const textContent = await file.text()
-          const records = parseCsvContent(textContent)
-
-          if (!records.length) {
-            throw new Error("No data rows found in CSV")
-          }
-
-          const payload = mapCsvRecordsToPayload(records)
-
-          if (!payload.length) {
-            throw new Error("No valid student entries found")
-          }
-
-          const response = await axios.post(
-            "/api/placementcell/mass-signup/students",
-            { students: payload, sendEmails: false },
-            { withCredentials: true },
-          )
-
-          const summary = response.data?.summary
-          toast.success(
-            summary
-              ? `Imported ${summary.successful}/${summary.total} students`
-              : `Imported ${payload.length} students`,
-          )
-          await getStudents()
-        } catch (error) {
-          console.error("Import failed:", error)
-          const message = axios.isAxiosError(error)
-            ? error.response?.data?.error || error.message
-            : error instanceof Error
-              ? error.message
-              : "Failed to import students"
-          toast.error(message)
-        } finally {
-          event.target.value = ""
-          setIsImporting(false)
-        }
-    }
-
-    const filteredStudents = students.filter((student) => {
-      const matchesSearch =
-        student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.skills.some((skill) => skill.toLowerCase().includes(searchTerm.toLowerCase()))
-
-      const matchesDepartment = departmentFilter === "all" || student.branch == departmentFilter
-      const matchesYear = yearFilter === "all" || (`${4-(student.batch-2025)}`) === yearFilter
-
-      const isPlaced = student.applications.some((app) => app.status === "accepted")
-      const isInProcess = student.applications.some((app) => ["applied", "shortlisted"].includes(app.status)) && !isPlaced
-      const isUnplaced = !isPlaced && !isInProcess
-
-      const matchesTab = 
-        activeTab === "all" ||
-        (activeTab === "placed" && isPlaced) ||
-        (activeTab === "active" && isInProcess) ||
-        (activeTab === "unplaced" && isUnplaced)
-
-      return matchesSearch && matchesDepartment && matchesYear && matchesTab
-    })
-
-    const departments = Array.from(new Set(students.map((s) => s.branch)))
-    const years = Array.from(new Set(students.map((s) => `${4-(s.batch-2025)}`))).sort()
-
-    const placedStudents = students.filter((s) => s.applications.some((app) => app.status === "accepted"))
-    const activeStudents = students.filter((s) =>
-      s.applications.some((app) => ["applied", "shortlisted"].includes(app.status)),
-    )
-    const unplacedStudents = students.filter(
-      (s) => s.applications.length === 0 || s.applications.every((app) => app.status === "rejected"),
-    )
-
-    useEffect(() => {
-      if (status === "unauthenticated" || status === "loading") return;
-      getStudents();
-    }, [status])
-
-    useEffect(() => {
-      const handleClickOutside = (event: MouseEvent) => {
-        if (searchPopupRef.current && !searchPopupRef.current.contains(event.target as Node)) {
-          setSearchExpanded(false)
-        }
-      }
-
-      if (searchExpanded) {
-        document.addEventListener("mousedown", handleClickOutside)
-      }
-
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside)
-      }
-    }, [searchExpanded])
-
-    if (status === "loading" || status === "unauthenticated" || loading) {
-      return <Loader/>
-    }
-
-    if (session?.user?.role !== "placement-cell" && session?.user?.role !== "faculty") {
-      router.replace("/")
-    }
-
-    return (
-      <div className="w-full">
-        {/* Hero Section with Stats */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 space-y-6 max-w-7xl mx-auto">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.08),transparent_55%)]" />
-          <div className="relative space-y-4">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">Student Management</p>
-                <h1 className="mt-3 text-3xl font-semibold text-slate-900">Student Talent Pool</h1>
-                <p className="mt-2 text-sm text-slate-600">
-                  Manage student profiles and track placement progress across all departments.
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <Button
-                  variant="outline"
-                  onClick={handleExport}
-                  disabled={isExporting || !students.length}
-                  className="rounded-full border-sky-600 text-sky-600 hover:bg-sky-50 disabled:cursor-not-allowed"
-                >
-                  <Download className="mr-2 h-4 w-4" />
-                  {isExporting ? "Exporting..." : "Export CSV"}
-                </Button>
-                <Button
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isImporting}
-                  className="rounded-full bg-sky-600 text-white hover:bg-sky-700 disabled:cursor-not-allowed"
-                >
-                  <Upload className="mr-2 h-4 w-4" />
-                  {isImporting ? "Importing..." : "Import CSV"}
-                </Button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".csv,text/csv"
-                  className="hidden"
-                  onChange={handleImportFileChange}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Stats Cards */}
-          <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-slate-500">Total Students</CardTitle>
-                <div className="rounded-full p-2 bg-sky-50 text-sky-600">
-                  <GraduationCap className="h-4 w-4" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-semibold text-slate-900">{students.length}</div>
-                <p className="text-xs text-slate-500">Eligible for placement</p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-slate-500">Placed</CardTitle>
-                <div className="rounded-full p-2 bg-emerald-50 text-emerald-600">
-                  <Award className="h-4 w-4" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-semibold text-slate-900">{placedStudents.length}</div>
-                <p className="text-xs text-slate-500">Successfully secured offers</p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-slate-500">In Process</CardTitle>
-                <div className="rounded-full p-2 bg-sky-50 text-sky-600">
-                  <Briefcase className="h-4 w-4" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-semibold text-slate-900">{activeStudents.length}</div>
-                <p className="text-xs text-slate-500">Active applications/interviews</p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-slate-500">Unplaced</CardTitle>
-                <div className="rounded-full p-2 bg-amber-50 text-amber-600">
-                  <AlertCircle className="h-4 w-4" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-semibold text-slate-900">{unplacedStudents.length}</div>
-                <p className="text-xs text-slate-500">Require immediate attention</p>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
-
-        {/* Sticky Filter Bar */}
-        <div className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm">
-          <div className="max-w-7xl mx-auto px-6 py-4">
-            {/* Main Filter Row */}
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                {/* Tabs */}
-                <div className="flex items-center bg-slate-100 rounded-full p-1">
-                  <button
-                    onClick={() => setActiveTab("all")}
-                    className={`px-3 py-2 rounded-full text-sm font-medium transition whitespace-nowrap ${
-                      activeTab === "all"
-                        ? "bg-sky-600 text-white shadow-sm"
-                        : "text-slate-700 hover:text-slate-900"
-                    }`}
-                  >
-                    All ({students.length})
-                  </button>
-                  <button
-                    onClick={() => setActiveTab("placed")}
-                    className={`px-3 py-2 rounded-full text-sm font-medium transition whitespace-nowrap ${
-                      activeTab === "placed"
-                        ? "bg-sky-600 text-white shadow-sm"
-                        : "text-slate-700 hover:text-slate-900"
-                    }`}
-                  >
-                    Placed ({placedStudents.length})
-                  </button>
-                  <button
-                    onClick={() => setActiveTab("active")}
-                    className={`px-3 py-2 rounded-full text-sm font-medium transition whitespace-nowrap ${
-                      activeTab === "active"
-                        ? "bg-sky-600 text-white shadow-sm"
-                        : "text-slate-700 hover:text-slate-900"
-                    }`}
-                  >
-                    In Process ({activeStudents.length})
-                  </button>
-                  <button
-                    onClick={() => setActiveTab("unplaced")}
-                    className={`px-3 py-2 rounded-full text-sm font-medium transition whitespace-nowrap ${
-                      activeTab === "unplaced"
-                        ? "bg-sky-600 text-white shadow-sm"
-                        : "text-slate-700 hover:text-slate-900"
-                    }`}
-                  >
-                    Unplaced ({unplacedStudents.length})
-                  </button>
-                </div>
-
-                {/* Circular Search Button */}
-                <button
-                  onClick={() => setSearchExpanded(!searchExpanded)}
-                  className={`h-10 w-10 rounded-full flex items-center justify-center transition ${
-                    searchExpanded
-                      ? "bg-sky-600 text-white shadow-md"
-                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                  }`}
-                >
-                  <Search className="h-4 w-4" />
-                </button>
-              </div>
-
-              <div className="flex items-center gap-3">
-                {/* Department Filter */}
-                <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-                  <SelectTrigger className="w-[180px] h-10 border-slate-200 focus:ring-sky-600 rounded-lg">
-                    <SelectValue placeholder="All Departments" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Departments</SelectItem>
-                    {departments.map((dept) => (
-                      <SelectItem key={dept} value={dept}>
-                        {dept}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                {/* Year Filter */}
-                <Select value={yearFilter} onValueChange={setYearFilter}>
-                  <SelectTrigger className="w-[180px] h-10 border-slate-200 focus:ring-sky-600 rounded-lg">
-                    <SelectValue placeholder="All Years" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Years</SelectItem>
-                    {years.map((year) => (
-                      <SelectItem key={year} value={year}>
-                        Year {year}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Search Popup - Appears Below Filter Row */}
-            {searchExpanded && (
-              <div 
-                ref={searchPopupRef}
-                className="mt-3 animate-in slide-in-from-top-2 duration-200"
-              >
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                  <Input
-                    placeholder="Search students by name, email, or skills..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    autoFocus
-                    className="pl-10 pr-10 h-10 border-slate-200 focus:border-sky-600 rounded-lg"
-                  />
-                  {searchTerm && (
-                    <button
-                      onClick={() => setSearchTerm("")}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                    >
-                      <XCircle className="h-4 w-4" />
-                    </button>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Students List */}
-        <div className="space-y-4 mt-6 max-w-7xl mx-auto px-6 pb-8">
-          {filteredStudents.length > 0 ? (
-            filteredStudents.map((student) => (
-              <CustomStudentCard key={student.id} student={student} onViewDetails={setSelectedStudent} />
-            ))
-          ) : (
-            <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
-              <CardContent className="p-12 text-center">
-                <GraduationCap className="h-12 w-12 mx-auto text-slate-400 mb-4" />
-                <p className="text-slate-500">No students found matching the filters</p>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-
-        <StudentDetailsDialog student={selectedStudent} onClose={() => setSelectedStudent(null)} />
+      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
+        <h1 className="text-2xl font-bold text-slate-900">Student not found</h1>
+        <Button onClick={() => router.push("/students")} variant="outline" className="rounded-full">
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Students
+        </Button>
       </div>
     )
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "applied": return "bg-blue-100 text-blue-700 border-blue-200"
+      case "reviewed": return "bg-indigo-100 text-indigo-700 border-indigo-200"
+      case "shortlisted": return "bg-emerald-100 text-emerald-700 border-emerald-200"
+      case "rejected": return "bg-red-100 text-red-700 border-red-200"
+      case "accepted": return "bg-green-100 text-green-700 border-green-200"
+      case "mentor_approval_needed": return "bg-amber-100 text-amber-700 border-amber-200"
+      default: return "bg-slate-100 text-slate-700 border-slate-200"
+    }
+  }
+
+  const getPlacementStatus = () => {
+    if (student.applications.some((app) => app.status === "accepted")) {
+      return { status: "Placed", color: "bg-green-100 text-green-700 border-green-200" }
+    }
+    if (student.applications.some((app) => ["pending", "interview", "shortlisted"].includes(app.status))) {
+      return { status: "In Process", color: "bg-amber-100 text-amber-700 border-amber-200" }
+    }
+    return { status: "Unplaced", color: "bg-slate-100 text-slate-700 border-slate-200" }
+  }
+
+  const placementInfo = getPlacementStatus()
+  const primaryResume = student.resumes && student.resumes.length > 0 ? student.resumes[0].resumeUrl : null
+
+  return (
+    <div className="relative p-6 max-w-6xl w-full mx-auto space-y-6">
+      <div className="absolute top-0 left-1/4 -z-10 h-64 w-64 rounded-full bg-sky-100 opacity-50 blur-3xl" />
+      <div className="absolute bottom-0 right-1/4 -z-10 h-64 w-64 rounded-full bg-blue-100 opacity-50 blur-3xl" />
+
+      <Button
+        variant="ghost"
+        onClick={() => router.back()}
+        className="rounded-full hover:bg-slate-100"
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back
+      </Button>
+
+      {/* Profile Header - Consistent with student's own profile */}
+      <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-lg overflow-hidden">
+        <CardHeader className="pb-4">
+          <div className="flex flex-col md:flex-row md:items-start gap-6">
+            <Avatar className="h-24 w-24 rounded-2xl border-4 border-white shadow-lg">
+              <AvatarImage src={"/placeholder.svg"} alt={student.name} />
+              <AvatarFallback className="rounded-2xl bg-gradient-to-br from-sky-100 to-blue-100 text-sky-700 text-2xl font-bold">
+                {student.name.split(" ").map((n) => n[0]).join("")}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-2">
+                <CardTitle className="text-2xl font-bold text-slate-900">{student.name}</CardTitle>
+                <Badge className={`rounded-full ${placementInfo.color}`}>
+                  {placementInfo.status}
+                </Badge>
+              </div>
+              <CardDescription className="text-lg font-medium text-slate-600 mb-4">
+                {student.branch} • Batch {student.batch} • Year {student.batch ? `${4 - (student.batch - 2025)}` : '-'}
+              </CardDescription>
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-4 py-2 text-sm text-slate-700">
+                  <Mail className="h-4 w-4 text-slate-500" />
+                  <span>{student.email}</span>
+                </div>
+                {student.phone && (
+                  <div className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-4 py-2 text-sm text-slate-700">
+                    <Phone className="h-4 w-4 text-slate-500" />
+                    <span>{student.phone}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="rounded-2xl bg-gradient-to-br from-sky-100 to-blue-100 px-6 py-4 text-center">
+              <div className="text-3xl font-bold text-sky-700">{student.cgpa || '-'}</div>
+              <div className="text-sm text-slate-600">CGPA</div>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-3">
+            {student.github && (
+              <a href={student.github} target="_blank" rel="noopener noreferrer">
+                <Button variant="outline" size="sm" className="rounded-full">
+                  <Github className="h-4 w-4 mr-2" />
+                  GitHub
+                </Button>
+              </a>
+            )}
+            {student.linkedin && (
+              <a href={student.linkedin} target="_blank" rel="noopener noreferrer">
+                <Button variant="outline" size="sm" className="rounded-full bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100">
+                  <Linkedin className="h-4 w-4 mr-2" />
+                  LinkedIn
+                </Button>
+              </a>
+            )}
+            <a href={`mailto:${student.email}`}>
+              <Button variant="outline" size="sm" className="rounded-full">
+                <Mail className="h-4 w-4 mr-2" />
+                Send Email
+              </Button>
+            </a>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Tabbed Interface - Similar to student's own profile */}
+      <Tabs defaultValue="overview" className="w-full">
+        <TabsList className="w-full max-w-3xl rounded-full bg-slate-100/80 p-1.5 grid grid-cols-5 gap-1">
+          <TabsTrigger value="overview" className="rounded-full data-[state=active]:bg-white data-[state=active]:shadow-sm">
+            <User className="h-4 w-4 mr-2" />
+            Overview
+          </TabsTrigger>
+          <TabsTrigger value="experience" className="rounded-full data-[state=active]:bg-white data-[state=active]:shadow-sm">
+            <Briefcase className="h-4 w-4 mr-2" />
+            Experience
+          </TabsTrigger>
+          <TabsTrigger value="projects" className="rounded-full data-[state=active]:bg-white data-[state=active]:shadow-sm">
+            <Code className="h-4 w-4 mr-2" />
+            Projects
+          </TabsTrigger>
+          <TabsTrigger value="certificates" className="rounded-full data-[state=active]:bg-white data-[state=active]:shadow-sm">
+            <Award className="h-4 w-4 mr-2" />
+            Certificates
+          </TabsTrigger>
+          <TabsTrigger value="resume" className="rounded-full data-[state=active]:bg-white data-[state=active]:shadow-sm">
+            <FileText className="h-4 w-4 mr-2" />
+            Resume
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Overview Tab */}
+        <TabsContent value="overview" className="mt-6 space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-6">
+              {/* Skills */}
+              <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-lg">
+                <CardHeader>
+                  <CardTitle className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                    <Code className="h-5 w-5 text-slate-600" />
+                    Skills
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {student.skills.length === 0 ? (
+                    <p className="text-slate-500">No skills added yet.</p>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {student.skills.map((skill, index) => (
+                        <Badge
+                          key={index}
+                          variant="outline"
+                          className="rounded-full border-sky-200 bg-sky-50 text-sky-700 px-3 py-1"
+                        >
+                          {skill}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Applications - Only visible to placement cell and faculty */}
+              {session?.user?.role !== "employer" && (
+                <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                      <Briefcase className="h-5 w-5 text-slate-600" />
+                      Applications ({student.applications.length})
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {student.applications.length === 0 ? (
+                      <div className="p-8 text-center">
+                        <div className="rounded-full bg-slate-100 p-4 w-fit mx-auto mb-4">
+                          <Briefcase className="h-8 w-8 text-slate-400" />
+                        </div>
+                        <p className="text-slate-600">No applications yet.</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {student.applications.map((app) => (
+                          <Link key={app.id} href={`/applications/${app.id}`} className="block">
+                            <div className="group rounded-2xl border border-slate-200 bg-white p-4 transition-all hover:border-sky-200 hover:shadow-md cursor-pointer">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-4">
+                                  <div className="rounded-full bg-gradient-to-br from-sky-100 to-blue-100 p-3">
+                                    <Building2 className="h-5 w-5 text-sky-600" />
+                                  </div>
+                                  <div>
+                                    <h4 className="font-semibold text-slate-900 group-hover:text-sky-700 transition-colors">
+                                      {app.opportunityRel.title}
+                                    </h4>
+                                    <p className="text-sm text-slate-600">
+                                      {app.opportunityRel.companyRel?.name} • {app.opportunityRel.type}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                  <Badge className={`rounded-full capitalize ${getStatusColor(app.status)}`}>
+                                    {app.status.replace(/_/g, ' ')}
+                                  </Badge>
+                                  <ExternalLink className="h-4 w-4 text-slate-400 group-hover:text-sky-600" />
+                                </div>
+                              </div>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+
+            {/* Stats Sidebar - Only visible to placement cell and faculty */}
+            <div className="space-y-6">
+              {stats && session?.user?.role !== "employer" && (
+                <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="text-lg font-semibold text-slate-900">Statistics</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="rounded-2xl bg-gradient-to-br from-sky-50 to-blue-50 p-4 text-center">
+                        <div className="text-2xl font-bold text-sky-700">{stats.totalApplications}</div>
+                        <div className="text-xs text-slate-600">Applications</div>
+                      </div>
+                      <div className="rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 p-4 text-center">
+                        <div className="text-2xl font-bold text-amber-700">{stats.pending}</div>
+                        <div className="text-xs text-slate-600">Pending</div>
+                      </div>
+                      <div className="rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 p-4 text-center">
+                        <div className="text-2xl font-bold text-indigo-700">{stats.interviews}</div>
+                        <div className="text-xs text-slate-600">Interviews</div>
+                      </div>
+                      <div className="rounded-2xl bg-gradient-to-br from-emerald-50 to-green-50 p-4 text-center">
+                        <div className="text-2xl font-bold text-emerald-700">{stats.internships}</div>
+                        <div className="text-xs text-slate-600">Internships</div>
+                      </div>
+                      <div className="rounded-2xl bg-green-100 p-4 text-center">
+                        <div className="text-2xl font-bold text-green-700">{stats.accepted}</div>
+                        <div className="text-xs text-slate-600">Accepted</div>
+                      </div>
+                      <div className="rounded-2xl bg-red-100 p-4 text-center">
+                        <div className="text-2xl font-bold text-red-700">{stats.rejected}</div>
+                        <div className="text-xs text-slate-600">Rejected</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-lg">
+                <CardHeader>
+                  <CardTitle className="text-lg font-semibold text-slate-900">Quick Actions</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <a href={`mailto:${student.email}`}>
+                    <Button variant="outline" className="w-full rounded-full justify-start">
+                      <Mail className="h-4 w-4 mr-2" />
+                      Send Email
+                    </Button>
+                  </a>
+                  {primaryResume && (
+                    <a href={primaryResume} target="_blank" rel="noopener noreferrer">
+                      <Button variant="outline" className="w-full rounded-full justify-start mt-3">
+                        <FileText className="h-4 w-4 mr-2" />
+                        View Resume
+                      </Button>
+                    </a>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* Experience Tab */}
+        <TabsContent value="experience" className="mt-6 space-y-6">
+          <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                <GraduationCap className="h-5 w-5 text-slate-600" />
+                Internships & Experience
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {(!student.internships || student.internships.length === 0) ? (
+                <div className="p-8 text-center">
+                  <div className="rounded-full bg-slate-100 p-4 w-fit mx-auto mb-4">
+                    <GraduationCap className="h-8 w-8 text-slate-400" />
+                  </div>
+                  <p className="text-slate-600">No experience added yet.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {student.internships.map((internship) => (
+                    <div key={internship.id} className="rounded-2xl border border-slate-200 bg-white p-5 hover:shadow-md transition-shadow">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-4">
+                          <div className="rounded-full bg-gradient-to-br from-emerald-100 to-green-100 p-3">
+                            <Building2 className="h-5 w-5 text-emerald-600" />
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-slate-900 text-lg">{internship.opportunityRel.title}</h4>
+                            <p className="text-slate-600">{internship.opportunityRel.companyRel?.name}</p>
+                            <div className="flex items-center gap-2 mt-2 text-sm text-slate-500">
+                              <Calendar className="h-4 w-4" />
+                              <span>
+                                {new Date(internship.startDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })} - {new Date(internship.endDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <Badge className="rounded-full bg-emerald-100 text-emerald-700 border-emerald-200">
+                          Completed
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Projects Tab */}
+        <TabsContent value="projects" className="mt-6 space-y-6">
+          <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                <Code className="h-5 w-5 text-slate-600" />
+                Projects ({student.projects?.length || 0})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {(!student.projects || student.projects.length === 0) ? (
+                <div className="p-8 text-center">
+                  <div className="rounded-full bg-slate-100 p-4 w-fit mx-auto mb-4">
+                    <Code className="h-8 w-8 text-slate-400" />
+                  </div>
+                  <p className="text-slate-600">No projects added yet.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {student.projects.map((project) => (
+                    <div key={project.id} className="rounded-2xl border border-slate-200 bg-white p-5 hover:shadow-md transition-shadow">
+                      <div className="flex items-start justify-between mb-3">
+                        <h4 className="font-semibold text-slate-900 text-lg">{project.title}</h4>
+                        <div className="flex gap-2">
+                          {project.githubUrl && (
+                            <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
+                              <Button variant="ghost" size="sm" className="rounded-full h-8 w-8 p-0 hover:bg-slate-100">
+                                <Github className="h-4 w-4" />
+                              </Button>
+                            </a>
+                          )}
+                          {project.liveUrl && (
+                            <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">
+                              <Button variant="ghost" size="sm" className="rounded-full h-8 w-8 p-0 hover:bg-slate-100">
+                                <ExternalLink className="h-4 w-4" />
+                              </Button>
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                      <p className="text-sm text-slate-600 mb-4 line-clamp-3">{project.description}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {project.technologies.map((tech, index) => (
+                          <Badge key={index} variant="outline" className="rounded-full text-xs border-slate-200">
+                            {tech}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Certificates Tab */}
+        <TabsContent value="certificates" className="mt-6 space-y-6">
+          <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                <Award className="h-5 w-5 text-slate-600" />
+                Certificates ({student.certificates?.length || 0})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {(!student.certificates || student.certificates.length === 0) ? (
+                <div className="p-8 text-center">
+                  <div className="rounded-full bg-slate-100 p-4 w-fit mx-auto mb-4">
+                    <Award className="h-8 w-8 text-slate-400" />
+                  </div>
+                  <p className="text-slate-600">No certificates added yet.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {student.certificates.map((cert) => (
+                    <div key={cert.id} className="rounded-2xl border border-slate-200 bg-white p-5 hover:shadow-md transition-shadow">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-4">
+                          <div className="rounded-full bg-gradient-to-br from-amber-100 to-orange-100 p-3">
+                            <Award className="h-5 w-5 text-amber-600" />
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-slate-900">{cert.title}</h4>
+                            <p className="text-sm text-slate-600">{cert.issuer}</p>
+                            <p className="text-xs text-slate-500 mt-1">
+                              Issued: {new Date(cert.issueDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                            </p>
+                          </div>
+                        </div>
+                        {cert.certificateUrl && (
+                          <a href={cert.certificateUrl} target="_blank" rel="noopener noreferrer">
+                            <Button variant="outline" size="sm" className="rounded-full">
+                              <ExternalLink className="h-4 w-4 mr-2" />
+                              View
+                            </Button>
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Resume Tab */}
+        <TabsContent value="resume" className="mt-6 space-y-6">
+          <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                <FileText className="h-5 w-5 text-slate-600" />
+                Resume
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {(!student.resumes || student.resumes.length === 0) ? (
+                <div className="p-8 text-center">
+                  <div className="rounded-full bg-slate-100 p-4 w-fit mx-auto mb-4">
+                    <FileText className="h-8 w-8 text-slate-400" />
+                  </div>
+                  <p className="text-slate-600">No resume uploaded yet.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {student.resumes.map((resume, index) => (
+                    <div key={resume.id || index} className="rounded-2xl border border-slate-200 bg-white p-5 flex items-center justify-between hover:shadow-md transition-shadow">
+                      <div className="flex items-center gap-4">
+                        <div className="rounded-full bg-gradient-to-br from-sky-100 to-blue-100 p-3">
+                          <FileText className="h-5 w-5 text-sky-600" />
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-slate-900">Resume {index + 1}</h4>
+                          <p className="text-sm text-slate-500">PDF Document</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <a href={resume.resumeUrl} target="_blank" rel="noopener noreferrer">
+                          <Button variant="outline" size="sm" className="rounded-full">
+                            <ExternalLink className="h-4 w-4 mr-2" />
+                            View
+                          </Button>
+                        </a>
+                        <a href={resume.resumeUrl} download>
+                          <Button variant="outline" size="sm" className="rounded-full bg-sky-50 border-sky-200 text-sky-700 hover:bg-sky-100">
+                            <Download className="h-4 w-4 mr-2" />
+                            Download
+                          </Button>
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  )
 }
