@@ -101,7 +101,7 @@ export default function ApplicationCard({
             </div>
           </div>
           <div className="flex flex-col items-end gap-2">
-            <Badge className={`flex items-center gap-2 rounded-full px-4 py-2 ${getStatusColor(application.status)} text-white border-none shadow-sm`}>
+            <Badge className={`flex items-center gap-2 rounded-full px-4 py-1 text-sm ${getStatusColor(application.status)} text-white border-none shadow-sm`}>
               {getStatusIcon(application.status)}
               <span className="capitalize font-medium">
                 {application.status === "mentor_approval_needed"

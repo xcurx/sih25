@@ -119,8 +119,8 @@ export default function AppliedStudentCard({
       <CardContent className="p-6">
         {/* Header with Avatar and Status */}
         <div className="flex items-start justify-between mb-4">
-          <div className="flex items-start gap-4">
-            <div className="relative">
+          <div className="flex items-start gap-4 flex-1">
+            <div className="relative flex-shrink-0">
               <Avatar className="h-14 w-14 ring-2 ring-sky-100 ring-offset-2 transition-all group-hover:ring-sky-200">
                 <AvatarImage src={student.avatar || "/placeholder.svg"} alt={student.name} />
                 <AvatarFallback className="bg-gradient-to-br from-sky-500 to-blue-600 text-white text-lg font-medium">
@@ -143,8 +143,8 @@ export default function AppliedStudentCard({
               </div>
             </div>
           </div>
-          <div className="flex flex-col items-end gap-2">
-            <Badge className={`${currentStatus.className} border rounded-full px-3 py-0.5 text-xs font-medium`}>
+          <div className="flex flex-col items-end gap-2 flex-shrink-0">
+            <Badge className={`${currentStatus.className} border rounded-full px-4 py-1 text-sm font-medium`}>
               {currentStatus.label}
             </Badge>
             <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-gradient-to-r from-sky-50 to-blue-50 border border-sky-100">
@@ -174,17 +174,12 @@ export default function AppliedStudentCard({
             {student.skills.slice(0, 6).map((skill, index) => (
               <Badge 
                 key={index} 
-                variant="secondary"
-                className="bg-slate-100 text-slate-700 hover:bg-slate-200 border-0 rounded-full px-2.5 py-0.5 text-xs font-medium"
+                variant="outline"
+                className="bg-white text-sky-700 border-sky-200 rounded-full px-2.5 py-0.5 text-xs font-medium"
               >
                 {skill}
               </Badge>
             ))}
-            {student.skills.length > 6 && (
-              <Badge className="bg-sky-50 text-sky-700 border-sky-200 rounded-full px-2.5 py-0.5 text-xs font-medium">
-                +{student.skills.length - 6} more
-              </Badge>
-            )}
           </div>
         </div>
 
@@ -209,24 +204,26 @@ export default function AppliedStudentCard({
             </Button>
             <Button 
               size="sm"
-              className="rounded-full bg-slate-900 text-white hover:bg-slate-800"
+              className="rounded-full bg-sky-600 text-white hover:bg-sky-700"
               onClick={handleReview}
             >
               <Eye className="mr-1.5 h-3.5 w-3.5" />
               Full Profile
             </Button>
           </div>
-          <Button 
-            size="sm"
-            className="rounded-full bg-gradient-to-r from-sky-600 to-blue-600 text-white hover:from-sky-700 hover:to-blue-700 disabled:opacity-50"
-            disabled={apStatus !== "applied" && apStatus !== "reviewed"}
-            onClick={handleShortlistClick}
-          >
-            <MousePointerClick className="mr-1.5 h-3.5 w-3.5" />
-            {loading ? "Shortlisting..." : 
-              apStatus === "applied" || apStatus === "reviewed" ? "Shortlist" : 
-              apStatus.charAt(0).toUpperCase() + apStatus.slice(1)}
-          </Button>
+          {apStatus !== "shortlisted" && (
+            <Button 
+              size="sm"
+              className="rounded-full bg-gradient-to-r from-sky-600 to-blue-600 text-white hover:from-sky-700 hover:to-blue-700 disabled:opacity-50"
+              disabled={apStatus !== "applied" && apStatus !== "reviewed"}
+              onClick={handleShortlistClick}
+            >
+              <MousePointerClick className="mr-1.5 h-3.5 w-3.5" />
+              {loading ? "Shortlisting..." : 
+                apStatus === "applied" || apStatus === "reviewed" ? "Shortlist" : 
+                apStatus.charAt(0).toUpperCase() + apStatus.slice(1)}
+            </Button>
+          )}
         </div>
       </CardContent>
 

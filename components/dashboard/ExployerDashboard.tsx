@@ -27,6 +27,7 @@ interface JobPipeline {
   shortlisted: number
   rejected: number
   accepted: number
+  status?: string
 }
 
 export default function EmployerDashboard() {
@@ -204,7 +205,7 @@ export default function EmployerDashboard() {
             {uniqueStudents.slice(0, 4).map((student) => (
               <div
                 key={student.id}
-                className="flex flex-col gap-4 rounded-2xl border border-slate-100 bg-slate-50/70 p-4 transition hover:border-sky-200 hover:bg-white md:flex-row md:items-center"
+                className="flex flex-col gap-4 rounded-2xl border-2 border-slate-100 bg-white p-4 transition hover:border-sky-200 hover:bg-white md:flex-row md:items-center"
               >
                 <div className="flex items-center gap-3">
                   <Avatar className="h-12 w-12 border border-white">
@@ -225,13 +226,13 @@ export default function EmployerDashboard() {
                 </div>
                 <div className="flex flex-1 flex-wrap gap-2">
                   {student.skills.slice(0, 3).map((skill, index) => (
-                    <Badge key={index} variant="outline" className="rounded-full border-slate-200 text-xs text-slate-700">
+                    <Badge key={index} variant="outline" className="rounded-full border-sky-200 bg-white text-xs text-sky-700 hover:bg-sky-50">
                       {skill}
                     </Badge>
                   ))}
                 </div>
                 <Link href={`/students/${student.id}`}>
-                  <Button size="sm" variant="ghost" className="rounded-full text-slate-600 hover:bg-slate-100">
+                  <Button size="sm" className="rounded-full bg-sky-600 text-white hover:bg-sky-700">
                     Profile
                   </Button>
                 </Link>
@@ -250,8 +251,13 @@ export default function EmployerDashboard() {
             {!loadingPipeline && pipeline.length === 0 && (
               <p className="text-sm text-center text-slate-500">No job postings yet.</p>
             )}
-            {pipeline.slice(0, 4).map((job) => (
-              <div key={job.id} className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+            {pipeline.slice(0, 4).map((job) => {
+              const status = job.status || "active"
+              const statusLower = status.toLowerCase()
+              const isActive = statusLower === "active"
+              const isExpired = statusLower === "expired" || statusLower === "closed"
+              return (
+              <div key={job.id} className="rounded-2xl border-2 border-slate-100 bg-slate-50/60 p-4">
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="text-sm font-semibold text-slate-900">{job.title}</p>
@@ -259,8 +265,17 @@ export default function EmployerDashboard() {
                       {job.totalApplications} total applications
                     </p>
                   </div>
-                  <Badge variant="secondary" className="rounded-full">
-                    active
+                  <Badge 
+                    variant="secondary" 
+                    className={`rounded-full px-4 py-1 text-sm ${
+                      isActive 
+                        ? "bg-emerald-100 text-emerald-800" 
+                        : isExpired
+                        ? "bg-red-100 text-red-800"
+                        : "bg-slate-200 text-slate-700"
+                    }`}
+                  >
+                    {status}
                   </Badge>
                 </div>
                 <div className="mt-4 grid grid-cols-3 gap-4 text-center">
@@ -278,12 +293,13 @@ export default function EmployerDashboard() {
                   </div>
                 </div>
                 </div>
-              ))}
+              )
+            })}
             </CardContent>
           </Card>
         </div>
 
-        <Card className="border-slate-200 bg-gradient-to-r from-sky-100 via-white to-blue-50">
+        {/* <Card className="border-slate-200 bg-gradient-to-r from-sky-100 via-white to-blue-50">
           <CardContent className="flex flex-col gap-4 p-6 text-slate-700 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Next action</p>
@@ -295,7 +311,7 @@ export default function EmployerDashboard() {
               <ArrowUpRight className="ml-2 h-4 w-4" aria-hidden="true" />
             </Button>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
     )
 }

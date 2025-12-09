@@ -1,3 +1,4 @@
 {
-    "prisma.pinToPrisma6": true
+  "workbench.editor.enablePreview": false,
+  "terminal.integrated.defaultProfile.windows": "Command Prompt"
 }

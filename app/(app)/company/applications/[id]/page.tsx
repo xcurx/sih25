@@ -94,11 +94,6 @@ export default function AppliedStudentsPage() {
 
   return (
     <div className="relative space-y-8">
-      <div
-        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_10%_20%,rgba(56,189,248,0.15),transparent_45%),radial-gradient(circle_at_90%_0%,rgba(59,130,246,0.18),transparent_45%),linear-gradient(180deg,rgba(255,255,255,0.85),transparent)]"
-        aria-hidden="true"
-      />
-
       {/* Hero Section */}
       <section className="relative overflow-hidden rounded-[32px] border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 shadow">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.08),transparent_55%)]" />
@@ -110,20 +105,10 @@ export default function AppliedStudentsPage() {
               Review, shortlist, and schedule interviews with applicants.
             </p>
           </div>
-          <div className="grid gap-4 rounded-[28px] border border-white/50 bg-white/85 p-6 sm:grid-cols-2">
-            {quickStats.slice(0, 2).map((stat) => (
-              <div key={stat.label} className="rounded-[24px] border border-slate-100 bg-white p-4 text-slate-800 shadow-sm">
-                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">{stat.label}</p>
-                <p className="mt-2 text-3xl font-semibold text-slate-900">{stat.value}</p>
-                <p className="text-xs text-slate-500">{stat.caption}</p>
-              </div>
-            ))}
-          </div>
         </div>
-      </section>
 
       {/* Stats Grid */}
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         {quickStats.map((stat) => (
           <Card key={stat.label} className="border-slate-200 bg-white/90 shadow-sm rounded-2xl">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -139,69 +124,67 @@ export default function AppliedStudentsPage() {
           </Card>
         ))}
       </div>
+      </section>
+
 
       {/* Search and Filter */}
-      <Card className="border-slate-200 bg-white/90 shadow-lg rounded-3xl">
-        <CardContent className="p-6">
-          <div className="flex flex-col lg:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-4 top-3.5 h-4 w-4 text-slate-400" />
-              <Input
-                placeholder="Search students by name, email, or skills..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-11 rounded-xl border-slate-200 bg-slate-50/50 focus:bg-white transition-colors"
-              />
-            </div>
-            <div className="flex gap-3 flex-wrap">
-              <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-                <SelectTrigger className="w-48 rounded-xl border-slate-200">
-                  <SelectValue placeholder="All Departments" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Departments</SelectItem>
-                  {departments.map((dept) => (
-                    <SelectItem key={dept} value={dept}>
-                      {dept}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={yearFilter} onValueChange={setYearFilter}>
-                <SelectTrigger className="w-32 rounded-xl border-slate-200">
-                  <SelectValue placeholder="All Years" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Years</SelectItem>
-                  {years.map((year) => (
-                    <SelectItem key={year} value={year}>
-                      Year {year}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-40 rounded-xl border-slate-200">
-                  <SelectValue placeholder="All Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="applied">Applied</SelectItem>
-                  <SelectItem value="reviewed">Reviewed</SelectItem>
-                  <SelectItem value="shortlisted">Shortlisted</SelectItem>
-                  <SelectItem value="interviewed">Interviewed</SelectItem>
-                  <SelectItem value="accepted">Accepted</SelectItem>
-                  <SelectItem value="rejected">Rejected</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button variant="outline" className="rounded-xl border-slate-200 hover:bg-slate-50">
-                <Download className="mr-2 h-4 w-4" />
-                Export
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex flex-col lg:flex-row gap-4">
+        <div className="flex-1 relative">
+          <Search className="absolute left-4 top-3.5 h-4 w-4 text-slate-400" />
+          <Input
+            placeholder="Search students by name, email, or skills..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-11 rounded-xl border-slate-200 bg-slate-50/50 focus:bg-white transition-colors"
+          />
+        </div>
+        <div className="flex gap-3 flex-wrap">
+          <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+            <SelectTrigger className="w-48 rounded-xl border-slate-200">
+              <SelectValue placeholder="All Departments" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Departments</SelectItem>
+              {departments.map((dept) => (
+                <SelectItem key={dept} value={dept}>
+                  {dept}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={yearFilter} onValueChange={setYearFilter}>
+            <SelectTrigger className="w-32 rounded-xl border-slate-200">
+              <SelectValue placeholder="All Years" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Years</SelectItem>
+              {years.map((year) => (
+                <SelectItem key={year} value={year}>
+                  Year {year}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-40 rounded-xl border-slate-200">
+              <SelectValue placeholder="All Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="applied">Applied</SelectItem>
+              <SelectItem value="reviewed">Reviewed</SelectItem>
+              <SelectItem value="shortlisted">Shortlisted</SelectItem>
+              <SelectItem value="interviewed">Interviewed</SelectItem>
+              <SelectItem value="accepted">Accepted</SelectItem>
+              <SelectItem value="rejected">Rejected</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button variant="outline" className="rounded-xl border-slate-200 hover:bg-slate-50">
+            <Download className="mr-2 h-4 w-4" />
+            Export
+          </Button>
+        </div>
+      </div>
 
       {/* Applications List */}
       <div className="space-y-4">

@@ -110,14 +110,18 @@ export default function EmplyersApplicationsPage() {
               <CardTitle className="text-xl text-slate-900">Job performance</CardTitle>
               <CardDescription>Application statistics for your job postings</CardDescription>
             </div>
-            <Badge variant="outline" className="rounded-full border-slate-200 text-slate-600">
+            <Badge variant="outline" className="rounded-full border-sky-200 bg-white text-sky-700">
               Updated moments ago
             </Badge>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          {opportunities.slice(0, 6).map((job) => (
-            <div key={job.id} className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
+          {opportunities.slice(0, 6).map((job) => {
+            const statusLower = job.status?.toLowerCase() || ""
+            const isActive = statusLower === "active"
+            const isExpired = statusLower === "expired" || statusLower === "closed"
+            return (
+            <div key={job.id} className="rounded-2xl border-2 border-slate-100 bg-slate-50/70 p-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <h3 className="text-base font-semibold text-slate-900">{job.title}</h3>
@@ -125,24 +129,36 @@ export default function EmplyersApplicationsPage() {
                     {job.location} · {job.type}
                   </p>
                 </div>
-                <Badge variant={job.status === "active" ? "secondary" : "outline"} className="rounded-full">
+                <Badge 
+                  variant="secondary" 
+                  className={`rounded-full px-4 py-1 text-sm ${
+                    isActive 
+                      ? "bg-emerald-100 text-emerald-800" 
+                      : isExpired
+                      ? "bg-red-100 text-red-800"
+                      : "bg-slate-200 text-slate-700"
+                  }`}
+                >
                   {job.status}
                 </Badge>
               </div>
-              <div className="mt-4 grid gap-4 rounded-2xl border border-white bg-white/90 p-4 text-center sm:grid-cols-4">
-                <div>
+              <div className="mt-4 flex items-stretch rounded-2xl bg-slate-50/70 p-4 text-center">
+                <div className="flex-1">
                   <p className="text-lg font-semibold text-slate-900">{job._count.applications}</p>
                   <p className="text-xs text-slate-500">Applications</p>
                 </div>
-                <div>
+                <div className="mx-2 w-px bg-slate-600 my-1"></div>
+                <div className="flex-1">
                   <p className="text-lg font-semibold text-slate-900">0</p>
                   <p className="text-xs text-slate-500">Shortlisted</p>
                 </div>
-                <div>
+                <div className="mx-2 w-px bg-slate-600 my-1"></div>
+                <div className="flex-1">
                   <p className="text-lg font-semibold text-slate-900">0</p>
                   <p className="text-xs text-slate-500">Interviews</p>
                 </div>
-                <div>
+                <div className="mx-2 w-px bg-slate-600 my-1"></div>
+                <div className="flex-1">
                   <p className="text-lg font-semibold text-slate-900">0</p>
                   <p className="text-xs text-slate-500">Offers</p>
                 </div>
@@ -160,7 +176,8 @@ export default function EmplyersApplicationsPage() {
                 </Button>
               </div>
             </div>
-          ))}
+            )
+          })}
         </CardContent>
       </Card>
     </div>

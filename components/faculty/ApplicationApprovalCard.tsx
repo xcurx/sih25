@@ -28,17 +28,17 @@ const getStudentInitials = (name: string | undefined): string => {
 const getStatusBadge = (status: string) => {
     switch (status.toLowerCase()) {
         case "applied":
-            return <Badge className="bg-amber-500/10 text-amber-700 border border-amber-300 font-medium hover:bg-amber-500/20">Awaiting Faculty Review</Badge>
+            return <Badge className="bg-amber-500/10 text-amber-700 border border-amber-300 font-medium hover:bg-amber-500/20 rounded-full px-4 py-1 text-sm">Awaiting Faculty Review</Badge>
         case "reviewed":
-            return <Badge className="bg-indigo-500/10 text-indigo-700 border border-indigo-300 font-medium hover:bg-indigo-500/20">Mentor Approved</Badge>
+            return <Badge className="bg-indigo-500/10 text-indigo-700 border border-indigo-300 font-medium hover:bg-indigo-500/20 rounded-full px-4 py-1 text-sm">Mentor Approved</Badge>
         case "shortlisted":
-            return <Badge className="bg-sky-500/10 text-sky-700 border border-sky-300 font-medium hover:bg-sky-500/20">Shortlisted</Badge>
+            return <Badge className="bg-sky-500/10 text-sky-700 border border-sky-300 font-medium hover:bg-sky-500/20 rounded-full px-4 py-1 text-sm">Shortlisted</Badge>
         case "rejected":
-            return <Badge className="bg-red-500/10 text-red-700 border border-red-300 font-medium hover:bg-red-500/20">Rejected</Badge>
+            return <Badge className="bg-red-500/10 text-red-700 border border-red-300 font-medium hover:bg-red-500/20 rounded-full px-4 py-1 text-sm">Rejected</Badge>
         case "accepted":
-            return <Badge className="bg-emerald-500/10 text-emerald-700 border border-emerald-300 font-medium hover:bg-emerald-500/20">Accepted</Badge>
+            return <Badge className="bg-emerald-500/10 text-emerald-700 border border-emerald-300 font-medium hover:bg-emerald-500/20 rounded-full px-4 py-1 text-sm">Accepted</Badge>
         default:
-            return <Badge variant="secondary">{status}</Badge>
+            return <Badge variant="secondary" className="rounded-full px-4 py-1 text-sm">{status}</Badge>
     }
 }
 

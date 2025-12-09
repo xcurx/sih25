@@ -276,7 +276,7 @@ export default function EmployerInternshipsPage() {
                     {opportunity.location} · {opportunity.type}
                   </CardDescription>
                 </div>
-                <Badge variant="outline" className="rounded-full border-slate-200 text-slate-600">
+                <Badge variant="outline" className="rounded-full px-4 py-1 text-sm bg-sky-50 border-sky-200 text-sky-700">
                   {interns.length} intern{interns.length !== 1 ? 's' : ''}
                 </Badge>
               </div>
@@ -288,17 +288,25 @@ export default function EmployerInternshipsPage() {
               {interns.map((intern) => (
                 <div key={intern.id} className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
                   <div className="flex items-start gap-4">
-                    <Avatar className="h-12 w-12 border-2 border-sky-100">
-                      <AvatarFallback className="bg-gradient-to-br from-sky-400 to-blue-500 text-white">
-                        {getInitials(intern.studentRel.name)}
-                      </AvatarFallback>
-                    </Avatar>
+                    <div className="relative flex-shrink-0">
+                      <Avatar className="h-12 w-12 border-2 border-sky-100">
+                        <AvatarFallback className="bg-gradient-to-br from-sky-400 to-blue-500 text-white">
+                          {getInitials(intern.studentRel.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                    </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <h3 className="text-base font-semibold text-slate-900">{intern.studentRel.name}</h3>
                         <Badge 
-                          variant={isActive(intern.startDate, intern.endDate) == "Active" ? "secondary" : "outline"} 
-                          className={`rounded-full ${isActive(intern.startDate, intern.endDate) == "Active" ? 'bg-emerald-100 text-emerald-700' : 'text-slate-500'}`}
+                          variant="secondary"
+                          className={`rounded-full px-4 py-1 text-sm border ${
+                            isActive(intern.startDate, intern.endDate) == "Active" 
+                              ? 'bg-emerald-100 text-emerald-700 border-emerald-200' 
+                              : isActive(intern.startDate, intern.endDate) == "Completed"
+                              ? 'bg-emerald-100 text-emerald-700 border-emerald-200'
+                              : 'bg-slate-200 text-slate-500 border-slate-300'
+                          }`}
                         >
                           {isActive(intern.startDate, intern.endDate)}
                         </Badge>
