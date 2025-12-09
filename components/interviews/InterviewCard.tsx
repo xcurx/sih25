@@ -251,7 +251,7 @@ export default function InterviewCard({
               </Button>
             </Link>
           )}
-          {isUpcoming && !isEmployer && (
+          {isUpcoming && session?.user?.role === "student" && (
             <Button
               variant="outline"
               onClick={() => onViewDetails(application)}

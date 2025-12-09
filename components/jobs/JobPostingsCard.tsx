@@ -169,17 +169,15 @@ export default function JobPostingCard({ job }: { job: Opportunity }) {
               View Details
             </Button>
           </Link>
-          <Button 
-            variant="outline"
-            className="rounded-lg bg-sky-50 border-sky-200 text-sky-600 hover:bg-sky-100 font-normal"
-          >
-            Send Mentor Approval
-          </Button>
-          <Button 
-            className="rounded-lg bg-sky-500 hover:bg-sky-600 text-white font-normal shadow-sm"
-          >
-            Apply Now
-          </Button>
+          <ApplicationsDialog opportunity={job} />
+          <Link href={"/job-postings/" + job.id + "/recommended-students"}>
+            <Button 
+              className="rounded-lg bg-sky-500 hover:bg-sky-600 text-white font-normal shadow-sm"
+            >
+              <Users className="h-4 w-4 mr-2" />
+              Matched Students
+            </Button>
+          </Link>
         </div>
       </CardContent>
     </Card>

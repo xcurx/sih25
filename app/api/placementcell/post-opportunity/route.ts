@@ -87,7 +87,7 @@ export const POST = async (req: NextRequest) => {
             }))
             });
         }
-
+        
         try {
             axios.post(`${process.env.RECOMMENDATION_API_URL}/api/jobs`, {
                 id: opportunity.id,
