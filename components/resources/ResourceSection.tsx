@@ -19,18 +19,18 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 
 function ResourceCard({ icon: Icon, title, desc, link }: { icon: any; title: string; desc: string; link: string }) {
   return (
-    <Card className="rounded-2xl border border-slate-200 bg-white/90 text-center shadow-sm transition hover:shadow-md">
+    <Card className="rounded-2xl border border-slate-200 bg-white shadow-sm transition-transform duration-200 hover:-translate-y-1 hover:shadow-md">
       <CardHeader className="flex flex-col items-center gap-3">
-        <div className="rounded-lg bg-sky-100 p-2">
+        <div className="rounded-lg bg-sky-50 p-2">
           <Icon className="h-5 w-5 text-sky-700" />
         </div>
-        <div className="space-y-1">
+        <div className="space-y-1 text-center">
           <CardTitle className="text-base font-semibold text-slate-900">{title}</CardTitle>
           <CardDescription className="text-sm text-slate-600">{desc}</CardDescription>
         </div>
       </CardHeader>
-      <CardContent>
-        <Link href={link} className="flex items-center justify-center gap-1 text-sm font-medium text-sky-700 hover:underline">
+      <CardContent className="text-center">
+        <Link href={link} className="inline-flex items-center justify-center gap-1 text-sm font-medium text-sky-700 hover:text-sky-800">
           View resource <ArrowRight className="h-4 w-4" />
         </Link>
       </CardContent>
@@ -53,25 +53,24 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 
 export default function ResourcesSection() {
   return (
-    <section className="py-16 bg-gradient-to-b from-white to-slate-50">
+    <section className=" py-8">
       <div className="mx-auto max-w-7xl px-4">
-        <div className="rounded-3xl bg-gradient-to-br from-white via-sky-50 to-blue-50 p-10 text-center shadow-2xl">
-          <Badge className="bg-sky-100 text-sky-700" variant="outline">
+        <div className="text-center">
+          <Badge className="bg-sky-100 text-sky-800" variant="outline">
             Resources hub
           </Badge>
 
-          <h1 className="mx-auto mt-4 max-w-3xl text-4xl font-bold leading-tight text-slate-900">
-            Your official hub for guides, documentation, policy updates & onboarding materials.
+          <h1 className="mx-auto mt-4 max-w-3xl text-4xl font-bold leading-tight tracking-tight text-slate-900 lg:text-5xl">
+            Guides, documentation, policy updates, and onboarding materials
           </h1>
 
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-700">
-            Whether you're a student, institute, or employer, these curated resources help you onboard, operate, and
-            collaborate more effectively on the national placement mission.
+          <p className="mx-auto mt-4 max-w-2xl text-base text-slate-700 lg:text-lg">
+            Whether you're a student, institute, or employer, these curated resources help you onboard, operate, and collaborate effectively on the national placement mission.
           </p>
 
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Button className="rounded-full bg-sky-600 text-white">Explore documentation</Button>
-            <Button variant="outline" className="rounded-full border-sky-300 text-sky-700">
+            <Button className="rounded-full bg-sky-600 px-5 text-white hover:bg-sky-500">Explore documentation</Button>
+            <Button variant="outline" className="rounded-full border-slate-200 px-5 text-slate-900 hover:border-sky-200 hover:text-sky-700">
               Download starter pack
             </Button>
           </div>
@@ -121,11 +120,13 @@ export default function ResourcesSection() {
           />
         </div>
 
-        <div className="mt-14 text-center">
-          <h2 className="text-2xl font-semibold text-slate-900">Frequently asked questions</h2>
-          <p className="mx-auto mt-2 max-w-xl text-sm text-slate-600">
-            Quick answers to common operational, onboarding and data-handling questions.
-          </p>
+        <div className="mt-14 rounded-2xl border border-slate-200 bg-white/95 p-8 shadow-sm">
+          <div className="text-center">
+            <h2 className="text-2xl font-semibold text-slate-900">Frequently asked questions</h2>
+            <p className="mx-auto mt-2 max-w-xl text-sm text-slate-600">
+              Quick answers to common operational, onboarding and data-handling questions.
+            </p>
+          </div>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             <FAQItem
@@ -147,15 +148,13 @@ export default function ResourcesSection() {
           </div>
         </div>
 
-        <div className="mt-16 rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-          <h3 className="text-xl font-semibold text-slate-900">
-            Need help finding the right resource?
-          </h3>
+        <div className="mt-12 rounded-2xl border border-slate-200 bg-white/95 p-8 text-center shadow-sm">
+          <h3 className="text-xl font-semibold text-slate-900">Need help finding the right resource?</h3>
           <p className="mt-2 text-sm text-slate-600">Our support team is available to guide institutes, employers and students.</p>
 
           <div className="mt-4 flex justify-center gap-3">
-            <Button className="rounded-full bg-sky-600">Contact support</Button>
-            <Button variant="outline" className="rounded-full border-sky-300 text-sky-700">
+            <Button className="rounded-full bg-sky-600 px-5 text-white hover:bg-sky-500">Contact support</Button>
+            <Button variant="outline" className="rounded-full border-slate-200 px-5 text-slate-900 hover:border-sky-200 hover:text-sky-700">
               Visit help center
             </Button>
           </div>

@@ -22,7 +22,7 @@ import {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-2xl border border-white/70 bg-white p-4 shadow-sm min-h-[88px] transition-transform duration-300 hover:-translate-y-1 hover:shadow-md">
+    <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white p-4 shadow-sm min-h-[88px]">
       <dt className="text-xs uppercase tracking-[0.18em] text-slate-500">{label}</dt>
       <dd className="mt-2 text-2xl font-semibold text-slate-900">{value}</dd>
     </div>
@@ -31,7 +31,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 
 function Benefit({ icon: Icon, title, desc }: { icon: any; title: string; desc: string }) {
   return (
-    <Card className="rounded-2xl border border-white/60 bg-white/95 text-left shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
+    <Card className="rounded-2xl border border-slate-200 bg-white text-left shadow-sm">
       <CardHeader className="flex items-start gap-4 pb-4">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-sky-50">
           <Icon className="h-5 w-5 text-sky-600" />
@@ -66,29 +66,25 @@ export default function InstituteSection() {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
   const [ratingHover, setRatingHover] = useState<number | null>(null);
+  const [error, setError] = useState("");
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    if (!email) {
+      setError("Work email is required");
+      return;
+    }
+    console.log({ email, source: "institutes-updates" });
     setSubscribed(true);
+    setError("");
     setTimeout(() => setEmail(""), 500);
   };
 
   return (
-    <section id="institutes" className="py-10">
-      <div className="mx-auto max-w-7xl px-4">
-        <div className="mb-10 space-y-6">
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 shadow-2xl">
-            <div
-              className="pointer-events-none absolute inset-0 opacity-35"
-              style={{
-                backgroundImage:
-                  "radial-gradient(circle at 1px 1px, rgba(14,165,233,0.14) 1px, transparent 0)",
-                backgroundSize: "32px 32px",
-              }}
-              aria-hidden
-            />
-            <div className="flex flex-col items-center gap-5 text-center">
+    <section id="institutes" className="py-6 text-slate-900">
+      <div className="mx-auto max-w-7xl px-4 space-y-8">
+          <div className="text-center">
+            <div className="flex flex-col items-center gap-5">
               <div className="rounded-full bg-sky-100 p-3">
                 <Building2 className="h-6 w-6 text-sky-600" />
               </div>
@@ -96,21 +92,21 @@ export default function InstituteSection() {
                 For institutes
               </Badge>
 
-              <h2 className="max-w-3xl text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+              <h2 className="max-w-4xl text-4xl font-bold leading-tight tracking-tight text-slate-900 lg:text-5xl">
                 Empower placement cells — secure, auditable, outcomes-focused
               </h2>
 
-              <p className="max-w-3xl text-lg text-slate-700">
+              <p className="max-w-3xl text-base text-slate-700 lg:text-lg">
                 Manage student rosters, coordinate employer engagements, and measure placement outcomes — all on one national platform designed for institutional reliability and governance.
               </p>
 
-              <div className="flex flex-wrap justify-center gap-3">
-                <Link href="/institutes/onboard">
-                  <Button className="rounded-full bg-sky-600 px-5 py-2 text-white">Request onboarding</Button>
-                </Link>
-                <Link href="/resources#onboard">
-                  <Button variant="outline" className="rounded-full border-sky-200 px-5 py-2 text-sky-700">Onboarding guide</Button>
-                </Link>
+              <div className="flex flex-wrap justify-center gap-3 text-sm">
+                <Button asChild className="rounded-full bg-sky-600 px-5 py-2 text-white hover:bg-sky-500">
+                  <Link href="/institutes/onboard">Request onboarding</Link>
+                </Button>
+                <Button asChild variant="outline" className="rounded-full border-slate-200 px-5 py-2 text-slate-900 hover:border-sky-200 hover:text-sky-700">
+                  <Link href="/resources#onboard">Onboarding guide</Link>
+                </Button>
               </div>
 
               <div className="grid w-full max-w-4xl gap-4 sm:grid-cols-3">
@@ -121,11 +117,11 @@ export default function InstituteSection() {
             </div>
           </div>
 
-          <aside className="rounded-2xl border border-white/60 bg-white/95 p-6 text-center shadow-md transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
+          <aside className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:p-8">
             <div className="grid gap-4 sm:grid-cols-2 sm:text-center">
-              <div className="mx-auto max-w-sm">
-                <p className="text-xs font-semibold uppercase tracking-widest text-sky-600">Why institutes choose us</p>
-                <ul className="mt-4 space-y-3 text-sm text-slate-700">
+              <div className="mx-auto max-w-sm space-y-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-600">Why institutes choose us</p>
+                <ul className="space-y-3 text-sm text-slate-700">
                   <li className="flex items-center justify-center gap-2">
                     <ShieldCheck className="h-4 w-4 text-sky-600" />
                     <span>Data governance & audit trails</span>
@@ -141,8 +137,8 @@ export default function InstituteSection() {
                 </ul>
               </div>
 
-              <div className="mx-auto max-w-xs rounded-xl border border-slate-100 bg-white p-4 text-sm text-slate-700">
-                <p className="text-xs font-semibold uppercase tracking-widest text-sky-600">Need help?</p>
+              <div className="mx-auto max-w-xs rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-700 shadow-sm">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-600">Need help?</p>
                 <p className="mt-2 text-slate-900">Mon–Fri, 09:00 — 18:00</p>
                 <p className="mt-3 flex items-center justify-center gap-2 text-slate-700">
                   <Phone className="h-4 w-4 text-sky-600" /> +91 011 4000 1122
@@ -156,6 +152,7 @@ export default function InstituteSection() {
         </div>
 
         <div className="mb-10 text-center">
+          <br></br>
           <h3 className="text-2xl font-semibold text-slate-900">Benefits for institutes</h3>
           <p className="mt-2 text-sm text-slate-600">Designed for governance, speed, and measurable outcomes.</p>
 
@@ -178,9 +175,9 @@ export default function InstituteSection() {
           </div>
         </div>
 
-        <div className="mb-8 space-y-6">
+        <div className="mb-8 space-y-8">
           <div className="grid gap-6 md:grid-cols-2">
-            <Card className="rounded-2xl border border-white/60 bg-white/95 text-center shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
+            <Card className="rounded-2xl border border-slate-200 bg-white text-center shadow-sm">
               <CardHeader>
                 <CardTitle className="text-lg font-semibold text-slate-900">Success stories</CardTitle>
                 <CardDescription className="text-sm text-slate-600">How institutes improved placements using the mission.</CardDescription>
@@ -220,7 +217,7 @@ export default function InstituteSection() {
               </CardContent>
             </Card>
 
-            <Card className="rounded-2xl border border-white/60 bg-white/95 text-center shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
+            <Card className="rounded-2xl border border-slate-200 bg-white text-center shadow-sm">
               <CardHeader>
                 <CardTitle className="text-lg font-semibold text-slate-900">Programmes for institutes</CardTitle>
                 <CardDescription className="text-sm text-slate-600">Training, onboarding, and data governance support packages.</CardDescription>
@@ -236,8 +233,8 @@ export default function InstituteSection() {
             </Card>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl border border-white/60 bg-white/95 p-6 text-center shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
+          <div className="grid gap-6 sm:grid-cols-2">
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm">
               <p className="text-xs font-semibold uppercase tracking-widest text-sky-600">Quick facts</p>
               <div className="mt-3 space-y-2 text-sm text-slate-700">
                 <p><strong>Verification:</strong> Institute authority verified</p>
@@ -246,7 +243,7 @@ export default function InstituteSection() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-white/60 bg-white/95 p-6 text-center shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm">
               <p className="text-xs font-semibold uppercase tracking-widest text-sky-600">Need help?</p>
               <div className="mt-3 space-y-1 text-sm text-slate-700">
                 <p className="font-semibold">placements@nation.org</p>
@@ -268,7 +265,7 @@ export default function InstituteSection() {
           </div>
         </div>
 
-        <div className="mb-8 rounded-2xl border border-white/60 bg-white/95 p-8 text-center shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-md">
+        <div className="mb-8 rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
           <h4 className="text-xl font-semibold text-slate-900">Ready to onboard your institute?</h4>
           <p className="mt-2 text-sm text-slate-600">Request an onboarding call and a tailored integration plan for rosters & reports.</p>
           <div className="mt-4 flex flex-wrap justify-center gap-3">
@@ -277,20 +274,25 @@ export default function InstituteSection() {
           </div>
         </div>
 
-        <div className="mb-6 rounded-2xl border border-white/60 bg-white/95 p-6 text-center shadow-sm">
+        <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm">
           <p className="text-sm text-slate-700">Get monthly institute operations updates</p>
-          <form onSubmit={handleSubscribe} className="mx-auto mt-4 flex max-w-md items-center gap-2">
+          <form onSubmit={handleSubscribe} className="mx-auto mt-4 flex max-w-md flex-col gap-2 sm:flex-row sm:items-center">
             <Input
               id="inst-sub-email"
               placeholder="name@institute.edu.in"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (error) setError("");
+              }}
+              aria-invalid={!!error}
             />
-            <Button type="submit" className="rounded-full bg-sky-600 text-white">{subscribed ? "Subscribed" : "Subscribe"}</Button>
+            <Button type="submit" className="rounded-full bg-sky-600 text-white hover:bg-sky-500">{subscribed ? "Subscribed" : "Subscribe"}</Button>
           </form>
+          {error && <p className="mt-2 text-xs text-amber-700">{error}</p>}
           {subscribed && <p className="mt-2 text-xs text-sky-700">Thanks — we will send the next update to your inbox.</p>}
         </div>
-      </div>
+      
     </section>
   );
 }
