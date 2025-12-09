@@ -12,7 +12,6 @@ import {
   Calendar,
   CheckCircle,
   Clock,
-  DollarSign,
   ExternalLink,
   FileText,
   Mail,
@@ -332,7 +331,6 @@ export default function InterviewDetailPage() {
                   <span className="capitalize">{opportunity.type}</span>
                 </div>
                 <div className="inline-flex items-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-semibold text-sky-800">
-                  <DollarSign className="h-4 w-4 text-sky-600" />
                   <span>₹{opportunity.salary?.toLocaleString()}</span>
                 </div>
               </div>
@@ -354,43 +352,40 @@ export default function InterviewDetailPage() {
                 </div>
               </div>
 
-              <Link href={`/jobs/${opportunity.id}`}>
-                <Button variant="outline" className="w-full rounded-full">
-                  View Full Job Details
-                </Button>
-              </Link>
             </CardContent>
           </Card>
         </div>
 
         {/* Right Column - Sidebar */}
         <div className="space-y-6">
-          {/* Quick Actions */}
-          <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-lg">
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold text-slate-900">Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-5 justify-around">
-              <Link href={`/applications/${interview.applicationRel.id}`}>
-                <Button
-                  variant="outline"
-                  className="w-full h-11 rounded-full justify-start gap-2 border-slate-300 text-slate-900 hover:border-sky-300 hover:bg-sky-50"
-                >
-                  <FileText className="h-4 w-4 text-sky-700" />
-                  <span className="font-semibold">View Application</span>
-                </Button>
-              </Link>
-              <Link href={`/jobs/${opportunity.id}`}>
-                <Button
-                  variant="outline"
-                  className="w-full h-11 rounded-full justify-start gap-2 border-slate-300 text-slate-900 hover:border-sky-300 hover:bg-sky-50"
-                >
-                  <Briefcase className="h-4 w-4 text-sky-700" />
-                  <span className="font-semibold">View Job Posting</span>
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
+          {/* Quick Actions - Only for students */}
+          {!isEmployer && (
+            <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold text-slate-900">Quick Actions</CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-5 justify-around">
+                <Link href={`/applications/${interview.applicationRel.id}`}>
+                  <Button
+                    variant="outline"
+                    className="w-full h-11 rounded-full justify-start gap-2 border-slate-300 text-slate-900 hover:border-sky-300 hover:bg-sky-50"
+                  >
+                    <FileText className="h-4 w-4 text-sky-700" />
+                    <span className="font-semibold">View Application</span>
+                  </Button>
+                </Link>
+                <Link href={`/jobs/${opportunity.id}`}>
+                  <Button
+                    variant="outline"
+                    className="w-full h-11 rounded-full justify-start gap-2 border-slate-300 text-slate-900 hover:border-sky-300 hover:bg-sky-50"
+                  >
+                    <Briefcase className="h-4 w-4 text-sky-700" />
+                    <span className="font-semibold">View Job Posting</span>
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Interview Preparation Tips */}
           {interview.status === "scheduled" && !timeUntil.isPast && (
