@@ -245,10 +245,7 @@ export default function OpportunityDetailPage() {
   const isUrgent = daysUntilDeadline <= 7 && daysUntilDeadline > 0
 
   return (
-    <div className="relative p-6 max-w-5xl w-full mx-auto space-y-6">
-      <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]" />
-      <div className="absolute top-0 left-1/4 -z-10 h-64 w-64 rounded-full bg-sky-100 opacity-50 blur-3xl" />
-      <div className="absolute bottom-0 right-1/4 -z-10 h-64 w-64 rounded-full bg-blue-100 opacity-50 blur-3xl" />
+    <div className="relative p-6 max-w-5xl w-full mx-auto space-y-6 bg-white">
 
       <Button
         variant="ghost"
@@ -261,7 +258,11 @@ export default function OpportunityDetailPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-lg overflow-hidden">
+          <Card
+            className={`rounded-3xl border-slate-200 shadow-lg overflow-hidden ${
+              isUrgent && !isExpired ? "bg-gradient-to-br from-sky-50 to-blue-50 ring-2 ring-sky-200" : "bg-white/90"
+            }`}
+          >
             <CardHeader className="pb-4">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start space-x-4">
@@ -403,19 +404,19 @@ export default function OpportunityDetailPage() {
                   </Button>
                 </Link>
                 {opportunity.userApplication.resume && (
-                  <div className="rounded-2xl border border-slate-200 bg-white/80 p-4 mt-2 flex items-center gap-3">
+                  <div className="rounded-2xl border border-slate-200 bg-white/80 p-4 mt-2 flex flex-wrap items-start gap-3">
                     <div className="rounded-2xl bg-slate-100 p-3">
                       <FileText className="h-5 w-5 text-slate-600" />
                     </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-semibold text-slate-900">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-slate-900 break-words">
                         {opportunity.userApplication.resume.name}
                       </p>
                       <p className="text-xs text-slate-500">
                         Uploaded {new Date(opportunity.userApplication.resume.uploadedAt).toLocaleDateString()}
                       </p>
                     </div>
-                    <Button asChild variant="outline" size="sm" className="rounded-full">
+                    <Button asChild variant="outline" size="sm" className="rounded-full shrink-0">
                       <a
                         href={opportunity.userApplication.resume.resumeUrl}
                         target="_blank"
@@ -696,46 +697,6 @@ export default function OpportunityDetailPage() {
             </Card>
           )}
 
-          {opportunity.employerRel && (
-            <Card className="rounded-3xl border-slate-200 bg-white/90 shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold text-slate-900">Recruiter</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="rounded-full bg-gradient-to-br from-sky-100 to-blue-100 p-3">
-                    <User className="h-5 w-5 text-sky-600" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-slate-900">{opportunity.employerRel.name}</h4>
-                    {opportunity.employerRel.position && (
-                      <p className="text-sm text-slate-600">{opportunity.employerRel.position}</p>
-                    )}
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <a
-                    href={`mailto:${opportunity.employerRel.email}`}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-200"
-                  >
-                    <Mail className="h-3.5 w-3.5" />
-                    Email
-                  </a>
-                  {opportunity.employerRel.linkedin && (
-                    <a
-                      href={opportunity.employerRel.linkedin}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-3 py-1.5 text-sm text-blue-700 hover:bg-blue-200"
-                    >
-                      <Linkedin className="h-3.5 w-3.5" />
-                      LinkedIn
-                    </a>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          )}
         </div>
       </div>
     </div>
