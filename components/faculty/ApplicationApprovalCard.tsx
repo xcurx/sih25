@@ -27,10 +27,12 @@ const getStudentInitials = (name: string | undefined): string => {
 
 const getStatusBadge = (status: string) => {
     switch (status.toLowerCase()) {
-        case "applied":
+        case "mentor_approval_needed":
             return <Badge className="bg-amber-500/10 text-amber-700 border border-amber-300 font-medium hover:bg-amber-500/20 rounded-full px-4 py-1 text-sm">Awaiting Faculty Review</Badge>
-        case "reviewed":
+        case "applied":
             return <Badge className="bg-indigo-500/10 text-indigo-700 border border-indigo-300 font-medium hover:bg-indigo-500/20 rounded-full px-4 py-1 text-sm">Mentor Approved</Badge>
+        case "reviewed":
+            return <Badge className="bg-indigo-500/10 text-indigo-700 border border-indigo-300 font-medium hover:bg-indigo-500/20 rounded-full px-4 py-1 text-sm">Reviewed</Badge>
         case "shortlisted":
             return <Badge className="bg-sky-500/10 text-sky-700 border border-sky-300 font-medium hover:bg-sky-500/20 rounded-full px-4 py-1 text-sm">Shortlisted</Badge>
         case "rejected":
@@ -65,6 +67,7 @@ export function ApplicationApprovalCard({
         .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
         .join(" ");
     const isPendingForFacultyReview = application.status === "mentor_approval_needed";
+    const isStudentPlaced = application.studentRel?.placed === true;
 
     return (
         <Card className="border-slate-200 shadow-md rounded-xl hover:shadow-lg transition-shadow duration-300">
@@ -186,7 +189,11 @@ export function ApplicationApprovalCard({
                         View Details
                     </Button>
                     
-                    {isPendingForFacultyReview ? (
+                    {isStudentPlaced ? (
+                        <Button disabled className="flex-1 bg-emerald-100 text-emerald-700 border border-emerald-300">
+                            Student Already Placed
+                        </Button>
+                    ) : isPendingForFacultyReview ? (
                         <>
                             <Button 
                                 variant="destructive" 

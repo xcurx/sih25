@@ -161,6 +161,7 @@ export interface ApprovalApplication extends Application {
     cgpa: number
     avatar?: string
     skills: string[]
+    placed?: boolean
   }
 }
 

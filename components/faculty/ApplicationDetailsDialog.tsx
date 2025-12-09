@@ -30,7 +30,8 @@ export function ApplicationDetailsDialog({
 }) {
   if (!application) return null
 
-  const canTakeAction = application.status === "mentor_approval_needed"
+  const isStudentPlaced = application.studentRel?.placed === true
+  const canTakeAction = application.status === "mentor_approval_needed" && !isStudentPlaced
   const statusLabel = application.status
     .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
@@ -199,7 +200,11 @@ export function ApplicationDetailsDialog({
         </div>
 
         <DialogFooter className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          {!canTakeAction && (
+          {isStudentPlaced ? (
+            <Badge className="bg-emerald-100 text-emerald-700 border-emerald-300">
+              Student has already been placed
+            </Badge>
+          ) : !canTakeAction && (
             <Badge variant="secondary" className="bg-slate-100 text-slate-600 border-slate-200">
               Actions disabled - current status: {statusLabel}
             </Badge>

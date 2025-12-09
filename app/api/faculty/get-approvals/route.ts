@@ -53,6 +53,7 @@ export const GET = async () => {
                         batch: true,
                         phone: true,
                         skills: true,
+                        placed: true,
                    }
                 },
             }

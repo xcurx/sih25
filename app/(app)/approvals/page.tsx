@@ -112,7 +112,7 @@ export default function ApprovalPage() {
 
       const matchesTab = 
         activeTab === "all" || 
-        (activeTab === "pending" && app.mentorApproved === false && app.status === "applied") ||
+        (activeTab === "pending" && app.status === "mentor_approval_needed") ||
         (activeTab === "approved" && app.mentorApproved === true && app.status === "applied") ||
         (activeTab === "shortlisted" && app.status === "shortlisted") ||
         (activeTab === "rejected" && app.status === "rejected")
@@ -137,7 +137,7 @@ export default function ApprovalPage() {
       }
     })
 
-  const pendingApplications = applications.filter((app) => app.mentorApproved === false && app.status === "applied")
+  const pendingApplications = applications.filter((app) => app.status === "mentor_approval_needed")
   const approvedApplications = applications.filter((app) => app.mentorApproved === true && app.status === "applied")
   const shortlistedApplications = applications.filter((app) => app.status === "shortlisted")
   const rejectedApplications = applications.filter((app) => app.status === "rejected")
