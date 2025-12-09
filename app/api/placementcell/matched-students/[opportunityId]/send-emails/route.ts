@@ -1,6 +1,6 @@
 import { auth } from "@/auth"
 import { PrismaClient } from "@/lib/generated/prisma"
-import { client } from "@/lib/mail"
+import { sendEmail } from "@/lib/mail"
 import { matchedStudentTemplate } from "@/components/mail/matchedStudentTemplate"
 import { NextRequest, NextResponse } from "next/server"
 
@@ -57,12 +57,18 @@ export const POST = async (req: NextRequest, context: { params: Promise<{ opport
         }
 
         const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "http://localhost:3000"
-        let sentCount = 0
         const errors: string[] = []
+        const successfulIds: string[] = []
 
-        // Send email to each student
+        // Helper function to sleep
+        const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
+        // Send emails sequentially with delay to avoid rate limiting
         for (const match of pendingMatches) {
-            if (!match.studentRel.email) continue
+            if (!match.studentRel.email) {
+                errors.push("no-email")
+                continue
+            }
 
             const acceptUrl = `${baseUrl}/api/student/matched-response/${match.id}/accept`
             const rejectUrl = `${baseUrl}/api/student/matched-response/${match.id}/reject`
@@ -86,7 +92,7 @@ export const POST = async (req: NextRequest, context: { params: Promise<{ opport
             })
 
             try {
-                await client.send({
+                await sendEmail({
                     from: {
                         email: "placement@sih25.demomailtrap.co",
                         name: "Placement Portal",
@@ -96,22 +102,30 @@ export const POST = async (req: NextRequest, context: { params: Promise<{ opport
                     html: emailHtml,
                 })
 
-                // Mark email as sent
-                await prisma.matchedStudent.update({
-                    where: { id: match.id },
-                    data: { emailSent: true }
-                })
-
-                sentCount++
+                successfulIds.push(match.id)
+                console.log(`Email sent to ${match.studentRel.email} (${successfulIds.length}/${pendingMatches.length})`)
             } catch (emailError) {
                 console.error(`Failed to send email to ${match.studentRel.email}:`, emailError)
                 errors.push(match.studentRel.email)
             }
+
+            // Wait 11 seconds before sending the next email to avoid rate limiting
+            if (pendingMatches.indexOf(match) < pendingMatches.length - 1) {
+                await sleep(11000)
+            }
+        }
+
+        // Batch update all successfully sent emails
+        if (successfulIds.length > 0) {
+            await prisma.matchedStudent.updateMany({
+                where: { id: { in: successfulIds } },
+                data: { emailSent: true }
+            })
         }
 
         return NextResponse.json({
             message: `Emails sent successfully`,
-            sentCount,
+            sentCount: successfulIds.length,
             totalPending: pendingMatches.length,
             errors: errors.length > 0 ? errors : undefined,
         }, { status: 200 })
