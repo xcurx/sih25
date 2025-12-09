@@ -21,8 +21,16 @@ export default function JobCard({ job, setJobs, isPlaced = false }: JobCardProps
   const isExpired = daysUntilDeadline <= 0
   const isUrgent = daysUntilDeadline <= 7 && daysUntilDeadline > 0
 
+  const notifyPlacementLock = () => {
+    toast.info("You are already placed and cannot apply to new opportunities.")
+  }
+
   const handleApproval = async () => {
-    if (sendingApproval || isPlaced) return
+    if (sendingApproval) return
+    if (isPlaced) {
+      notifyPlacementLock()
+      return
+    }
     setSendingApproval(true)
     try {
       console.log("Sending mentor approval for job id:", job.id)
@@ -39,7 +47,11 @@ export default function JobCard({ job, setJobs, isPlaced = false }: JobCardProps
   }
 
   const handleApply = () => {
-    if (isExpired || job.applied || isPlaced) return
+    if (isExpired || job.applied) return
+    if (isPlaced) {
+      notifyPlacementLock()
+      return
+    }
     setLoading(true)
     router.push(`/jobs/${job.id}?apply=1`)
     toast.info("Select a resume on the job page to complete your application")
@@ -187,21 +199,33 @@ export default function JobCard({ job, setJobs, isPlaced = false }: JobCardProps
 
               {!job.applied && (
                 <Button
-                  disabled={isExpired || sendingApproval}
-                  className="rounded-full bg-sky-50 text-sky-700 hover:bg-sky-100 border border-sky-200"
+                  disabled={isExpired || sendingApproval || isPlaced}
+                  className="rounded-full bg-sky-50 text-sky-700 hover:bg-sky-100 border border-sky-200 disabled:opacity-70"
                   onClick={handleApproval}
+                  title={isPlaced ? "Already placed students cannot request mentor approval" : ""}
                 >
-                  {sendingApproval ? "Sending..." : "Send Mentor Approval"}
+                  {sendingApproval ? "Sending..." : isPlaced ? "Placement Locked" : "Send Mentor Approval"}
                 </Button>
               )}
 
               <Button
-                disabled={isExpired || job.applied || loading}
-                className={`rounded-full ${job.applied ? "bg-emerald-100 text-emerald-700 border-emerald-200" : "bg-sky-600 text-white hover:bg-sky-700"}`}
+                disabled={isExpired || job.applied || loading || isPlaced}
+                className={`rounded-full ${
+                  job.applied
+                    ? "bg-emerald-100 text-emerald-700 border-emerald-200"
+                    : "bg-sky-600 text-white hover:bg-sky-700"
+                } disabled:opacity-70`}
                 variant={job.applied ? "outline" : "default"}
                 onClick={handleApply}
+                title={isPlaced ? "Already placed students cannot apply" : ""}
               >
-                {loading ? "Applying..." : (job.applied ? "✓ Applied" : "Apply Now")}
+                {loading
+                  ? "Applying..."
+                  : job.applied
+                    ? "✓ Applied"
+                    : isPlaced
+                      ? "Placement Locked"
+                      : "Apply Now"}
               </Button>
             </div>
           </div>

@@ -9,6 +9,7 @@ import { Briefcase, Calendar, CheckCircle, GraduationCap, TrendingUp, Users, Clo
 import { useEffect, useState } from "react"
 import axios from "axios"
 import { formatDistanceToNow } from "date-fns"
+import { useRouter } from "next/navigation"
 
 // Custom colors for the Bar Chart
 const ACCENT_COLORS = {
@@ -53,6 +54,7 @@ export default function PlacementCellDashboard() {
     const [activities, setActivities] = useState<Activity[]>([])
     const [topRecruiters, setTopRecruiters] = useState<TopRecruiter[]>([])
     const [loading, setLoading] = useState(true)
+    const router = useRouter()
 
     useEffect(() => {
         const fetchDashboardData = async () => {
@@ -279,7 +281,11 @@ export default function PlacementCellDashboard() {
                                 No placement data available
                             </div>
                         )}
-                        <Button variant="ghost" className="w-full justify-center text-sky-600 hover:bg-sky-50 rounded-lg mt-4">
+                        <Button
+                            variant="ghost"
+                            className="w-full justify-center text-sky-600 hover:bg-sky-50 rounded-lg mt-4"
+                            onClick={() => router.push("/employers")}
+                        >
                             View All Partners
                         </Button>
                     </CardContent>
