@@ -96,7 +96,7 @@ function PublicLanding() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-4 lg:px-6">
+        <div className="flex w-full items-center justify-between px-6 py-4">
           <Link href="/" aria-label="Go to main landing" className="flex items-center gap-3">
             <Image
               src="/Logo_Saksham.png"
@@ -124,20 +124,8 @@ function PublicLanding() {
 
       <main className="space-y-0">
         <section className="relative overflow-hidden bg-gradient-to-br from-white via-sky-50 to-blue-50 text-slate-900">
-          <div
-            className="absolute right-0 top-0 hidden h-full w-[48%] min-w-[320px] bg-[url('https://images.unsplash.com/photo-1528744598421-b7b93e12df0b?auto=format&fit=crop&w=1600&q=80')] bg-cover bg-center opacity-45 lg:block"
-            aria-hidden="true"
-          />
-          <div
-            className="absolute inset-0 opacity-35"
-            aria-hidden="true"
-            style={{
-              backgroundImage:
-                "radial-gradient(circle at 20% 20%, rgba(59,130,246,0.14) 0, rgba(255,255,255,0) 32%), radial-gradient(circle at 80% 0%, rgba(14,165,233,0.12) 0, rgba(255,255,255,0) 30%)",
-            }}
-          />
-          <div className="mx-auto flex w-full max-w-7xl flex-col items-center gap-10 px-4 py-16 text-center lg:px-6">
-            <div className="relative w-full max-w-3xl space-y-6">
+          <div className="flex w-full flex-col items-center gap-10 px-4 py-16 text-center md:px-8">
+            <div className="relative w-full max-w-5xl space-y-6">
               <Badge className="bg-sky-100 text-sky-800" variant="outline">
                 Official · Secure · Student-first
               </Badge>
@@ -170,42 +158,37 @@ function PublicLanding() {
                   Verified employers & secure offers
                 </div>
               </div>
-              <div className="relative w-full max-w-4xl">
-                <div className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-xl backdrop-blur">
-                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Mission metrics</p>
-                  <div className="mt-4 grid gap-4 sm:grid-cols-3">
-                    {heroStats.map((stat) => (
-                      <div key={stat.label} className="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-center">
-                        <p className="text-sm text-slate-600">{stat.label}</p>
-                        <p className="text-3xl font-semibold text-slate-900">{stat.value}</p>
-                        <p className="text-[11px] uppercase tracking-[0.25em] text-slate-400">{stat.detail}</p>
-                      </div>
-                    ))}
+              <div className="relative w-full px-6">
+                <div className="grid gap-4 bg-white/70 p-6 shadow-inner sm:grid-cols-3">
+                  {heroStats.map((stat) => (
+                    <div key={stat.label} className="rounded-2xl border border-slate-200 bg-white/90 p-4 text-center">
+                      <p className="text-sm text-slate-600">{stat.label}</p>
+                      <p className="text-3xl font-semibold text-slate-900">{stat.value}</p>
+                      <p className="text-[11px] uppercase tracking-[0.25em] text-slate-400">{stat.detail}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-5 grid gap-3 px-6 text-sm text-slate-600 sm:grid-cols-3 sm:items-center sm:text-center">
+                  <div className="flex items-center justify-center gap-2">
+                    <LineChart className="h-4 w-4 text-sky-600" aria-hidden="true" />
+                    Real-time dashboards
                   </div>
-                  <div className="mt-5 grid gap-3 border-t border-slate-100 pt-4 text-sm text-slate-600 sm:grid-cols-3 sm:items-center sm:text-center">
-                    <div className="flex items-center justify-center gap-2">
-                      <LineChart className="h-4 w-4 text-sky-600" aria-hidden="true" />
-                      Real-time dashboards
-                    </div>
-                    <div className="flex items-center justify-center gap-2">
-                      <Briefcase className="h-4 w-4 text-sky-600" aria-hidden="true" />
-                      PSU + private drives
-                    </div>
-                    <div className="flex items-center justify-center gap-2">
-                      <Users className="h-4 w-4 text-sky-600" aria-hidden="true" />
-                      Inclusive outreach
-                    </div>
+                  <div className="flex items-center justify-center gap-2">
+                    <Briefcase className="h-4 w-4 text-sky-600" aria-hidden="true" />
+                    PSU + private drives
+                  </div>
+                  <div className="flex items-center justify-center gap-2">
+                    <Users className="h-4 w-4 text-sky-600" aria-hidden="true" />
+                    Inclusive outreach
                   </div>
                 </div>
-                <div className="pointer-events-none absolute -left-8 -top-8 h-24 w-24 rounded-full bg-sky-200/40 blur-3xl" aria-hidden />
-                <div className="pointer-events-none absolute -right-6 bottom-6 h-20 w-20 rounded-full bg-white/70 blur-2xl" aria-hidden />
               </div>
             </div>
           </div>
         </section>
 
         <section className="bg-white">
-          <div className="mx-auto w-full max-w-7xl px-4 py-14 lg:px-6">
+          <div className="w-full px-6 py-14">
             <div className="mb-10 flex flex-col gap-4 text-center lg:flex-row lg:items-end lg:justify-between lg:text-left">
               <div className="max-w-3xl space-y-2 lg:text-left">
                 <Badge className="bg-sky-100 text-sky-800" variant="outline">
@@ -254,7 +237,7 @@ function PublicLanding() {
         </section>
 
         <section className="border-y border-slate-200 bg-gradient-to-br from-sky-50 via-white to-blue-50">
-          <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-14 lg:grid-cols-[1.2fr,1fr] lg:px-6">
+          <div className="grid w-full gap-10 px-6 py-14 lg:grid-cols-[1.2fr,1fr]">
             <div className="space-y-4 text-center lg:text-left">
               <Badge className="bg-slate-100 text-slate-700" variant="outline">
                 Analytics & compliance
@@ -294,7 +277,7 @@ function PublicLanding() {
         </section>
 
         <section id="updates" className="bg-white">
-          <div className="mx-auto w-full max-w-7xl px-4 py-14 lg:px-6">
+          <div className="w-full px-6 py-14">
             <div className="mb-10 flex flex-col gap-4 text-center lg:flex-row lg:items-center lg:justify-between lg:text-left">
               <div>
                 <h2 className="text-3xl font-bold text-slate-900">Circulars & updates</h2>
@@ -321,7 +304,7 @@ function PublicLanding() {
           <div className="absolute inset-0 opacity-35" aria-hidden="true" style={{
             backgroundImage: "radial-gradient(circle at 30% 20%, rgba(59,130,246,0.16) 0, rgba(255,255,255,0) 32%)",
           }} />
-          <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-16 text-center lg:px-6">
+          <div className="flex w-full flex-col gap-6 px-6 py-16 text-center">
             <h2 className="text-3xl font-bold text-slate-900">Ready to strengthen your campus-to-career pipeline?</h2>
             <p className="text-base text-slate-700">
               Bring students, administrators, and employers together with a unified, secure, and policy-aligned platform.
@@ -343,7 +326,7 @@ function PublicLanding() {
       </main>
 
       <footer className="border-t border-slate-200 bg-white">
-        <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-6 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between lg:px-6">
+        <div className="flex w-full flex-col gap-4 px-6 py-6 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
           <p>(c) {new Date().getFullYear()} Department of Higher Education, Government of India</p>
           <div className="flex flex-wrap gap-4 text-xs uppercase tracking-[0.2em] text-slate-500">
             <span>Data Protection</span>
