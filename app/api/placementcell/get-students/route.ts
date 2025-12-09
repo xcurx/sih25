@@ -20,6 +20,9 @@ export const GET = async (req: NextRequest) => {
                 batch: true,
                 branch: true,
                 cgpa: true,
+                github: true,
+                linkedin: true,
+                mentorId: true,
                 resumes: {
                     orderBy: { uploadedAt: "desc" },
                     select: {

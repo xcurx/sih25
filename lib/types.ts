@@ -15,6 +15,9 @@ export interface Student {
   cgpa: number
   avatar?: string
   skills: string[]
+  github?: string
+  linkedin?: string
+  mentorId?: string
   projects: Project[]
   certifications: Certification[]
   preferences: JobPreferences

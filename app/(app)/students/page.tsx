@@ -28,12 +28,291 @@ import {
   Clock,
   Users,
   Calendar,
-  Layers
+  Layers,
+  Upload
 } from "lucide-react"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, type ChangeEvent } from "react"
+import { toast } from "sonner"
+
+const commonSkills = [
+  "JavaScript",
+  "Python",
+  "Java",
+  "C#",
+  "C++",
+  "Go",
+  "Rust",
+  "Kotlin",
+  "Swift",
+  "PHP",
+  "Ruby",
+  "React",
+  "Next.js",
+  "Node.js",
+  "Express",
+  "NestJS",
+  "GraphQL",
+  "Apollo",
+  "Redux",
+  "React Query",
+  "TypeScript",
+  "Angular",
+  "Vue.js",
+  "Svelte",
+  "Tailwind CSS",
+  "HTML/CSS",
+  "SQL",
+  "PostgreSQL",
+  "MySQL",
+  "MongoDB",
+  "Redis",
+  "Elasticsearch",
+  "Kafka",
+  "RabbitMQ",
+  "Docker",
+  "Kubernetes",
+  "AWS",
+  "GCP",
+  "Azure",
+  "CI/CD",
+  "Git",
+  "Linux",
+  "Machine Learning",
+  "Data Analysis",
+  "Pandas",
+  "NumPy",
+  "TensorFlow",
+  "PyTorch",
+  "OpenCV",
+  "Testing",
+  "Jest",
+  "Cypress",
+  "Playwright",
+  "Security",
+  "Performance Optimization",
+  "System Design",
+]
+
+const branchOptions = [
+  "Computer Science",
+  "Information Technology",
+  "Electronics and Communication",
+  "Mechanical Engineering",
+  "Civil Engineering",
+  "Electrical Engineering",
+  "Mathematics",
+  "Physics",
+  "Chemistry",
+]
+
+const mentorIds = ["cmi17eufc0000engs4jy4kg44", "cmivusgxc0001fsfm6xmvdxho"]
+const CSV_HEADERS = [
+  "name",
+  "email",
+  "branch",
+  "batch",
+  "cgpa",
+  "phone",
+  "skills",
+  "github",
+  "linkedin",
+  "password",
+  "mentorId",
+] as const
+const DEFAULT_PASSWORD = "1234"
+
+type CsvHeader = (typeof CSV_HEADERS)[number]
+type CsvRow = Record<CsvHeader, string>
+
+interface StudentImportPayload {
+  email: string
+  name: string
+  password: string
+  branch?: string
+  batch?: number
+  cgpa?: number
+  phone?: string
+  skills?: string[]
+  github?: string
+  linkedin?: string
+  mentorId?: string
+}
+
+const slugify = (value: string) =>
+  value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "student"
+
+const randomFromArray = <T,>(items: T[]) => items[Math.floor(Math.random() * items.length)]
+
+const sanitizeBranch = (branch?: string | null) => {
+  if (branch && branchOptions.includes(branch)) {
+    return branch
+  }
+  return branchOptions[0]
+}
+
+const sanitizeSkillsList = (skills?: string[]) => {
+  const normalized = (skills || []).map((skill) => skill.trim()).filter(Boolean)
+  const filtered = normalized.filter((skill) => commonSkills.includes(skill))
+
+  if (filtered.length) {
+    return Array.from(new Set(filtered)).slice(0, 8)
+  }
+
+  // Provide at least a few fallback skills to keep CSV consistent
+  const shuffled = [...commonSkills]
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+  }
+  return shuffled.slice(0, 4)
+}
+
+const skillsFromText = (value?: string) => {
+  if (!value) return sanitizeSkillsList([])
+  const split = value
+    .split(/[,;|]/)
+    .map((skill) => skill.trim())
+    .filter(Boolean)
+  return sanitizeSkillsList(split)
+}
+
+const ensureLink = (link: string | null | undefined, name: string, type: "github" | "linkedin") => {
+  if (link && link.trim().length > 0) {
+    return link.trim()
+  }
+  const slug = slugify(name)
+  return type === "github" ? `https://github.com/${slug}` : `https://www.linkedin.com/in/${slug}`
+}
+
+const ensureMentorId = (mentorId?: string | null) => {
+  if (mentorId && mentorIds.includes(mentorId)) {
+    return mentorId
+  }
+  return randomFromArray(mentorIds)
+}
+
+const formatCsvValue = (value: string | number | undefined | null) => {
+  const stringValue = value !== undefined && value !== null ? String(value) : ""
+  const sanitized = stringValue.replace(/\r?\n/g, " ").trim()
+  if (/[",\n]/.test(sanitized)) {
+    return `"${sanitized.replace(/"/g, '""')}"`
+  }
+  return sanitized
+}
+
+const buildCsvContent = (rows: CsvRow[]) => {
+  const headerLine = CSV_HEADERS.join(",")
+  const dataLines = rows.map((row) => CSV_HEADERS.map((key) => formatCsvValue(row[key])).join(","))
+  return [headerLine, ...dataLines].join("\n")
+}
+
+const tokenizeCsv = (content: string) => {
+  const rows: string[][] = []
+  let current = ""
+  let row: string[] = []
+  let inQuotes = false
+
+  for (let i = 0; i < content.length; i++) {
+    const char = content[i]
+    if (char === '"') {
+      if (inQuotes && content[i + 1] === '"') {
+        current += '"'
+        i++
+      } else {
+        inQuotes = !inQuotes
+      }
+      continue
+    }
+
+    if (char === "," && !inQuotes) {
+      row.push(current)
+      current = ""
+      continue
+    }
+
+    if ((char === "\n" || char === "\r") && !inQuotes) {
+      if (char === "\r" && content[i + 1] === "\n") {
+        i++
+      }
+      row.push(current)
+      rows.push(row)
+      row = []
+      current = ""
+      continue
+    }
+
+    current += char
+  }
+
+  if (row.length > 0 || current.trim().length > 0) {
+    row.push(current)
+    rows.push(row)
+  }
+
+  return rows.filter((line) => line.some((cell) => cell.trim().length > 0))
+}
+
+const parseCsvContent = (content: string): CsvRow[] => {
+  const rows = tokenizeCsv(content)
+  if (!rows.length) return []
+
+  const normalizedHeaders = rows[0].map((header) => header.trim().toLowerCase())
+  const missingHeaders = CSV_HEADERS.filter((header) => !normalizedHeaders.includes(header.toLowerCase()))
+
+  if (missingHeaders.length) {
+    throw new Error(`Missing headers: ${missingHeaders.join(", ")}`)
+  }
+
+  const headerIndexMap: Record<CsvHeader, number> = {} as Record<CsvHeader, number>
+  CSV_HEADERS.forEach((header) => {
+    headerIndexMap[header] = normalizedHeaders.indexOf(header.toLowerCase())
+  })
+
+  return rows.slice(1).map((row) => {
+    const record = {} as CsvRow
+    CSV_HEADERS.forEach((header) => {
+      const value = row[headerIndexMap[header]] ?? ""
+      record[header] = value.trim()
+    })
+    return record
+  })
+}
+
+const mapCsvRecordsToPayload = (records: CsvRow[]): StudentImportPayload[] =>
+  records
+    .map((record) => {
+      const name = record.name?.trim()
+      const email = record.email?.trim().toLowerCase()
+
+      if (!name || !email) {
+        return null
+      }
+
+      const batch = Number(record.batch)
+      const cgpa = Number(record.cgpa)
+
+      return {
+        name,
+        email,
+        password: DEFAULT_PASSWORD,
+        branch: sanitizeBranch(record.branch),
+        batch: Number.isFinite(batch) ? batch : undefined,
+        cgpa: Number.isFinite(cgpa) ? cgpa : undefined,
+        phone: record.phone || undefined,
+        skills: skillsFromText(record.skills),
+        github: ensureLink(record.github, name, "github"),
+        linkedin: ensureLink(record.linkedin, name, "linkedin"),
+        mentorId: ensureMentorId(record.mentorId),
+      }
+    })
+    .filter((record): record is StudentImportPayload => Boolean(record))
 
 interface CustomStudentCardProps {
     student: Student;
@@ -314,6 +593,9 @@ export default function StudentsPage() {
     const [students, setStudents] = useState<Student[]>([])
     const router = useRouter()
     const [loading, setLoading] = useState(true)
+    const [isExporting, setIsExporting] = useState(false)
+    const [isImporting, setIsImporting] = useState(false)
+    const fileInputRef = useRef<HTMLInputElement>(null)
     const searchPopupRef = useRef<HTMLDivElement>(null)
 
     const getStudents = async () => {
@@ -327,6 +609,101 @@ export default function StudentsPage() {
           console.error("Error fetching students:", error);
         } finally {
           setLoading(false);
+        }
+    }
+
+    const handleExport = () => {
+        if (!students.length) {
+          toast.error("No students available to export")
+          return
+        }
+
+        try {
+          setIsExporting(true)
+          const csvRows: CsvRow[] = students.map((student) => {
+            const sanitizedSkills = sanitizeSkillsList(student.skills)
+            const mentorId = ensureMentorId(student.mentorId)
+            return {
+              name: student.name || "",
+              email: student.email || "",
+              branch: sanitizeBranch(student.branch),
+              batch: student.batch ? String(student.batch) : "",
+              cgpa: typeof student.cgpa === "number" ? student.cgpa.toString() : "",
+              phone: student.phone || "",
+              skills: sanitizedSkills.join("; "),
+              github: ensureLink(student.github, student.name, "github"),
+              linkedin: ensureLink(student.linkedin, student.name, "linkedin"),
+              password: DEFAULT_PASSWORD,
+              mentorId,
+            }
+          })
+
+          const csvContent = buildCsvContent(csvRows)
+          const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
+          const url = URL.createObjectURL(blob)
+          const link = document.createElement("a")
+          link.href = url
+          link.download = `students-${new Date().toISOString().split("T")[0]}.csv`
+          document.body.appendChild(link)
+          link.click()
+          document.body.removeChild(link)
+          URL.revokeObjectURL(url)
+          toast.success("Student data exported")
+        } catch (error) {
+          console.error("Export failed:", error)
+          toast.error("Failed to export students")
+        } finally {
+          setIsExporting(false)
+        }
+    }
+
+    const handleImportFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0]
+
+        if (!file) {
+          return
+        }
+
+        setIsImporting(true)
+
+        try {
+          const textContent = await file.text()
+          const records = parseCsvContent(textContent)
+
+          if (!records.length) {
+            throw new Error("No data rows found in CSV")
+          }
+
+          const payload = mapCsvRecordsToPayload(records)
+
+          if (!payload.length) {
+            throw new Error("No valid student entries found")
+          }
+
+          const response = await axios.post(
+            "/api/placementcell/mass-signup/students",
+            { students: payload, sendEmails: false },
+            { withCredentials: true },
+          )
+
+          const summary = response.data?.summary
+          toast.success(
+            summary
+              ? `Imported ${summary.successful}/${summary.total} students`
+              : `Imported ${payload.length} students`,
+          )
+          await getStudents()
+        } catch (error) {
+          console.error("Import failed:", error)
+          const message = axios.isAxiosError(error)
+            ? error.response?.data?.error || error.message
+            : error instanceof Error
+              ? error.message
+              : "Failed to import students"
+          toast.error(message)
+        } finally {
+          event.target.value = ""
+          setIsImporting(false)
         }
     }
 
@@ -406,10 +783,32 @@ export default function StudentsPage() {
                   Manage student profiles and track placement progress across all departments.
                 </p>
               </div>
-              <Button variant="outline" className="rounded-full border-sky-600 text-sky-600 hover:bg-sky-50">
-                <Download className="mr-2 h-4 w-4" />
-                Export Data
-              </Button>
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="outline"
+                  onClick={handleExport}
+                  disabled={isExporting || !students.length}
+                  className="rounded-full border-sky-600 text-sky-600 hover:bg-sky-50 disabled:cursor-not-allowed"
+                >
+                  <Download className="mr-2 h-4 w-4" />
+                  {isExporting ? "Exporting..." : "Export CSV"}
+                </Button>
+                <Button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isImporting}
+                  className="rounded-full bg-sky-600 text-white hover:bg-sky-700 disabled:cursor-not-allowed"
+                >
+                  <Upload className="mr-2 h-4 w-4" />
+                  {isImporting ? "Importing..." : "Import CSV"}
+                </Button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".csv,text/csv"
+                  className="hidden"
+                  onChange={handleImportFileChange}
+                />
+              </div>
             </div>
           </div>
 
