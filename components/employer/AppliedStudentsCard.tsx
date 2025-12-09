@@ -300,17 +300,14 @@ export default function AppliedStudentCard({
               Full Profile
             </Button>
           </div>
-          {apStatus !== "shortlisted" && (
+          {(apStatus === "applied" || apStatus === "reviewed") && (
             <Button 
               size="sm"
-              className="rounded-full bg-gradient-to-r from-sky-600 to-blue-600 text-white hover:from-sky-700 hover:to-blue-700 disabled:opacity-50"
-              disabled={apStatus !== "applied" && apStatus !== "reviewed"}
+              className="rounded-full bg-gradient-to-r from-sky-600 to-blue-600 text-white hover:from-sky-700 hover:to-blue-700"
               onClick={handleShortlistClick}
             >
               <MousePointerClick className="mr-1.5 h-3.5 w-3.5" />
-              {loading ? "Shortlisting..." : 
-                apStatus === "applied" || apStatus === "reviewed" ? "Shortlist" : 
-                apStatus.charAt(0).toUpperCase() + apStatus.slice(1)}
+              {loading ? "Shortlisting..." : "Shortlist"}
             </Button>
           )}
         </div>
