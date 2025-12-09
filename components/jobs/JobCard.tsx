@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 
-export default function JobCard({ job, setJobs }: JobCardProps) {
+export default function JobCard({ job, setJobs, isPlaced = false }: JobCardProps) {
   const router = useRouter()
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -22,7 +22,7 @@ export default function JobCard({ job, setJobs }: JobCardProps) {
   const isUrgent = daysUntilDeadline <= 7 && daysUntilDeadline > 0
 
   const handleApproval = async () => {
-    if (sendingApproval) return
+    if (sendingApproval || isPlaced) return
     setSendingApproval(true)
     try {
       console.log("Sending mentor approval for job id:", job.id)
@@ -39,7 +39,7 @@ export default function JobCard({ job, setJobs }: JobCardProps) {
   }
 
   const handleApply = () => {
-    if (isExpired || job.applied) return
+    if (isExpired || job.applied || isPlaced) return
     setLoading(true)
     router.push(`/jobs/${job.id}?apply=1`)
     toast.info("Select a resume on the job page to complete your application")

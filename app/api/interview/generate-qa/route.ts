@@ -1,11 +1,5 @@
 import { auth } from "@/auth"
 import { NextRequest, NextResponse } from "next/server"
-import OpenAI from "openai"
-
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
-
 type GenerateRequestBody = {
   jobTitle?: string
   companyName?: string
@@ -26,9 +20,9 @@ export const POST = async (req: NextRequest) => {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 
-  if (!process.env.OPENAI_API_KEY) {
+  if (!process.env.HF_API_KEY) {
     return NextResponse.json(
-      { message: "OPENAI_API_KEY is not configured on the server." },
+      { message: "HF_API_KEY is not configured on the server." },
       { status: 500 }
     )
   }
@@ -67,32 +61,33 @@ Requirements: ${requirements.join(", ") || "Not specified"}
 Focus on behavioral + technical coverage where relevant. Keep answers concise (2-4 sentences).
 `
 
-    const model = process.env.OPENAI_MODEL || "gpt-4o-mini"
+    const model = process.env.HF_MODEL || "meta-llama/Meta-Llama-3-8B-Instruct"
+    const prompt = `${systemPrompt.trim()}\n${userPrompt.trim()}`
 
-    let rawOutput: string | undefined
-
-    if ((client as any).responses?.create) {
-      const response = await client.responses.create({
+    const hfResponse = await fetch("https://router.huggingface.co/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.HF_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
         model,
-        input: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-        temperature: 0.5,
-      })
-      rawOutput = response.output_text?.trim()
-    } else {
-      const completion = await client.chat.completions.create({
-        model,
-        temperature: 0.5,
-        response_format: { type: "json_object" },
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
-      })
-      rawOutput = completion.choices?.[0]?.message?.content?.trim()
+        temperature: 0.5,
+        max_tokens: 800,
+      }),
+    })
+
+    if (!hfResponse.ok) {
+      const errorText = await hfResponse.text()
+      throw new Error(`Hugging Face API error (${hfResponse.status}): ${errorText}`)
     }
+
+    const hfData = await hfResponse.json()
+    const rawOutput = hfData?.choices?.[0]?.message?.content?.trim()
 
     if (!rawOutput) {
       throw new Error("OpenAI returned an empty response.")

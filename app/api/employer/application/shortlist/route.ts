@@ -112,7 +112,14 @@ export const PATCH = async (req: NextRequest) => {
         const application = await prisma.application.findUnique({
             where: { id: apId },
             include: {
-                studentRel: true,
+                studentRel: {
+                    select: {
+                        id: true,
+                        email: true,
+                        name: true,
+                        placed: true,
+                    }
+                },
                 opportunityRel: {
                     include: {
                         companyRel: true,
@@ -123,6 +130,14 @@ export const PATCH = async (req: NextRequest) => {
 
         if (!application) {
             return NextResponse.json({ message: "Application not found" }, { status: 404 });
+        }
+
+        // Check if student is already placed
+        if (application.studentRel.placed) {
+            return NextResponse.json(
+                { message: "Cannot proceed with this application. The student has already been placed." },
+                { status: 403 }
+            );
         }
 
         const scheduledTimezone = typeof timezone === "string" && timezone.length > 0 ? timezone : "Asia/Kolkata";

@@ -16,6 +16,7 @@ import {
   Mail,
   Send,
   Loader2,
+  UserPlus,
 } from "lucide-react"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
@@ -56,6 +57,7 @@ export default function RecommendedStudentsPage() {
   const [opportunity, setOpportunity] = useState<OpportunityInfo | null>(null)
   const [loading, setLoading] = useState(true)
   const [sendingEmails, setSendingEmails] = useState(false)
+  const [applyingStudents, setApplyingStudents] = useState(false)
 
   const fetchData = async () => {
     setLoading(true)
@@ -92,6 +94,22 @@ export default function RecommendedStudentsPage() {
       toast.error("Failed to send emails. Please try again.")
     } finally {
       setSendingEmails(false)
+    }
+  }
+
+  const handleApplyAll = async () => {
+    setApplyingStudents(true)
+    try {
+      const res = await axios.post(`/api/placementcell/matched-students/${opportunityId}/apply`)
+      if (res.status === 200) {
+        toast.success(res.data.message)
+        fetchData() // Refresh to update the list (applied students will be removed)
+      }
+    } catch (error: any) {
+      console.error("Error applying students:", error)
+      toast.error(error.response?.data?.error || "Failed to apply students. Please try again.")
+    } finally {
+      setApplyingStudents(false)
     }
   }
 
@@ -180,23 +198,42 @@ export default function RecommendedStudentsPage() {
         </div>
         
         {/* Send Emails Button */}
-        <Button
-          onClick={handleSendEmails}
-          disabled={sendingEmails || pendingEmailCount === 0}
-          className="rounded-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all"
-        >
-          {sendingEmails ? (
-            <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Sending Emails...
-            </>
-          ) : (
-            <>
-              <Send className="h-4 w-4 mr-2" />
-              Send Emails ({pendingEmailCount})
-            </>
-          )}
-        </Button>
+        <div className="flex gap-3">
+          <Button
+            onClick={handleApplyAll}
+            disabled={applyingStudents || matchedStudents.length === 0}
+            className="rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-md hover:shadow-lg transition-all"
+          >
+            {applyingStudents ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Applying...
+              </>
+            ) : (
+              <>
+                <UserPlus className="h-4 w-4 mr-2" />
+                One-Click Apply All ({matchedStudents.length})
+              </>
+            )}
+          </Button>
+          <Button
+            onClick={handleSendEmails}
+            disabled={sendingEmails || pendingEmailCount === 0}
+            className="rounded-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all"
+          >
+            {sendingEmails ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Sending Emails...
+              </>
+            ) : (
+              <>
+                <Send className="h-4 w-4 mr-2" />
+                Send Emails ({pendingEmailCount})
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}

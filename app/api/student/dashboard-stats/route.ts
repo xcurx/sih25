@@ -26,6 +26,7 @@ export const GET = async (req: NextRequest) => {
         cgpa: true,
         phone: true,
         skills: true,
+        placed: true,
         resumes: {
           select: {
             id: true,
@@ -168,18 +169,11 @@ export const GET = async (req: NextRequest) => {
       where: { studentId },
     });
 
-    // Recent opportunities (active, matching student's branch if available)
+    // Recent opportunities (active, not expired) - show all active opportunities
     const recentOpportunities = await prisma.opportunity.findMany({
       where: {
         status: "active",
         applicationDeadline: { gte: now },
-        ...(student.branch
-          ? {
-              eligibleDepartments: {
-                has: student.branch,
-              },
-            }
-          : {}),
       },
       include: {
         companyRel: true,
@@ -229,6 +223,7 @@ export const GET = async (req: NextRequest) => {
         branch: student.branch,
         batch: student.batch,
         cgpa: student.cgpa,
+        placed: student.placed,
       },
       profileCompleteness,
       stats: {

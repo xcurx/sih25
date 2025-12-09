@@ -26,9 +26,21 @@ export const GET = async (req: NextRequest, context: { params: Promise<{ opportu
     const { opportunityId } = await context.params
 
     try {
-        // First fetch existing matched students from DB
-        const existingMatches = await prisma.matchedStudent.findMany({
+        // Get all students who have already applied for this opportunity
+        const existingApplications = await prisma.application.findMany({
             where: { opportunityId },
+            select: { studentId: true }
+        })
+        const appliedStudentIds = new Set(existingApplications.map(a => a.studentId))
+
+        // First fetch existing matched students from DB (exclude placed and already applied)
+        const existingMatches = await prisma.matchedStudent.findMany({
+            where: { 
+                opportunityId,
+                studentRel: { 
+                    placed: false 
+                }
+            },
             include: {
                 studentRel: {
                     select: {
@@ -39,6 +51,7 @@ export const GET = async (req: NextRequest, context: { params: Promise<{ opportu
                         batch: true,
                         cgpa: true,
                         skills: true,
+                        placed: true,
                     }
                 }
             }
@@ -75,15 +88,25 @@ export const GET = async (req: NextRequest, context: { params: Promise<{ opportu
         // Get student IDs that are already matched
         const existingStudentIds = new Set(existingMatches.map(m => m.studentId))
 
-        // Filter new candidates to only include students not already matched
+        // Filter new candidates to only include students not already matched, not placed, and not already applied
         const newStudentIds = candidateStudents
-            .filter(s => !existingStudentIds.has(s.id))
+            .filter(s => !existingStudentIds.has(s.id) && !appliedStudentIds.has(s.id))
             .map(s => s.id)
 
+        // Check which of these students are not placed
+        const eligibleStudents = await prisma.student.findMany({
+            where: {
+                id: { in: newStudentIds },
+                placed: false
+            },
+            select: { id: true }
+        })
+        const eligibleStudentIds = eligibleStudents.map(s => s.id)
+
         // Create new matches in DB if there are any
-        if (newStudentIds.length > 0) {
+        if (eligibleStudentIds.length > 0) {
             await prisma.matchedStudent.createMany({
-                data: newStudentIds.map(studentId => ({
+                data: eligibleStudentIds.map(studentId => ({
                     studentId,
                     opportunityId,
                     status: "pending"
@@ -92,9 +115,17 @@ export const GET = async (req: NextRequest, context: { params: Promise<{ opportu
             })
         }
 
-        // Fetch all matched students (existing + new)
+        // Fetch all matched students (existing + new) - exclude placed students and those who already applied
         const allMatches = await prisma.matchedStudent.findMany({
-            where: { opportunityId },
+            where: { 
+                opportunityId,
+                studentRel: {
+                    placed: false
+                },
+                studentId: {
+                    notIn: Array.from(appliedStudentIds)
+                }
+            },
             include: {
                 studentRel: {
                     select: {
@@ -105,6 +136,7 @@ export const GET = async (req: NextRequest, context: { params: Promise<{ opportu
                         batch: true,
                         cgpa: true,
                         skills: true,
+                        placed: true,
                     }
                 }
             },

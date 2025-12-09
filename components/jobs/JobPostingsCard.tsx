@@ -2,7 +2,7 @@
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -11,12 +11,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import type { Opportunity, StudentApplication } from "@/lib/types"
 import axios from "axios"
 import {
@@ -24,33 +18,17 @@ import {
   Building2,
   Calendar,
   Clock,
-  Edit,
   ExternalLink,
   Eye,
   Layers,
   MapPin,
-  MoreHorizontal,
-  Trash2,
   Users,
-  Sparkles,
+  Star,
 } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 
 export default function JobPostingCard({ job }: { job: Opportunity }) {
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-emerald-100 text-emerald-700 border-emerald-200"
-      case "draft":
-        return "bg-slate-100 text-slate-700 border-slate-200"
-      case "closed":
-        return "bg-red-100 text-red-700 border-red-200"
-      default:
-        return "bg-slate-100 text-slate-700 border-slate-200"
-    }
-  }
-
   const daysUntilDeadline = Math.ceil(
     (new Date(job.applicationDeadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
   )
@@ -69,136 +47,139 @@ export default function JobPostingCard({ job }: { job: Opportunity }) {
   }
 
   return (
-    <Card className="group relative overflow-hidden rounded-3xl border-slate-200 bg-white/90 shadow-lg transition-all hover:shadow-xl hover:border-sky-200">
-      <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity group-hover:opacity-100 bg-gradient-to-br from-sky-50/50 to-transparent" />
-
-      <CardHeader className="relative">
-        <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
-          <div className="flex items-start space-x-4 flex-1">
-            <div className="rounded-2xl bg-gradient-to-br from-sky-100 to-blue-100 p-4 shadow-sm flex-shrink-0">
-              <Building2 className="h-6 w-6 text-sky-600" />
+    <Card className="rounded-2xl border-slate-200 bg-gradient-to-br from-slate-50/30 to-white shadow-sm transition-all hover:shadow-md">
+      <CardContent className="p-6">
+        {/* Header Section */}
+        <div className="flex items-start justify-between mb-6">
+          <div className="flex items-start gap-4">
+            <div className="rounded-xl bg-sky-100 p-3">
+              <Building2 className="h-7 w-7 text-sky-600" />
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1 flex-wrap">
-                <CardTitle className="text-xl font-bold text-slate-900">{job.title}</CardTitle>
-                <Badge className={"rounded-full capitalize " + getStatusColor(job.status)}>
-                  {job.status}
-                </Badge>
-              </div>
-              <CardDescription className="text-base font-semibold text-slate-700 mb-3">
-                {job?.companyRel?.name}
-              </CardDescription>
-              <div className="flex flex-wrap items-center gap-2">
-                <div className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1.5 text-sm text-slate-700">
-                  <MapPin className="h-3.5 w-3.5 text-slate-500" />
-                  <span>{job.location}</span>
-                </div>
-                <div className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1.5 text-sm text-slate-700">
-                  <Briefcase className="h-3.5 w-3.5 text-slate-500" />
-                  <span className="capitalize">{job.type}</span>
-                </div>
-                <div className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1.5 text-sm font-semibold text-emerald-700">
-                  <span>₹{job.salary}</span>
-                </div>
-              </div>
+            <div>
+              <h3 className="text-xl font-bold text-slate-900 mb-1">{job.title}</h3>
+              <p className="text-base text-slate-700">{job?.companyRel?.name}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Badge className={"rounded-full px-3 py-1 " + getDeadlineClass()}>
-              <Clock className="h-3 w-3 mr-1" />
-              {getDeadlineText()}
-            </Badge>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="rounded-full h-9 w-9 p-0 hover:bg-slate-100">
-                  <MoreHorizontal className="h-4 w-4 text-slate-600" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="rounded-xl">
-                <DropdownMenuItem className="rounded-lg cursor-pointer">
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit Job
-                </DropdownMenuItem>
-                <DropdownMenuItem className="rounded-lg cursor-pointer text-destructive">
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete Job
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+          
+          <div className="flex flex-col items-end gap-3">
+            <div className="flex items-center gap-4 text-sm">
+              <div className="flex items-center gap-1.5 text-sky-600">
+                <MapPin className="h-4 w-4" />
+                <span>{job.location}</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-sky-600">
+                <Briefcase className="h-4 w-4" />
+                <span className="capitalize">{job.type}</span>
+              </div>
+              <div className="text-sky-600 font-semibold text-base">
+                ₹{job.salary}
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button className="text-slate-400 hover:text-amber-500 transition">
+                <Star className="h-5 w-5" />
+              </button>
+              <Badge className={"rounded-full px-3 py-1.5 font-medium " + getDeadlineClass()}>
+                <Clock className="h-3.5 w-3.5 mr-1.5" />
+                {getDeadlineText()}
+              </Badge>
+              <Badge className="rounded-full px-3 py-1.5 bg-slate-100 text-slate-700 border border-slate-200 font-medium">
+                <Users className="h-3.5 w-3.5 mr-1.5" />
+                {job._count?.applications || 0} applicant{(job._count?.applications || 0) !== 1 ? 's' : ''}
+              </Badge>
+            </div>
           </div>
         </div>
-      </CardHeader>
 
-      <CardContent className="relative space-y-4">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div className="rounded-2xl bg-gradient-to-br from-sky-50 to-blue-50 p-4 text-center">
-            <div className="flex items-center justify-center gap-1 text-sky-600">
-              <Users className="h-4 w-4" />
-              <span className="text-xl font-bold">{job._count?.applications || 0}</span>
-            </div>
-            <div className="text-xs text-slate-600 mt-1">Applications</div>
-          </div>
-          <div className="rounded-2xl bg-gradient-to-br from-emerald-50 to-green-50 p-4 text-center">
-            <div className="flex items-center justify-center gap-1 text-emerald-600">
+        {/* Skills and Departments Section */}
+        <div className="grid grid-cols-2 gap-8 mb-6">
+          <div>
+            <div className="flex items-center gap-2 text-slate-500 mb-3">
               <Layers className="h-4 w-4" />
-              <span className="text-xl font-bold">{job.eligibleDepartments?.length || 0}</span>
+              <span className="text-sm font-medium">Required Skills</span>
             </div>
-            <div className="text-xs text-slate-600 mt-1">Departments</div>
+            <div className="flex flex-wrap gap-2">
+              {job.skillsRequired && job.skillsRequired.length > 0 ? (
+                job.skillsRequired.slice(0, 5).map((skill: string, index: number) => (
+                  <Badge
+                    key={index}
+                    className="rounded-md bg-sky-50 text-sky-600 border-0 px-3 py-1 text-sm font-normal"
+                  >
+                    {skill}
+                  </Badge>
+                ))
+              ) : null}
+            </div>
           </div>
-          <div className="rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 p-4 text-center">
-            <div className="flex items-center justify-center gap-1 text-indigo-600">
+
+          <div>
+            <div className="flex items-center gap-2 text-slate-500 mb-3">
               <Briefcase className="h-4 w-4" />
-              <span className="text-xl font-bold">{job.skillsRequired?.length || 0}</span>
+              <span className="text-sm font-medium">Eligible Departments</span>
             </div>
-            <div className="text-xs text-slate-600 mt-1">Skills</div>
-          </div>
-          <div className="rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 p-4 text-center">
-            <div className="flex items-center justify-center gap-1 text-amber-600">
-              <Calendar className="h-4 w-4" />
-              <span className="text-sm font-bold">
-                {new Date(job.applicationDeadline).toLocaleDateString("en-IN", {
-                  day: "numeric",
-                  month: "short",
-                })}
-              </span>
+            <div className="flex flex-wrap gap-2">
+              {job.eligibleDepartments && job.eligibleDepartments.length > 0 ? (
+                job.eligibleDepartments.slice(0, 5).map((dept: string, index: number) => (
+                  <Badge
+                    key={index}
+                    className="rounded-md bg-indigo-50 text-indigo-600 border-0 px-3 py-1 text-sm font-normal"
+                  >
+                    {dept}
+                  </Badge>
+                ))
+              ) : null}
             </div>
-            <div className="text-xs text-slate-600 mt-1">Deadline</div>
           </div>
         </div>
 
-        {job.skillsRequired && job.skillsRequired.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {job.skillsRequired.slice(0, 5).map((skill: string, index: number) => (
-              <Badge
-                key={index}
-                variant="outline"
-                className="rounded-full border-sky-200 bg-white text-sky-700 px-3 py-1"
-              >
-                {skill}
-              </Badge>
-            ))}
-            {job.skillsRequired.length > 5 && (
-              <Badge variant="outline" className="rounded-full border-slate-200 bg-white text-slate-600 px-3 py-1">
-                +{job.skillsRequired.length - 5} more
-              </Badge>
-            )}
+        {/* Posted and Deadline Dates */}
+        <div className="flex items-center gap-8 mb-6 text-sm">
+          <div className="flex items-center gap-2 text-slate-500">
+            <Calendar className="h-4 w-4" />
+            <span>Posted on</span>
+            <span className="font-medium text-slate-900">
+              {new Date(job.applicationDeadline).toLocaleDateString("en-US", {
+                month: "numeric",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </span>
           </div>
-        )}
+          <div className="flex items-center gap-2 text-slate-500">
+            <Clock className="h-4 w-4" />
+            <span>Apply by</span>
+            <span className="font-medium text-slate-900">
+              {new Date(job.applicationDeadline).toLocaleDateString("en-US", {
+                month: "numeric",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </span>
+          </div>
+        </div>
 
-        <div className="flex flex-wrap gap-3 pt-2">
+        {/* Action Buttons */}
+        <div className="flex items-center gap-3">
           <Link href={"/job-postings/" + job.id}>
-            <Button className="rounded-full bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white shadow-md hover:shadow-lg transition-all">
+            <Button 
+              variant="outline" 
+              className="rounded-lg bg-white border-sky-200 text-sky-600 hover:bg-sky-50 font-normal"
+            >
               <Eye className="h-4 w-4 mr-2" />
               View Details
             </Button>
           </Link>
-          <ApplicationsDialog opportunity={job} />
-          <Link href={`/job-postings/${job.id}/recommended-students`}>
-            <Button variant="outline" className="rounded-full border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100 hover:border-purple-300">
-              <Sparkles className="h-4 w-4 mr-2" />
-              View Recommended Students
-            </Button>
-          </Link>
+          <Button 
+            variant="outline"
+            className="rounded-lg bg-sky-50 border-sky-200 text-sky-600 hover:bg-sky-100 font-normal"
+          >
+            Send Mentor Approval
+          </Button>
+          <Button 
+            className="rounded-lg bg-sky-500 hover:bg-sky-600 text-white font-normal shadow-sm"
+          >
+            Apply Now
+          </Button>
         </div>
       </CardContent>
     </Card>
@@ -232,15 +213,15 @@ function ApplicationsDialog({ opportunity }: { opportunity: Opportunity }) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "applied":
-        return "bg-blue-100 text-blue-700 border-blue-200"
+        return "bg-sky-100 text-sky-700 border-sky-200"
       case "reviewed":
-        return "bg-indigo-100 text-indigo-700 border-indigo-200"
+        return "bg-blue-100 text-blue-700 border-blue-200"
       case "shortlisted":
         return "bg-emerald-100 text-emerald-700 border-emerald-200"
       case "rejected":
         return "bg-red-100 text-red-700 border-red-200"
       case "accepted":
-        return "bg-green-100 text-green-700 border-green-200"
+        return "bg-sky-200 text-sky-700 border-sky-300"
       case "mentor_approval_needed":
         return "bg-amber-100 text-amber-700 border-amber-200"
       default:
@@ -251,12 +232,12 @@ function ApplicationsDialog({ opportunity }: { opportunity: Opportunity }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" className="rounded-full border-slate-200 hover:bg-slate-100">
+        <Button variant="outline" className="rounded-lg border-slate-200 hover:bg-slate-50">
           <Users className="h-4 w-4 mr-2" />
           Applications ({opportunity._count?.applications || 0})
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto rounded-3xl">
+      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto rounded-2xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-slate-900">
             Applications for {opportunity.title}
@@ -281,7 +262,7 @@ function ApplicationsDialog({ opportunity }: { opportunity: Opportunity }) {
           ) : (
             applications.map((app) => (
               <Link key={app.id} href={"/applications/" + app.id} className="block">
-                <div className="group rounded-2xl border border-slate-200 bg-white p-4 transition-all hover:border-sky-200 hover:shadow-md cursor-pointer">
+                <div className="group rounded-xl border border-slate-200 bg-white p-4 transition-all hover:border-sky-200 hover:shadow-md cursor-pointer">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <div className="rounded-full bg-gradient-to-br from-sky-100 to-blue-100 h-12 w-12 flex items-center justify-center text-sky-700 font-bold text-lg">

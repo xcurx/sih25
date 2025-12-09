@@ -24,6 +24,27 @@ export const PATCH = async (req: NextRequest, context: { params: Promise<{ id:st
             return NextResponse.json({ message: "Invalid action" }, { status: 400 });
         }
 
+        // Check if student is already placed
+        const existingApplication = await prisma.application.findUnique({
+            where: { id },
+            include: {
+                studentRel: {
+                    select: { placed: true }
+                }
+            }
+        })
+
+        if (!existingApplication) {
+            return NextResponse.json({ message: "Application not found" }, { status: 404 });
+        }
+
+        if (existingApplication.studentRel.placed) {
+            return NextResponse.json(
+                { message: "Cannot proceed with this application. The student has already been placed." },
+                { status: 403 }
+            );
+        }
+
         const application = await prisma.application.update({
             where: { id },
             data: {

@@ -107,7 +107,7 @@ export function CompanyForm({ onCompaniesUpdate }: CompanyFormProps) {
     <Card className="border-slate-200 bg-white/95 shadow-lg">
       <CardHeader>
         <div className="flex flex-col gap-3">
-          <Badge variant="secondary" className="w-fit gap-2 rounded-full bg-emerald-50 text-emerald-700">
+          <Badge variant="secondary" className="w-fit gap-2 rounded-full bg-sky-50 text-sky-600">
             <Building2 className="h-4 w-4" />
             Company registry
           </Badge>
@@ -119,9 +119,9 @@ export function CompanyForm({ onCompaniesUpdate }: CompanyFormProps) {
           </div>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex flex-col h-full">
         <form
-          className="space-y-4"
+          className="flex flex-col flex-1 space-y-4"
           onSubmit={(event) => {
             event.preventDefault()
             handleSubmit()
@@ -181,11 +181,11 @@ export function CompanyForm({ onCompaniesUpdate }: CompanyFormProps) {
 
           {renderFeedback()}
 
-          <div className="flex justify-end gap-3 pt-2">
+          <div className="flex justify-end gap-3 pt-2 mt-auto">
             <Button type="button" variant="outline" onClick={fetchCompanies} disabled={companiesLoading}>
               {companiesLoading ? "Refreshing..." : "Refresh list"}
             </Button>
-            <Button type="submit" disabled={loading} className="rounded-full bg-emerald-600 text-white hover:bg-emerald-700">
+            <Button type="submit" disabled={loading} className="rounded-full bg-sky-600 text-white hover:bg-sky-700">
               {loading ? "Saving..." : "Add company"}
             </Button>
           </div>

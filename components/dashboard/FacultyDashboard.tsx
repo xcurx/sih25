@@ -18,14 +18,14 @@ const chartData = [
 ]
 
 const pieData = [
-  { name: "Placed", value: 65, color: "#10b981" },
-  { name: "In Process", value: 25, color: "#3b82f6" },
-  { name: "Not Applied", value: 10, color: "#ef4444" },
+  { name: "Placed", value: 65, color: "#49cca1" },
+  { name: "In Process", value: 25, color: "#94b8f2" },
+  { name: "Not Applied", value: 10, color: "#fa7f7f" },
 ]
 
 const ACCENT_COLORS = {
-    APPLICATIONS: "#3b82f6",
-    PLACEMENTS: "#10b981",
+    APPLICATIONS: "#94b8f2",
+    PLACEMENTS: "#49cca1",
     BACKGROUND: "#e0f2fe",
     TEXT: "#64748b",
     GRID: "#f1f5f9",
