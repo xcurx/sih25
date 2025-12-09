@@ -91,7 +91,7 @@ export const PATCH = async (req: NextRequest) => {
     }
 
     try {
-        const { apId, interviewDateTime, interviewDate, interviewTime, timezone } = await req.json();
+        const { apId, interviewDateTime, interviewDate, interviewTime, interviewLength, timezone } = await req.json();
 
         if (!apId) {
             return NextResponse.json({ message: "Missing application ID" }, { status: 400 });
@@ -142,7 +142,8 @@ export const PATCH = async (req: NextRequest) => {
 
         const scheduledTimezone = typeof timezone === "string" && timezone.length > 0 ? timezone : "Asia/Kolkata";
 
-        const durationMinutes = 45;
+        // Use the interview length from request, default to 30 minutes
+        const durationMinutes = typeof interviewLength === "number" && interviewLength > 0 ? interviewLength : 30;
         const endTime = new Date(scheduled.getTime() + durationMinutes * 60000);
 
         const meetDetails = await createMeetWithAppsScript({
@@ -166,6 +167,7 @@ export const PATCH = async (req: NextRequest) => {
                     applicationId: apId,
                     scheduledAt: scheduled,
                     interviewLink: meetDetails.meetLink,
+                    length: durationMinutes,
                 },
             });
 

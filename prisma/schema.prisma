@@ -153,6 +153,7 @@ model Interview {
   applicationRel Application @relation(fields: [applicationId], references: [id])
   scheduledAt DateTime
   interviewLink String
+  length Int? @default(30) // length in minutes
   status InterviewStatus @default(scheduled)
   interviewerDetails String?
   remarks String?
