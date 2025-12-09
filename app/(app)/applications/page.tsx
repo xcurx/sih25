@@ -29,6 +29,7 @@ export default function ApplicationsPage() {
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null)
 
   const [applications, setApplications] = useState<Application[]>([])
+  const [isPlaced, setIsPlaced] = useState(false)
   const router = useRouter();
   const [loading, setLoading] = useState(true);
 
@@ -38,6 +39,7 @@ export default function ApplicationsPage() {
       const res = await axios.get("/api/student/get-applications", { withCredentials: true });
       if (res.status === 200) {
         setApplications(res.data.applications);
+        setIsPlaced(res.data.isPlaced || false);
       }
     } catch (error) {
       console.log(error);
@@ -75,6 +77,23 @@ export default function ApplicationsPage() {
 
   return (
     <div className="p-6 max-w-7xl w-full mx-auto space-y-8">
+      {/* Placed Banner */}
+      {isPlaced && (
+        <div className="rounded-xl border border-amber-200 bg-gradient-to-r from-amber-50 to-yellow-50 p-4 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100">
+              <FileText className="h-5 w-5 text-amber-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-amber-900">You are already placed</h3>
+              <p className="text-sm text-amber-700">
+                Your applications are frozen. No further action can be taken on pending applications.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Hero Section */}
       <section className="relative overflow-hidden rounded-[32px] border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 shadow space-y-6">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.08),transparent_55%)]" />
