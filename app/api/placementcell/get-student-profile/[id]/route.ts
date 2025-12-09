@@ -7,7 +7,7 @@ const prisma = new PrismaClient()
 export const GET = async (req: NextRequest, context: { params: Promise<{ id:string }> }) => {
     const session = await auth();
 
-    if (!session?.user || (session?.user.role !== "placement-cell" && session?.user.role !== "faculty")) {
+    if (!session?.user || (session?.user.role !== "placement-cell" && session?.user.role !== "faculty" && session?.user.role !== "employer")) {
         return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
