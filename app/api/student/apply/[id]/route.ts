@@ -1,4 +1,4 @@
-import { auth } from "@/auth";
+                                                                                                                                                                                                                        import { auth } from "@/auth";
 import { PrismaClient } from "@/lib/generated/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -33,7 +33,7 @@ export const POST = async (req: NextRequest, context: { params: Promise<{ id: st
             }),
             prisma.student.findUnique({
                 where: { id: session.user.id },
-                select: { cgpa: true }
+                select: { cgpa: true, placed: true }
             }),
             prisma.resume.findFirst({
                 where: { id: resumeId, studentId: session.user.id }
@@ -42,6 +42,18 @@ export const POST = async (req: NextRequest, context: { params: Promise<{ id: st
 
         if (!opportunity) {
             return NextResponse.json({ message: "Opportunity not found" }, { status: 404 });
+        }
+
+        if (!student) {
+            return NextResponse.json({ message: "Student not found" }, { status: 404 });
+        }
+
+        // Check if student is already placed
+        if (student.placed) {
+            return NextResponse.json(
+                { message: "You have already been placed and cannot apply for new opportunities" },
+                { status: 403 }
+            );
         }
 
         if (!resume) {

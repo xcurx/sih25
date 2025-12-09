@@ -19,6 +19,23 @@ export const POST = async (req: NextRequest, context: { params: Promise<{ id: st
             return NextResponse.json({ message: "Invalid opportunity ID" }, { status: 400 });
         }
 
+        // Check if student is placed
+        const student = await prisma.student.findUnique({
+            where: { id: session.user.id },
+            select: { placed: true, mentorId: true, name: true }
+        });
+
+        if (!student) {
+            return NextResponse.json({ message: "Student not found" }, { status: 404 });
+        }
+
+        if (student.placed) {
+            return NextResponse.json(
+                { message: "You have already been placed and cannot apply for new opportunities" },
+                { status: 403 }
+            );
+        }
+
         const opportunity = await prisma.opportunity.findUnique({
             where: { id }
         });
@@ -34,10 +51,6 @@ export const POST = async (req: NextRequest, context: { params: Promise<{ id: st
                 status: "mentor_approval_needed",
             }
         });
-
-        const student = await prisma.student.findUnique({
-            where: { id: session.user.id },
-        })
 
         const notification = await prisma.notification.create({
             data: {

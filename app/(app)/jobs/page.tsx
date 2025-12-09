@@ -26,6 +26,7 @@ export default function JobsPage() {
   const [selectedSkills, setSelectedSkills] = useState<string[]>([])
   const [sortBy, setSortBy] = useState("recent")
   const [loading ,setLoading] = useState(true);
+  const [isPlaced, setIsPlaced] = useState(false);
 
   const [jobs, setJobs] = useState<Opportunity[]>([])
   const router = useRouter();
@@ -39,6 +40,7 @@ export default function JobsPage() {
       const res = await axios("/api/student/get-opportunities", { withCredentials: true });
       if (res.status === 200) {
         setJobs(res.data.opportunities);
+        setIsPlaced(res.data.isPlaced || false);
         setLoading(false);
       }
     } catch (error) { 
@@ -111,6 +113,23 @@ export default function JobsPage() {
 
   return (
     <div className="p-6 max-w-7xl w-full mx-auto space-y-8">
+      {/* Placed Banner */}
+      {isPlaced && (
+        <div className="rounded-xl border border-amber-200 bg-gradient-to-r from-amber-50 to-yellow-50 p-4 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100">
+              <Briefcase className="h-5 w-5 text-amber-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-amber-900">You are already placed</h3>
+              <p className="text-sm text-amber-700">
+                You cannot apply to new opportunities as you have already been placed.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Hero Section */}
       <section className="relative overflow-hidden rounded-[32px] border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 shadow space-y-6">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.08),transparent_55%)]" />
@@ -301,7 +320,7 @@ export default function JobsPage() {
       {/* Job Listings */}
       <div className="space-y-6">
         {sortedJobs.map((job) => (
-          <JobCard key={job.id} job={job} setJobs={setJobs}/>
+          <JobCard key={job.id} job={job} setJobs={setJobs} isPlaced={isPlaced}/>
         ))}
       </div>
 

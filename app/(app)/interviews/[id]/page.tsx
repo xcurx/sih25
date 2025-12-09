@@ -83,9 +83,16 @@ export default function InterviewDetailPage() {
   const [interview, setInterview] = useState<Interview | null>(null)
   const [loading, setLoading] = useState(true)
 
+  const isEmployer = session?.user?.role === "employer"
+
   const fetchInterview = async () => {
     try {
-      const res = await axios.get(`/api/student/interview/${params.id}`, {
+      // Use appropriate API based on user role
+      const apiPath = isEmployer 
+        ? `/api/employer/interview/${params.id}`
+        : `/api/student/interview/${params.id}`
+      
+      const res = await axios.get(apiPath, {
         withCredentials: true,
       })
       if (res.status === 200) {
@@ -102,7 +109,7 @@ export default function InterviewDetailPage() {
   useEffect(() => {
     if (status === "loading" || status === "unauthenticated") return
     fetchInterview()
-  }, [status, params.id])
+  }, [status, params.id, isEmployer])
 
   if (status === "loading" || loading) {
     return <Loader />

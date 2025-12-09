@@ -23,7 +23,31 @@ export const PATCH = async (req: NextRequest, context: { params: Promise<{ id:st
 
         const interview = await prisma.interview.findUnique({
             where: { id },
+            include: {
+                applicationRel: {
+                    include: {
+                        studentRel: {
+                            select: {
+                                id: true,
+                                placed: true,
+                            }
+                        }
+                    }
+                }
+            }
         })
+
+        if (!interview) {
+            return NextResponse.json({ message: "Interview not found" }, { status: 404 });
+        }
+
+        // Check if student is already placed
+        if (interview.applicationRel.studentRel.placed) {
+            return NextResponse.json(
+                { message: "Cannot proceed with this action. The student has already been placed." },
+                { status: 403 }
+            );
+        }
 
         if (interview?.status === 'canceled' || interview?.status === 'rejected' || interview?.status === 'accepted') {
             return NextResponse.json({ message: `Cannot ${action} an interview that is already ${interview?.status}` }, { status: 400 });
@@ -70,6 +94,12 @@ export const PATCH = async (req: NextRequest, context: { params: Promise<{ id:st
             })
 
             if (action === 'accepted') {
+                // Mark the student as placed
+                await prisma.student.update({
+                    where: { id: updatedInterview.applicationRel.studentId },
+                    data: { placed: true }
+                })
+
                 const internship = await prisma.internship.create({
                     data: {
                         studentId: updatedInterview.applicationRel.studentId,

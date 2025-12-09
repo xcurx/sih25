@@ -33,6 +33,7 @@ interface UpcomingInterview {
 interface DashboardStats {
   student: {
     cgpa: number
+    placed: boolean
   }
   profileCompleteness: number
   stats: {
@@ -89,12 +90,37 @@ export default function StudentDashboard() {
     cgpa: dashboardData?.student?.cgpa || 0,
   }
 
+  const isPlaced = dashboardData?.student?.placed || false
+
   if (status === "loading" || loading) {
     return <Loader />
   }
 
   return (
     <div className="space-y-8">
+      {/* Placed Banner */}
+      {isPlaced && (
+        <div className="rounded-xl border border-amber-200 bg-gradient-to-r from-amber-50 to-yellow-50 p-4 shadow-sm">
+          <div className="flex items-center gap-4">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100">
+              <Briefcase className="h-5 w-5 text-amber-600" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold text-amber-900">You are already placed</h3>
+              <p className="text-sm text-amber-700">
+                You cannot apply to new opportunities. Check your internship details for next steps.
+              </p>
+            </div>
+            <Link href="/internships">
+              <Button className="rounded-full bg-amber-600 text-white hover:bg-amber-500">
+                View Internship
+                <ArrowUpRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* Hero Section with Stats */}
       <section className="relative overflow-hidden rounded-[32px] border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 shadow space-y-6">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.08),transparent_55%)]" />

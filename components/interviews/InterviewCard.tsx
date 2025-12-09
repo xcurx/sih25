@@ -251,7 +251,7 @@ export default function InterviewCard({
               </Button>
             </Link>
           )}
-          {isUpcoming && (
+          {isUpcoming && !isEmployer && (
             <Button
               variant="outline"
               onClick={() => onViewDetails(application)}

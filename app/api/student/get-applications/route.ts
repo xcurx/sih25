@@ -12,6 +12,12 @@ export const GET = async (req: NextRequest) => {
     }
 
     try {
+        // Fetch student's placed status
+        const student = await prisma.student.findUnique({
+            where: { id: session?.user?.id },
+            select: { placed: true }
+        })
+
         const applications = await prisma.application.findMany({
             where: {
                 studentId: session?.user.id
@@ -36,7 +42,10 @@ export const GET = async (req: NextRequest) => {
             }
         })
 
-        return NextResponse.json({ applications }, { status: 200 });
+        return NextResponse.json({ 
+            applications,
+            isPlaced: student?.placed || false
+        }, { status: 200 });
     } catch (error) {
         return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
     }
