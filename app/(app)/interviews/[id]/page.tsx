@@ -180,11 +180,7 @@ export default function InterviewDetailPage() {
   const opportunity = interview.applicationRel.opportunityRel
 
   return (
-    <div className="relative p-6 max-w-5xl w-full mx-auto space-y-6">
-      {/* Background gradient effect */}
-      <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]" />
-      <div className="absolute top-0 left-1/4 -z-10 h-64 w-64 rounded-full bg-sky-100 opacity-50 blur-3xl" />
-      <div className="absolute bottom-0 right-1/4 -z-10 h-64 w-64 rounded-full bg-blue-100 opacity-50 blur-3xl" />
+    <div className="relative p-6 max-w-5xl w-full mx-auto space-y-6 bg-white">
 
       {/* Back Button */}
       <Button
