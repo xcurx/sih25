@@ -29,13 +29,17 @@ export const PATCH = async (req: NextRequest, context: { params: Promise<{ id:st
             where: { id },
             include: {
                 studentRel: {
-                    select: { placed: true }
+                    select: { placed: true, mentorId: true }
                 }
             }
         })
 
         if (!existingApplication) {
             return NextResponse.json({ message: "Application not found" }, { status: 404 });
+        }
+
+        if (existingApplication.studentRel.mentorId !== session.user.id) {
+            return NextResponse.json({ message: "You are not authorized to act on this application" }, { status: 403 })
         }
 
         if (existingApplication.studentRel.placed) {
@@ -50,14 +54,20 @@ export const PATCH = async (req: NextRequest, context: { params: Promise<{ id:st
             data: {
                 status: action === "approve" ? "applied" : "rejected",
                 mentorRemarks: remarks,
-                mentorApproved: action === "approve" ? true : false,
+                mentorApproved: action === "approve",
             },
             include: {
-                opportunityRel: true
+                opportunityRel: {
+                    select: {
+                        id: true,
+                        title: true,
+                        employerId: true
+                    }
+                }
             }
         })
 
-        const notification = await prisma.notification.create({
+        const studentNotification = prisma.notification.create({
             data: {
                 studentId: application.studentId,
                 title: action === "approve" ? "Application Approved" : "Application Rejected",
@@ -69,20 +79,27 @@ export const PATCH = async (req: NextRequest, context: { params: Promise<{ id:st
             }
         })
 
-        if (action === "approve") {
-            await prisma.notification.create({
-                data: {
-                    employerId: application.opportunityRel.employerId,
-                    title: "New Application Received",
-                    message: `A new application has been submitted for your opportunity "${application.opportunityRel.title}".`,
-                    redirectUrl: `/employer/applications/${application.id}`,
-                    type: "new_application"
-                }
-            })
+        const notifications = [studentNotification]
+
+        if (action === "approve" && application.opportunityRel?.employerId) {
+            notifications.push(
+                prisma.notification.create({
+                    data: {
+                        employerId: application.opportunityRel.employerId,
+                        title: "New Application Received",
+                        message: `A new application has been submitted for your opportunity "${application.opportunityRel.title}".`,
+                        redirectUrl: `/company/applications/${application.id}`,
+                        type: "new_application"
+                    }
+                })
+            )
         }
+
+        await Promise.all(notifications)
 
         return NextResponse.json({ message: "Application updated successfully", application }, { status: 200 });
     } catch (error) {
+        console.error("Faculty application action failed:", error)
         return NextResponse.json({ message: "Internal Server Error", error }, { status: 500 });
     }
 }

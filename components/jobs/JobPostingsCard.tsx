@@ -56,7 +56,12 @@ export default function JobPostingCard({ job }: { job: Opportunity }) {
               <Building2 className="h-7 w-7 text-sky-600" />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-slate-900 mb-1">{job.title}</h3>
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="text-xl font-bold text-slate-900">{job.title}</h3>
+                <button className="text-slate-400 hover:text-amber-500 transition" aria-label="Bookmark opportunity">
+                  <Star className="h-5 w-5" />
+                </button>
+              </div>
               <p className="text-base text-slate-700">{job?.companyRel?.name}</p>
             </div>
           </div>
@@ -76,9 +81,6 @@ export default function JobPostingCard({ job }: { job: Opportunity }) {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button className="text-slate-400 hover:text-amber-500 transition">
-                <Star className="h-5 w-5" />
-              </button>
               <Badge className={"rounded-full px-3 py-1.5 font-medium " + getDeadlineClass()}>
                 <Clock className="h-3.5 w-3.5 mr-1.5" />
                 {getDeadlineText()}

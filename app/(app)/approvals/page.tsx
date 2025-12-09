@@ -75,8 +75,14 @@ export default function ApprovalPage() {
 
       if (res.status === 200) {
         toast.success(`Application ${actionType === "approve" ? "approved" : "rejected"} successfully`)
-        setApplications(prev => prev.map(app => app.id === selectedApplication.id? 
-          { ...app, mentorApproved:actionType==="approve", status:"applied" } : app))
+        setApplications(prev => prev.map(app => {
+          if (app.id !== selectedApplication.id) return app
+          return {
+            ...app,
+            mentorApproved: actionType === "approve",
+            status: actionType === "approve" ? "applied" : "rejected",
+          }
+        }))
         setShowActionDialog(false)
         setSelectedApplication(null)
         setRemarks("")
@@ -447,10 +453,10 @@ export default function ApprovalPage() {
           {selectedApplication && (
             <div className="space-y-4">
               <div 
-                className={`p-4 rounded-lg border ${
+                className={`p-4 rounded-xl border ${
                     actionType === "approve" 
-                        ? "bg-sky-50 border-sky-200" 
-                        : "bg-red-50 border-red-200" 
+                        ? "bg-gradient-to-r from-sky-50 via-white to-blue-50 border-sky-200" 
+                        : "bg-gradient-to-r from-rose-50 via-white to-red-50 border-rose-200" 
                 }`}
               >
                 <p className="text-sm font-medium text-slate-800">{selectedApplication.studentRel?.name}</p>
@@ -493,7 +499,11 @@ export default function ApprovalPage() {
               Cancel
             </Button>
             <Button
-              className={actionType === "approve" ? "bg-sky-600 hover:bg-sky-700 text-white" : "bg-red-500 hover:bg-red-600 text-white"}
+              className={
+                actionType === "approve"
+                  ? "bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 text-white shadow-sm"
+                  : "bg-gradient-to-r from-rose-500 to-red-500 hover:from-rose-600 hover:to-red-600 text-white shadow-sm"
+              }
               onClick={handleAction}
               disabled={actionLoading || (actionType === "reject" && !remarks.trim())}
             >

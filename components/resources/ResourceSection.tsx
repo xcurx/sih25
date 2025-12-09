@@ -60,11 +60,11 @@ export default function ResourcesSection() {
             Resources hub
           </Badge>
 
-          <h1 className="mx-auto mt-4 max-w-3xl text-4xl font-bold leading-tight text-slate-900">
+          <h1 className="mx-auto mt-4 max-w-3xl text-[clamp(2.2rem,3.2vw,3.2rem)] font-semibold leading-tight text-slate-900">
             Your official hub for guides, documentation, policy updates & onboarding materials.
           </h1>
 
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-700">
+          <p className="mx-auto mt-4 max-w-2xl text-[clamp(1rem,1.3vw,1.1rem)] text-slate-700">
             Whether you're a student, institute, or employer, these curated resources help you onboard, operate, and
             collaborate more effectively on the national placement mission.
           </p>

@@ -84,11 +84,11 @@ export default function MissionSection() {
                   <Badge className="bg-sky-100 text-sky-800">Platform mission</Badge>
                 </div>
 
-                <h1 className="max-w-4xl text-4xl font-extrabold leading-tight tracking-tight text-slate-900 lg:text-5xl">
+                <h1 className="max-w-4xl text-[clamp(2.2rem,3vw,3rem)] font-semibold leading-tight tracking-tight text-slate-900">
                   National Internship & Placement Mission — fair access, verified outcomes, measurable impact
                 </h1>
 
-                <p className="max-w-3xl text-lg text-slate-700">
+                <p className="max-w-3xl text-[clamp(1rem,1.3vw,1.05rem)] text-slate-700">
                   We connect verified employers, institutes, and students on a single, secure platform with structured roles, audited workflows, and readiness programs.
                 </p>
 

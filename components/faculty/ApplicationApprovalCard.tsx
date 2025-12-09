@@ -59,9 +59,12 @@ export function ApplicationApprovalCard({
         ? (application.studentRel.batch - currentYear) + 4
         : null;
     
-    const normalizedStatus = application.status.toString().split("_").map(w => w[0].toUpperCase() + w.slice(1)).join(" ");
-    const isPendingForFacultyReview = application.status === 'applied' && application.mentorApproved === false;
-
+    const normalizedStatus = application.status
+        .toString()
+        .split("_")
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(" ");
+    const isPendingForFacultyReview = application.status === "mentor_approval_needed";
 
     return (
         <Card className="border-slate-200 shadow-md rounded-xl hover:shadow-lg transition-shadow duration-300">
@@ -188,14 +191,14 @@ export function ApplicationApprovalCard({
                             <Button 
                                 variant="destructive" 
                                 onClick={onReject} 
-                                className="flex-1 bg-red-500 hover:bg-red-600"
+                                className="flex-1 bg-gradient-to-r from-rose-500 to-red-500 hover:from-rose-600 hover:to-red-600 text-white shadow-sm"
                             >
                                 <XCircle className="mr-2 h-4 w-4" />
                                 Reject
                             </Button>
                             <Button 
                                 onClick={onApprove} 
-                                className="flex-1 bg-blue-600 hover:bg-blue-700"
+                                className="flex-1 bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 text-white shadow-sm"
                             >
                                 <CheckCircle className="mr-2 h-4 w-4" />
                                 Approve

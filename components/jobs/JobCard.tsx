@@ -73,7 +73,18 @@ export default function JobCard({ job, setJobs, isPlaced = false }: JobCardProps
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-2 mb-1">
                 <div className="min-w-0">
-                  <CardTitle className="text-xl font-bold text-slate-900 truncate">{job.title}</CardTitle>
+                  <div className="flex items-center gap-2">
+                    <CardTitle className="text-xl font-bold text-slate-900 truncate">{job.title}</CardTitle>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsBookmarked(prev => !prev)}
+                      className="rounded-full h-8 w-8 p-0 hover:bg-yellow-50"
+                      aria-label="Bookmark job"
+                    >
+                      <Star className={`h-4 w-4 ${isBookmarked ? "fill-yellow-500 text-yellow-500" : "text-slate-400"}`} />
+                    </Button>
+                  </div>
                   <CardDescription className="text-base font-semibold text-slate-700">
                     {job.companyRel?.name}
                   </CardDescription>
@@ -97,15 +108,6 @@ export default function JobCard({ job, setJobs, isPlaced = false }: JobCardProps
                   </div>
 
                   <div className="flex items-center gap-3 mt-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setIsBookmarked(prev => !prev)}
-                      className="rounded-full h-9 w-9 p-0 hover:bg-yellow-50"
-                    >
-                      <Star className={`h-4 w-4 ${isBookmarked ? "fill-yellow-500 text-yellow-500" : "text-slate-400"}`} />
-                    </Button>
-
                     <Badge
                       variant={isExpired ? "destructive" : isUrgent ? "default" : "secondary"}
                       className={`rounded-full px-3 py-1 flex items-center gap-2 ${

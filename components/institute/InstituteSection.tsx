@@ -96,11 +96,11 @@ export default function InstituteSection() {
                 For institutes
               </Badge>
 
-              <h2 className="max-w-3xl text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+              <h2 className="max-w-3xl text-[clamp(2rem,3vw,3.2rem)] font-semibold tracking-tight text-slate-900">
                 Empower placement cells — secure, auditable, outcomes-focused
               </h2>
 
-              <p className="max-w-3xl text-lg text-slate-700">
+              <p className="max-w-3xl text-[clamp(1rem,1.3vw,1.1rem)] text-slate-700">
                 Manage student rosters, coordinate employer engagements, and measure placement outcomes — all on one national platform designed for institutional reliability and governance.
               </p>
 

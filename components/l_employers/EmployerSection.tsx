@@ -26,7 +26,7 @@ function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl border border-white/70 bg-white/90 p-5 text-center shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-md">
       <dt className="text-xs uppercase tracking-[0.2em] text-slate-500">{label}</dt>
-      <dd className="mt-2 text-2xl font-semibold text-slate-900">{value}</dd>
+      <dd className="mt-2 text-[clamp(1.6rem,2.5vw,2rem)] font-semibold text-slate-900">{value}</dd>
     </div>
   );
 }
@@ -48,7 +48,7 @@ function Benefit({
         </div>
         <div className="space-y-1">
           <CardTitle className="text-lg font-semibold text-slate-900">{title}</CardTitle>
-          <CardDescription className="text-sm text-slate-600">{desc}</CardDescription>
+          <CardDescription className="text-[clamp(0.9rem,1.2vw,1rem)] text-slate-600">{desc}</CardDescription>
         </div>
       </CardHeader>
     </Card>
@@ -97,11 +97,11 @@ export default function EmployerSection() {
               Employer Partnership Program
             </Badge>
 
-            <h1 className="max-w-4xl text-4xl font-extrabold leading-tight tracking-tight text-slate-900">
+            <h1 className="max-w-4xl text-[clamp(2.2rem,3vw,3.2rem)] font-semibold leading-tight tracking-tight text-slate-900">
               Hire industry-ready talent with a secure, structured national platform.
             </h1>
 
-            <p className="max-w-3xl text-base text-slate-700">
+            <p className="max-w-3xl text-[clamp(1rem,1.4vw,1.1rem)] text-slate-700">
               Access verified student pools, skill-tagged profiles, interview-ready candidates, and structured hiring workflows built for HR teams, recruitment drives, and large-scale talent acquisition.
             </p>
 

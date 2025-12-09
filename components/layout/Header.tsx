@@ -160,15 +160,15 @@ export default function Header() {
                 <Link
                   key={link.name}
                   href={link.href}
-                  className={`group relative flex-1 rounded-full px-4 py-2 text-center text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 ${
-                    isActive ? "text-sky-700" : "text-slate-600 hover:text-slate-900"
+                  className={`group relative flex-1 rounded-full px-4 py-2 text-center text-[0.7rem] font-semibold uppercase tracking-[0.25em] transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 ${
+                    isActive ? "text-sky-700" : "text-slate-500 hover:text-slate-900"
                   }`}
                   aria-current={isActive ? "page" : undefined}
                 >
                   <span
-                    className={`relative inline-flex items-center gap-1 transition-transform group-hover:-translate-y-0.5 after:absolute after:left-0 after:right-0 after:-bottom-1 after:mx-auto after:h-[1px] after:w-full after:origin-left after:scale-x-0 after:bg-sky-600 after:transition-transform after:duration-300 ${
-                      isActive ? "after:scale-x-100" : "group-hover:after:scale-x-100"}
-                  `}
+                    className={`relative inline-flex items-center justify-center gap-1 transition-transform group-hover:-translate-y-0.5 after:absolute after:left-0 after:right-0 after:-bottom-1 after:mx-auto after:h-[1px] after:w-full after:origin-left after:scale-x-0 after:bg-sky-600 after:transition-transform after:duration-300 ${
+                      isActive ? "after:scale-x-100" : "group-hover:after:scale-x-100"
+                    }`}
                   >
                     {link.name}
                   </span>
@@ -211,7 +211,7 @@ export default function Header() {
                     <Link
                       key={link.name}
                       href={link.href}
-                      className={`flex items-center justify-between px-3 py-2 text-sm font-medium transition hover:bg-sky-50 ${
+                      className={`flex items-center justify-between px-3 py-2 text-[0.7rem] font-semibold uppercase tracking-[0.25em] transition hover:bg-sky-50 ${
                         isActive ? "text-sky-700" : "text-slate-700"
                       }`}
                       aria-current={isActive ? "page" : undefined}

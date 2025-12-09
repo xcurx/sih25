@@ -30,6 +30,12 @@ export function ApplicationDetailsDialog({
 }) {
   if (!application) return null
 
+  const canTakeAction = application.status === "mentor_approval_needed"
+  const statusLabel = application.status
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ")
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -192,18 +198,29 @@ export function ApplicationDetailsDialog({
           )}
         </div>
 
-        <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={onClose}>
-            Close
-          </Button>
-          <Button variant="destructive" onClick={onReject}>
-            <XCircle className="mr-2 h-4 w-4" />
-            Reject
-          </Button>
-          <Button onClick={onApprove}  className="bg-blue-500 hover:bg-blue-700 text-white">
-            <CheckCircle className="mr-2 h-4 w-4" />
-            Approve
-          </Button>
+        <DialogFooter className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          {!canTakeAction && (
+            <Badge variant="secondary" className="bg-slate-100 text-slate-600 border-slate-200">
+              Actions disabled - current status: {statusLabel}
+            </Badge>
+          )}
+          <div className="flex flex-wrap justify-end gap-2">
+            <Button variant="outline" onClick={onClose}>
+              Close
+            </Button>
+            {canTakeAction && (
+              <>
+                <Button variant="destructive" onClick={onReject}>
+                  <XCircle className="mr-2 h-4 w-4" />
+                  Reject
+                </Button>
+                <Button onClick={onApprove} className="bg-blue-500 hover:bg-blue-700 text-white">
+                  <CheckCircle className="mr-2 h-4 w-4" />
+                  Approve
+                </Button>
+              </>
+            )}
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
