@@ -24,6 +24,7 @@ import {
 } from "recharts"
 import { TrendingUp, Award, Download, GraduationCap, Building2, Target, AlertCircle, Users, DollarSign, Zap } from "lucide-react"
 import { useSession } from "next-auth/react"
+import { toast } from "sonner"
 
 const placementData = [
   { month: "Jan", applications: 45, interviews: 28, placements: 18, companies: 12 },
@@ -79,10 +80,100 @@ const CHART_COLORS = {
     TEXT: "#64748b",
 }
 
+const escapeCsvValue = (value: string | number) => {
+  const stringValue = String(value ?? "").replace(/\r?\n/g, " ").trim()
+  return /[",\n]/.test(stringValue) ? `"${stringValue.replace(/"/g, '""')}"` : stringValue
+}
+
+const buildAnalyticsCsv = () => {
+  const lines: string[] = []
+
+  lines.push("Section,Month,Applications,Interviews,Placements,Companies")
+  placementData.forEach((entry) => {
+    lines.push(
+      [
+        "Placement Funnel",
+        escapeCsvValue(entry.month),
+        entry.applications,
+        entry.interviews,
+        entry.placements,
+        entry.companies,
+      ].join(","),
+    )
+  })
+  lines.push("")
+
+  lines.push("Section,Department,Total Students,Placed,Placement %")
+  departmentData.forEach((dept) => {
+    lines.push(
+      [
+        "Department Performance",
+        escapeCsvValue(dept.name),
+        dept.students,
+        dept.placed,
+        `${dept.percentage}%`,
+      ].join(","),
+    )
+  })
+  lines.push("")
+
+  lines.push("Section,Company,Type,Hires,Avg Salary (INR)")
+  companyData.forEach((company) => {
+    lines.push(
+      [
+        "Top Companies",
+        escapeCsvValue(company.name),
+        escapeCsvValue(company.type),
+        company.hires,
+        company.avgSalary,
+      ].join(","),
+    )
+  })
+  lines.push("")
+
+  lines.push("Section,Skill,Demand %,Open Roles")
+  skillDemand.forEach((skill) => {
+    lines.push(
+      ["Skill Demand", escapeCsvValue(skill.skill), `${skill.demand}%`, skill.jobs].join(","),
+    )
+  })
+  lines.push("")
+
+  lines.push("Section,Salary Range,Student Count")
+  salaryDistribution.forEach((band) => {
+    lines.push(["Salary Distribution", escapeCsvValue(band.range), band.count].join(","))
+  })
+
+  return lines.join("\n")
+}
+
 export default function AnalyticsPage() {
   const { data:session } = useSession();
   const [timeRange, setTimeRange] = useState("6months")
   const [selectedDepartment, setSelectedDepartment] = useState("all")
+  const [isExporting, setIsExporting] = useState(false)
+
+  const handleExportReport = () => {
+    try {
+      setIsExporting(true)
+      const csvContent = buildAnalyticsCsv()
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement("a")
+      link.href = url
+      link.download = `placement-analytics-${timeRange}-${new Date().toISOString().split("T")[0]}.csv`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+      toast.success("Analytics report exported")
+    } catch (error) {
+      console.error("Analytics export failed:", error)
+      toast.error("Failed to export analytics report")
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
   if (session?.user?.role !== "placement-cell" && session?.user?.role !== "faculty") {
     return (
@@ -120,9 +211,14 @@ export default function AnalyticsPage() {
                 <SelectItem value="1year">Last Year</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline" className="rounded-full border-sky-600 text-sky-600 hover:bg-sky-50 hover:text-sky-700">
+            <Button
+              variant="outline"
+              onClick={handleExportReport}
+              disabled={isExporting}
+              className="rounded-full border-sky-600 text-sky-600 hover:bg-sky-50 hover:text-sky-700 disabled:cursor-not-allowed"
+            >
               <Download className="mr-2 h-4 w-4" />
-              Export Report
+              {isExporting ? "Exporting..." : "Export Report"}
             </Button>
           </div>
         </div>

@@ -408,13 +408,6 @@ const CustomStudentCard = ({ student, onViewDetails }: CustomStudentCardProps) =
                 {/* Action Buttons */}
                 <div className="flex items-center gap-3">
                     <Button 
-                        variant="ghost" 
-                        className="text-slate-700 hover:bg-slate-50"
-                    >
-                        <Mail className="h-4 w-4 mr-2" />
-                        Contact
-                    </Button>
-                    <Button 
                         variant="outline"
                         onClick={() => onViewDetails(student)}
                         className="border-sky-600 text-sky-600 hover:bg-sky-50"
