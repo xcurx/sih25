@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -22,62 +22,73 @@ import {
   Area,
   AreaChart,
 } from "recharts"
-import { TrendingUp, Award, Download, GraduationCap, Building2, Target, AlertCircle, Users, DollarSign, Zap } from "lucide-react"
+import { TrendingUp, Download, GraduationCap, Building2, Target, AlertCircle, Users, DollarSign, Zap } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { toast } from "sonner"
+import axios from "axios"
+import Loader from "@/components/loader/Loader"
 
-const placementData = [
-  { month: "Jan", applications: 45, interviews: 28, placements: 18, companies: 12 },
-  { month: "Feb", applications: 52, interviews: 35, placements: 22, companies: 15 },
-  { month: "Mar", applications: 38, interviews: 25, placements: 16, companies: 10 },
-  { month: "Apr", applications: 65, interviews: 42, placements: 28, companies: 18 },
-  { month: "May", applications: 78, interviews: 55, placements: 35, companies: 22 },
-  { month: "Jun", applications: 92, interviews: 68, placements: 45, companies: 28 },
-]
+interface KeyMetrics {
+  placementRate: string
+  totalStudents: number
+  placedStudents: number
+  partnerCompanies: number
+  avgSalary: number
+  totalApplications: number
+  totalInterviews: number
+}
 
-const departmentData = [
-  { name: "Computer Science", students: 156, placed: 128, percentage: 82 },
-  { name: "Information Technology", students: 134, placed: 105, percentage: 78 },
-  { name: "Electronics & Comm.", students: 98, placed: 72, percentage: 73 },
-  { name: "Mechanical", students: 112, placed: 78, percentage: 70 },
-  { name: "Civil", students: 89, placed: 58, percentage: 65 },
-]
+interface PlacementDataItem {
+  month: string
+  applications: number
+  interviews: number
+  placements: number
+  companies: number
+}
 
-const companyData = [
-  { name: "TechCorp Inc.", hires: 25, avgSalary: 650000, type: "Technology" },
-  { name: "DataTech Solutions", hires: 18, avgSalary: 580000, type: "Analytics" },
-  { name: "StartupXYZ", hires: 15, avgSalary: 720000, type: "Startup" },
-  { name: "MegaCorp Ltd.", hires: 22, avgSalary: 540000, type: "Enterprise" },
-  { name: "InnovateTech", hires: 12, avgSalary: 680000, type: "Technology" },
-]
+interface DepartmentDataItem {
+  name: string
+  students: number
+  placed: number
+  percentage: number
+}
 
-// Updated salaryDistribution to match the new color scheme concept
-const salaryDistribution = [
-  { range: "3-5 LPA", count: 45, color: "#94b8f2" }, // Previously a darker green/blue
-  { range: "5-8 LPA", count: 78, color: "#49cca1" }, // Previously a darker blue - now the main placement color
-  { range: "8-12 LPA", count: 52, color: "#f97316" }, // Kept for high contrast/alert (Orange)
-  { range: "12+ LPA", count: 28, color: "#fa7f7f" }, // New high salary color (Red/Error like)
-]
+interface CompanyDataItem {
+  name: string
+  hires: number
+  avgSalary: number
+  type: string
+}
 
-const skillDemand = [
-  { skill: "React", demand: 85, jobs: 24 },
-  { skill: "Python", demand: 78, jobs: 32 },
-  { skill: "Java", demand: 72, jobs: 28 },
-  { skill: "Node.js", demand: 68, jobs: 18 },
-  { skill: "Machine Learning", demand: 65, jobs: 15 },
-  { skill: "SQL", demand: 82, jobs: 35 },
-  { skill: "AWS", demand: 58, jobs: 12 },
-  { skill: "Docker", demand: 45, jobs: 8 },
-]
+interface SalaryDistributionItem {
+  range: string
+  count: number
+  color: string
+  [key: string]: string | number
+}
 
-// Updated CHART_COLORS based on the requested color scheme
+interface SkillDemandItem {
+  skill: string
+  demand: number
+  jobs: number
+}
+
+interface AnalyticsData {
+  keyMetrics: KeyMetrics
+  placementData: PlacementDataItem[]
+  departmentData: DepartmentDataItem[]
+  companyData: CompanyDataItem[]
+  salaryDistribution: SalaryDistributionItem[]
+  skillDemand: SkillDemandItem[]
+}
+
 const CHART_COLORS = {
-    APPLICATIONS: "#94b8f2", // Light Blue (In Process)
-    INTERVIEWS: "#6a97f5",    // Slightly darker blue for contrast
-    PLACEMENTS: "#49cca1",   // Teal Green (Placed)
-    COMPANIES: "#9ca3af",    // Gray for non-core data
-    GRID: "#f1f5f9",
-    TEXT: "#64748b",
+  APPLICATIONS: "#94b8f2",
+  INTERVIEWS: "#6a97f5",
+  PLACEMENTS: "#49cca1",
+  COMPANIES: "#9ca3af",
+  GRID: "#f1f5f9",
+  TEXT: "#64748b",
 }
 
 const escapeCsvValue = (value: string | number) => {
@@ -85,73 +96,96 @@ const escapeCsvValue = (value: string | number) => {
   return /[",\n]/.test(stringValue) ? `"${stringValue.replace(/"/g, '""')}"` : stringValue
 }
 
-const buildAnalyticsCsv = () => {
-  const lines: string[] = []
-
-  lines.push("Section,Month,Applications,Interviews,Placements,Companies")
-  placementData.forEach((entry) => {
-    lines.push(
-      [
-        "Placement Funnel",
-        escapeCsvValue(entry.month),
-        entry.applications,
-        entry.interviews,
-        entry.placements,
-        entry.companies,
-      ].join(","),
-    )
-  })
-  lines.push("")
-
-  lines.push("Section,Department,Total Students,Placed,Placement %")
-  departmentData.forEach((dept) => {
-    lines.push(
-      [
-        "Department Performance",
-        escapeCsvValue(dept.name),
-        dept.students,
-        dept.placed,
-        `${dept.percentage}%`,
-      ].join(","),
-    )
-  })
-  lines.push("")
-
-  lines.push("Section,Company,Type,Hires,Avg Salary (INR)")
-  companyData.forEach((company) => {
-    lines.push(
-      [
-        "Top Companies",
-        escapeCsvValue(company.name),
-        escapeCsvValue(company.type),
-        company.hires,
-        company.avgSalary,
-      ].join(","),
-    )
-  })
-  lines.push("")
-
-  lines.push("Section,Skill,Demand %,Open Roles")
-  skillDemand.forEach((skill) => {
-    lines.push(
-      ["Skill Demand", escapeCsvValue(skill.skill), `${skill.demand}%`, skill.jobs].join(","),
-    )
-  })
-  lines.push("")
-
-  lines.push("Section,Salary Range,Student Count")
-  salaryDistribution.forEach((band) => {
-    lines.push(["Salary Distribution", escapeCsvValue(band.range), band.count].join(","))
-  })
-
-  return lines.join("\n")
-}
-
 export default function AnalyticsPage() {
-  const { data:session } = useSession();
+  const { data: session, status } = useSession()
   const [timeRange, setTimeRange] = useState("6months")
-  const [selectedDepartment, setSelectedDepartment] = useState("all")
   const [isExporting, setIsExporting] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null)
+
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        const res = await axios.get("/api/placementcell/analytics")
+        if (res.status === 200) {
+          setAnalyticsData(res.data)
+        }
+      } catch (error) {
+        console.error("Error fetching analytics:", error)
+        toast.error("Failed to fetch analytics data")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (status !== "loading" && session?.user?.role) {
+      fetchAnalytics()
+    }
+  }, [status, session])
+
+  const buildAnalyticsCsv = () => {
+    if (!analyticsData) return ""
+    
+    const lines: string[] = []
+
+    lines.push("Section,Month,Applications,Interviews,Placements,Companies")
+    analyticsData.placementData.forEach((entry) => {
+      lines.push(
+        [
+          "Placement Funnel",
+          escapeCsvValue(entry.month),
+          entry.applications,
+          entry.interviews,
+          entry.placements,
+          entry.companies,
+        ].join(","),
+      )
+    })
+    lines.push("")
+
+    lines.push("Section,Department,Total Students,Placed,Placement %")
+    analyticsData.departmentData.forEach((dept) => {
+      lines.push(
+        [
+          "Department Performance",
+          escapeCsvValue(dept.name),
+          dept.students,
+          dept.placed,
+          `${dept.percentage}%`,
+        ].join(","),
+      )
+    })
+    lines.push("")
+
+    lines.push("Section,Company,Type,Hires,Avg Salary (INR)")
+    analyticsData.companyData.forEach((company) => {
+      lines.push(
+        [
+          "Top Companies",
+          escapeCsvValue(company.name),
+          escapeCsvValue(company.type),
+          company.hires,
+          company.avgSalary,
+        ].join(","),
+      )
+    })
+    lines.push("")
+
+    lines.push("Section,Skill,Demand %,Open Roles")
+    analyticsData.skillDemand.forEach((skill) => {
+      lines.push(
+        ["Skill Demand", escapeCsvValue(skill.skill), `${skill.demand}%`, skill.jobs].join(","),
+      )
+    })
+    lines.push("")
+
+    lines.push("Section,Salary Range,Student Count")
+    analyticsData.salaryDistribution.forEach((band) => {
+      lines.push(["Salary Distribution", escapeCsvValue(band.range), band.count].join(","))
+    })
+
+    return lines.join("\n")
+  }
 
   const handleExportReport = () => {
     try {
@@ -175,6 +209,10 @@ export default function AnalyticsPage() {
     }
   }
 
+  if (status === "loading" || loading) {
+    return <Loader />
+  }
+
   if (session?.user?.role !== "placement-cell" && session?.user?.role !== "faculty") {
     return (
       <div className="p-6">
@@ -184,6 +222,27 @@ export default function AnalyticsPage() {
         </div>
       </div>
     )
+  }
+
+  if (!analyticsData) {
+    return (
+      <div className="p-6">
+        <div className="text-center py-12 rounded-xl border-2 border-slate-300 bg-slate-50">
+          <h1 className="text-2xl font-bold text-slate-700">No Data Available</h1>
+          <p className="text-slate-500 mt-2">Unable to load analytics data.</p>
+        </div>
+      </div>
+    )
+  }
+
+  const { keyMetrics, placementData, departmentData, companyData, salaryDistribution, skillDemand } = analyticsData
+
+  // Format salary for display
+  const formatSalary = (salary: number) => {
+    if (salary >= 100000) {
+      return `₹${(salary / 100000).toFixed(1)}L`
+    }
+    return `₹${salary.toLocaleString()}`
   }
 
   return (
@@ -226,10 +285,10 @@ export default function AnalyticsPage() {
         {/* Key Metrics Cards inside gradient */}
         <div className="relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
-            { title: "Overall Placement Rate", value: "78.5%", caption: "+5.2% from last semester", icon: Target, accent: "bg-sky-50 text-sky-600", trend: true },
-            { title: "Total Students", value: "1,247", caption: "Eligible for placement", icon: GraduationCap, accent: "bg-indigo-50 text-indigo-600", trend: false },
-            { title: "Partner Companies", value: "89", caption: "+12 new partnerships", icon: Building2, accent: "bg-purple-50 text-purple-600", trend: true },
-            { title: "Avg. Package", value: "₹6.8L", caption: "+8.5% from last year", icon: DollarSign, accent: "bg-emerald-50 text-emerald-600", trend: true },
+            { title: "Overall Placement Rate", value: keyMetrics.placementRate, caption: `${keyMetrics.placedStudents} students placed`, icon: Target, accent: "bg-sky-50 text-sky-600", trend: true },
+            { title: "Total Students", value: keyMetrics.totalStudents.toLocaleString(), caption: "Eligible for placement", icon: GraduationCap, accent: "bg-indigo-50 text-indigo-600", trend: false },
+            { title: "Partner Companies", value: keyMetrics.partnerCompanies.toString(), caption: "Active recruiters", icon: Building2, accent: "bg-purple-50 text-purple-600", trend: false },
+            { title: "Avg. Package", value: formatSalary(keyMetrics.avgSalary), caption: `${keyMetrics.totalApplications} total applications`, icon: DollarSign, accent: "bg-emerald-50 text-emerald-600", trend: true },
           ].map((stat) => (
             <Card key={stat.title} className="border-slate-200 bg-white/90 shadow-md rounded-xl transition-shadow hover:shadow-xl">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -240,13 +299,12 @@ export default function AnalyticsPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-semibold text-slate-900">{stat.value}</div>
-                {stat.trend && (
+                {stat.trend ? (
                   <p className="text-xs text-emerald-600 font-medium flex items-center">
                     <TrendingUp className="h-3 w-3 mr-1" />
                     {stat.caption}
                   </p>
-                )}
-                {!stat.trend && (
+                ) : (
                   <p className="text-xs text-slate-500">
                     {stat.caption}
                   </p>
@@ -272,108 +330,129 @@ export default function AnalyticsPage() {
 
         <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Placement Funnel - Updated Colors */}
+            {/* Placement Funnel */}
             <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
               <CardHeader className="border-b border-slate-100 pb-4">
                 <CardTitle className="text-lg text-slate-900">Placement Funnel</CardTitle>
                 <CardDescription className="text-sm">Student journey from application to placement</CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={placementData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.GRID} />
-                    <XAxis dataKey="month" stroke={CHART_COLORS.TEXT} className="text-xs" />
-                    <YAxis stroke={CHART_COLORS.TEXT} className="text-xs" />
-                    <Tooltip contentStyle={{ borderRadius: '0.5rem', border: '1px solid #e2e8f0' }} />
-                    <Bar dataKey="applications" fill={CHART_COLORS.APPLICATIONS} name="Applications" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="interviews" fill={CHART_COLORS.INTERVIEWS} name="Interviews" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="placements" fill={CHART_COLORS.PLACEMENTS} name="Placements" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
+                {placementData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={placementData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.GRID} />
+                      <XAxis dataKey="month" stroke={CHART_COLORS.TEXT} className="text-xs" />
+                      <YAxis stroke={CHART_COLORS.TEXT} className="text-xs" />
+                      <Tooltip contentStyle={{ borderRadius: '0.5rem', border: '1px solid #e2e8f0' }} />
+                      <Bar dataKey="applications" fill={CHART_COLORS.APPLICATIONS} name="Applications" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="interviews" fill={CHART_COLORS.INTERVIEWS} name="Interviews" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="placements" fill={CHART_COLORS.PLACEMENTS} name="Placements" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="h-[300px] flex items-center justify-center text-slate-500">
+                    No placement data available
+                  </div>
+                )}
               </CardContent>
             </Card>
 
-            {/* Salary Distribution - Updated Colors and Data */}
+            {/* Salary Distribution */}
             <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
               <CardHeader className="border-b border-slate-100 pb-4">
                 <CardTitle className="text-lg text-slate-900">Salary Distribution</CardTitle>
                 <CardDescription className="text-sm">Distribution of placement packages</CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
-                <div className="flex flex-col md:flex-row items-center justify-between">
-                  <ResponsiveContainer width="100%" height={200} className="w-full md:w-1/2">
-                    <PieChart>
-                      <Pie
-                        data={salaryDistribution}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={90}
-                        paddingAngle={3}
-                        dataKey="count"
-                        labelLine={false}
-                      >
-                        {salaryDistribution.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip contentStyle={{ borderRadius: '0.5rem', border: '1px solid #e2e8f0' }} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                  <div className="grid grid-cols-2 gap-3 mt-4 md:mt-0 w-full md:w-1/2">
-                    {salaryDistribution.map((entry, index) => (
-                      <div key={index} className="flex items-center space-x-2">
-                        <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: entry.color }} />
-                        <span className="text-sm text-slate-700">
-                          {entry.range}: <span className="font-semibold">{entry.count}</span>
-                        </span>
-                      </div>
-                    ))}
+                {salaryDistribution.some(s => s.count > 0) ? (
+                  <div className="flex flex-col md:flex-row items-center justify-between">
+                    <ResponsiveContainer width="100%" height={200} className="w-full md:w-1/2">
+                      <PieChart>
+                        <Pie
+                          data={salaryDistribution.filter(s => s.count > 0)}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={60}
+                          outerRadius={90}
+                          paddingAngle={3}
+                          dataKey="count"
+                          labelLine={false}
+                        >
+                          {salaryDistribution.filter(s => s.count > 0).map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip contentStyle={{ borderRadius: '0.5rem', border: '1px solid #e2e8f0' }} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                    <div className="grid grid-cols-2 gap-3 mt-4 md:mt-0 w-full md:w-1/2">
+                      {salaryDistribution.map((entry, index) => (
+                        <div key={index} className="flex items-center space-x-2">
+                          <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: entry.color }} />
+                          <span className="text-sm text-slate-700">
+                            {entry.range}: <span className="font-semibold">{entry.count}</span>
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="h-[200px] flex items-center justify-center text-slate-500">
+                    No salary data available
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
 
-          {/* Monthly Trends - Updated Colors */}
+          {/* Monthly Trends */}
           <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
             <CardHeader className="border-b border-slate-100 pb-4">
               <CardTitle className="text-lg text-slate-900">Monthly Trends</CardTitle>
               <CardDescription className="text-sm">Placement activity over time</CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
-              <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={placementData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.GRID} />
-                  <XAxis dataKey="month" stroke={CHART_COLORS.TEXT} className="text-xs" />
-                  <YAxis stroke={CHART_COLORS.TEXT} className="text-xs" />
-                  <Tooltip contentStyle={{ borderRadius: '0.5rem', border: '1px solid #e2e8f0' }} />
-                  <Area
-                    type="monotone"
-                    dataKey="applications"
-                    stackId="1"
-                    stroke={CHART_COLORS.APPLICATIONS}
-                    fill={CHART_COLORS.APPLICATIONS}
-                    fillOpacity={0.4}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="interviews"
-                    stackId="1"
-                    stroke={CHART_COLORS.INTERVIEWS}
-                    fill={CHART_COLORS.INTERVIEWS}
-                    fillOpacity={0.4}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="placements"
-                    stackId="1"
-                    stroke={CHART_COLORS.PLACEMENTS}
-                    fill={CHART_COLORS.PLACEMENTS}
-                    fillOpacity={0.4}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+              {placementData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <AreaChart data={placementData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.GRID} />
+                    <XAxis dataKey="month" stroke={CHART_COLORS.TEXT} className="text-xs" />
+                    <YAxis stroke={CHART_COLORS.TEXT} className="text-xs" />
+                    <Tooltip contentStyle={{ borderRadius: '0.5rem', border: '1px solid #e2e8f0' }} />
+                    <Area
+                      type="monotone"
+                      dataKey="applications"
+                      stackId="1"
+                      stroke={CHART_COLORS.APPLICATIONS}
+                      fill={CHART_COLORS.APPLICATIONS}
+                      fillOpacity={0.4}
+                      name="Applications"
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="interviews"
+                      stackId="1"
+                      stroke={CHART_COLORS.INTERVIEWS}
+                      fill={CHART_COLORS.INTERVIEWS}
+                      fillOpacity={0.4}
+                      name="Interviews"
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="placements"
+                      stackId="1"
+                      stroke={CHART_COLORS.PLACEMENTS}
+                      fill={CHART_COLORS.PLACEMENTS}
+                      fillOpacity={0.4}
+                      name="Placements"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-[300px] flex items-center justify-center text-slate-500">
+                  No trend data available
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -385,35 +464,42 @@ export default function AnalyticsPage() {
               <CardDescription className="text-sm">Placement statistics by department</CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
-              <div className="space-y-4">
-                {departmentData.map((dept, index) => (
-                  <div key={index} className="p-4 border border-slate-200 bg-slate-50 rounded-2xl transition hover:border-sky-200 hover:bg-white">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-semibold text-slate-800">{dept.name}</h3>
-                      <Badge
-                        className={`text-xs font-semibold rounded-full px-3 ${
-                          dept.percentage >= 80 ? "bg-emerald-600 hover:bg-emerald-600 text-white" : 
-                          dept.percentage >= 70 ? "bg-sky-600 hover:bg-sky-600 text-white" : 
-                          "bg-amber-600 hover:bg-amber-600 text-white"
-                        }`}
-                      >
-                        {dept.percentage}%
-                      </Badge>
+              {departmentData.length > 0 ? (
+                <div className="space-y-4">
+                  {departmentData.map((dept, index) => (
+                    <div key={index} className="p-4 border border-slate-200 bg-slate-50 rounded-2xl transition hover:border-sky-200 hover:bg-white">
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="font-semibold text-slate-800">{dept.name}</h3>
+                        <Badge
+                          className={`text-xs font-semibold rounded-full px-3 ${
+                            dept.percentage >= 80 ? "bg-emerald-600 hover:bg-emerald-600 text-white" : 
+                            dept.percentage >= 70 ? "bg-sky-600 hover:bg-sky-600 text-white" : 
+                            dept.percentage >= 50 ? "bg-amber-600 hover:bg-amber-600 text-white" :
+                            "bg-red-600 hover:bg-red-600 text-white"
+                          }`}
+                        >
+                          {dept.percentage}%
+                        </Badge>
+                      </div>
+                      <div className="grid grid-cols-3 gap-4 text-sm text-slate-500 mb-3 border-t border-slate-100 pt-3">
+                        <div>Total: <span className="font-medium text-slate-700">{dept.students}</span></div>
+                        <div>Placed: <span className="font-medium text-emerald-600">{dept.placed}</span></div>
+                        <div>Remaining: <span className="font-medium text-amber-600">{dept.students - dept.placed}</span></div>
+                      </div>
+                      <div className="w-full bg-slate-200 rounded-full h-2">
+                        <div
+                          className="bg-sky-600 h-2 rounded-full transition-all duration-300"
+                          style={{ width: `${dept.percentage}%` }}
+                        />
+                      </div>
                     </div>
-                    <div className="grid grid-cols-3 gap-4 text-sm text-slate-500 mb-3 border-t border-slate-100 pt-3">
-                      <div>Total: <span className="font-medium text-slate-700">{dept.students}</span></div>
-                      <div>Placed: <span className="font-medium text-emerald-600">{dept.placed}</span></div>
-                      <div>Remaining: <span className="font-medium text-amber-600">{dept.students - dept.placed}</span></div>
-                    </div>
-                    <div className="w-full bg-slate-200 rounded-full h-2">
-                      <div
-                        className="bg-sky-600 h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${dept.percentage}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-8 text-center text-slate-500">
+                  No department data available
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -425,27 +511,33 @@ export default function AnalyticsPage() {
               <CardDescription className="text-sm">Companies with highest hiring numbers</CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
-              <div className="space-y-4">
-                {companyData.map((company, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 border border-slate-200 bg-slate-50 rounded-2xl transition hover:border-sky-200 hover:bg-white">
-                    <div className="flex items-center space-x-4">
-                      <div className="p-3 bg-sky-50 rounded-xl shrink-0">
-                        <Building2 className="h-5 w-5 text-sky-600" />
+              {companyData.length > 0 ? (
+                <div className="space-y-4">
+                  {companyData.map((company, index) => (
+                    <div key={index} className="flex items-center justify-between p-4 border border-slate-200 bg-slate-50 rounded-2xl transition hover:border-sky-200 hover:bg-white">
+                      <div className="flex items-center space-x-4">
+                        <div className="p-3 bg-sky-50 rounded-xl shrink-0">
+                          <Building2 className="h-5 w-5 text-sky-600" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-slate-800">{company.name}</h3>
+                          <p className="text-sm text-slate-500">{company.type}</p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-slate-800">{company.name}</h3>
-                        <p className="text-sm text-slate-500">{company.type}</p>
+                      <div className="text-right">
+                        <div className="font-bold text-lg text-emerald-600">{company.hires} hires</div>
+                        <div className="text-sm text-slate-500">
+                          Avg: <span className="font-medium text-slate-700">{formatSalary(company.avgSalary)}</span>
+                        </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="font-bold text-lg text-emerald-600">{company.hires} hires</div>
-                      <div className="text-sm text-slate-500">
-                        Avg: <span className="font-medium text-slate-700">₹{(company.avgSalary / 100000).toFixed(1)}L</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-8 text-center text-slate-500">
+                  No company data available. Companies will appear here once they have made hires.
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -454,84 +546,102 @@ export default function AnalyticsPage() {
           <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
             <CardHeader className="border-b border-slate-100 pb-4">
               <CardTitle className="text-lg text-slate-900">In-Demand Skills</CardTitle>
-              <CardDescription className="text-sm">Most requested skills by employers</CardDescription>
+              <CardDescription className="text-sm">Most requested skills by employers in active opportunities</CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
-              <div className="space-y-4">
-                {skillDemand.map((skill, index) => (
-                  <div key={index} className="space-y-2 p-1">
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium text-slate-700">{skill.skill}</span>
-                      <div className="flex items-center space-x-3">
-                        <span className="text-sm text-slate-500">{skill.jobs} jobs</span>
-                        <span className="font-bold text-sky-600">{skill.demand}%</span>
+              {skillDemand.length > 0 ? (
+                <div className="space-y-4">
+                  {skillDemand.map((skill, index) => (
+                    <div key={index} className="space-y-2 p-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-slate-700">{skill.skill}</span>
+                        <div className="flex items-center space-x-3">
+                          <span className="text-sm text-slate-500">{skill.jobs} jobs</span>
+                          <span className="font-bold text-sky-600">{skill.demand}%</span>
+                        </div>
+                      </div>
+                      <div className="w-full bg-slate-200 rounded-full h-2">
+                        <div
+                          className="bg-sky-600 h-2 rounded-full transition-all duration-300"
+                          style={{ width: `${skill.demand}%` }}
+                        />
                       </div>
                     </div>
-                    <div className="w-full bg-slate-200 rounded-full h-2">
-                      <div
-                        className="bg-sky-600 h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${skill.demand}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-8 text-center text-slate-500">
+                  No skill demand data available. Add active opportunities with skill requirements to see this data.
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="trends" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Placements Over Time - Updated Colors */}
+            {/* Placements Over Time */}
             <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
               <CardHeader className="border-b border-slate-100 pb-4">
                 <CardTitle className="text-lg text-slate-900">Placements Over Time</CardTitle>
                 <CardDescription className="text-sm">Number of placements secured each month</CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={placementData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.GRID} />
-                    <XAxis dataKey="month" stroke={CHART_COLORS.TEXT} className="text-xs" />
-                    <YAxis stroke={CHART_COLORS.TEXT} className="text-xs" />
-                    <Tooltip contentStyle={{ borderRadius: '0.5rem', border: '1px solid #e2e8f0' }} />
-                    <Line
-                      type="monotone"
-                      dataKey="placements"
-                      stroke={CHART_COLORS.PLACEMENTS}
-                      strokeWidth={3}
-                      dot={{ fill: CHART_COLORS.PLACEMENTS, strokeWidth: 2, r: 4 }}
-                      name="Placements"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
+                {placementData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={placementData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.GRID} />
+                      <XAxis dataKey="month" stroke={CHART_COLORS.TEXT} className="text-xs" />
+                      <YAxis stroke={CHART_COLORS.TEXT} className="text-xs" />
+                      <Tooltip contentStyle={{ borderRadius: '0.5rem', border: '1px solid #e2e8f0' }} />
+                      <Line
+                        type="monotone"
+                        dataKey="placements"
+                        stroke={CHART_COLORS.PLACEMENTS}
+                        strokeWidth={3}
+                        dot={{ fill: CHART_COLORS.PLACEMENTS, strokeWidth: 2, r: 4 }}
+                        name="Placements"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="h-[300px] flex items-center justify-center text-slate-500">
+                    No placement data available
+                  </div>
+                )}
               </CardContent>
             </Card>
 
-            {/* Company Engagement - Updated Colors */}
+            {/* Company Engagement */}
             <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
               <CardHeader className="border-b border-slate-100 pb-4">
                 <CardTitle className="text-lg text-slate-900">Company Engagement</CardTitle>
                 <CardDescription className="text-sm">Number of unique companies recruiting each month</CardDescription>
               </CardHeader>
               <CardContent className="pt-6">
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={placementData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.GRID} />
-                    <XAxis dataKey="month" stroke={CHART_COLORS.TEXT} className="text-xs" />
-                    <YAxis stroke={CHART_COLORS.TEXT} className="text-xs" />
-                    <Tooltip contentStyle={{ borderRadius: '0.5rem', border: '1px solid #e2e8f0' }} />
-                    <Bar dataKey="companies" fill={CHART_COLORS.COMPANIES} name="Companies" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
+                {placementData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={placementData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.GRID} />
+                      <XAxis dataKey="month" stroke={CHART_COLORS.TEXT} className="text-xs" />
+                      <YAxis stroke={CHART_COLORS.TEXT} className="text-xs" />
+                      <Tooltip contentStyle={{ borderRadius: '0.5rem', border: '1px solid #e2e8f0' }} />
+                      <Bar dataKey="companies" fill={CHART_COLORS.COMPANIES} name="Companies" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="h-[300px] flex items-center justify-center text-slate-500">
+                    No company data available
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
 
           <Card className="border-slate-200 bg-white shadow-lg rounded-xl">
             <CardHeader className="border-b border-slate-100 pb-4">
-              <CardTitle className="text-lg text-slate-900">Key Insights & Actions</CardTitle>
-              <CardDescription className="text-sm">Important trends and observations for strategic planning</CardDescription>
+              <CardTitle className="text-lg text-slate-900">Key Insights</CardTitle>
+              <CardDescription className="text-sm">Summary of placement performance</CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -539,12 +649,13 @@ export default function AnalyticsPage() {
                   <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl">
                     <div className="flex items-center space-x-2 mb-2">
                       <Zap className="h-5 w-5 text-emerald-600" />
-                      <span className="font-bold text-emerald-800 text-base">Positive Trends</span>
+                      <span className="font-bold text-emerald-800 text-base">Highlights</span>
                     </div>
                     <ul className="text-sm text-emerald-700 space-y-2 list-disc pl-5">
-                      <li>15% increase in tech company partnerships year-over-year.</li>
-                      <li>Average salary increased by 8.5%, indicating high-quality placements.</li>
-                      <li>Interview-to-offer ratio improved to 67%, showing better candidate matching.</li>
+                      <li>{keyMetrics.placedStudents} students successfully placed</li>
+                      <li>{keyMetrics.partnerCompanies} partner companies on board</li>
+                      <li>Average package of {formatSalary(keyMetrics.avgSalary)}</li>
+                      <li>{keyMetrics.totalInterviews} interviews conducted</li>
                     </ul>
                   </div>
                 </div>
@@ -552,12 +663,16 @@ export default function AnalyticsPage() {
                   <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl">
                     <div className="flex items-center space-x-2 mb-2">
                       <AlertCircle className="h-5 w-5 text-amber-600" />
-                      <span className="font-bold text-amber-800 text-base">Areas for Improvement</span>
+                      <span className="font-bold text-amber-800 text-base">Focus Areas</span>
                     </div>
                     <ul className="text-sm text-amber-700 space-y-2 list-disc pl-5">
-                      <li>Civil Engineering placement rate below target (65%); needs dedicated drives.</li>
-                      <li>Need more companies actively recruiting for non-tech roles.</li>
-                      <li>Student skill gaps observed in emerging technologies like AI/DevOps.</li>
+                      <li>{keyMetrics.totalStudents - keyMetrics.placedStudents} students still seeking placement</li>
+                      {departmentData.filter(d => d.percentage < 50).length > 0 && (
+                        <li>
+                          {departmentData.filter(d => d.percentage < 50).length} department(s) below 50% placement rate
+                        </li>
+                      )}
+                      <li>Continue engaging with more companies for diverse opportunities</li>
                     </ul>
                   </div>
                 </div>
