@@ -13,12 +13,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Calendar } from "@/components/ui/calendar"
-import { Input } from "@/components/ui/input"
+import { TimePicker } from "@/components/ui/time-picker"
 import { disabledDates } from "@/lib/data"
 import type { ApplicationStatus, Student } from "@/lib/types"
 import axios from "axios"
 import {
     CalendarIcon,
+    Clock,
     Eye,
     GraduationCap,
     Mail,
@@ -28,8 +29,27 @@ import {
     Star
 } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { toast } from "sonner"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+
+interface ScheduledInterview {
+  id: string
+  scheduledAt: string
+  length: number
+  studentName: string
+  opportunityTitle: string
+}
+
+interface TimeValue {
+  hours: number
+  minutes: number
+}
 
 const statusConfig: Record<ApplicationStatus, { label: string; className: string }> = {
   mentor_approval_needed: { label: "Pending Approval", className: "bg-amber-50 text-amber-700 border-amber-200" },
@@ -57,7 +77,57 @@ export default function AppliedStudentCard({
   const [apStatus, setApStatus] = useState<ApplicationStatus>(status);
   const [showCalendarDialog, setShowCalendarDialog] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-  const [selectedTime, setSelectedTime] = useState<string>("");
+  const [selectedTime, setSelectedTime] = useState<TimeValue | null>(null);
+  const [scheduledInterviews, setScheduledInterviews] = useState<ScheduledInterview[]>([]);
+  const [interviewLength, setInterviewLength] = useState<number>(30);
+
+  // Fetch scheduled interviews when dialog opens
+  useEffect(() => {
+    if (showCalendarDialog) {
+      fetchScheduledInterviews();
+    }
+  }, [showCalendarDialog]);
+
+  const fetchScheduledInterviews = async () => {
+    try {
+      const res = await axios.get("/api/employer/scheduled-times", { withCredentials: true });
+      if (res.status === 200) {
+        setScheduledInterviews(res.data.scheduledTimes);
+      }
+    } catch (error) {
+      console.error("Failed to fetch scheduled interviews:", error);
+    }
+  };
+
+  // Get interviews for a specific date
+  const getInterviewsForDate = (date: Date) => {
+    return scheduledInterviews.filter(interview => {
+      const interviewDate = new Date(interview.scheduledAt);
+      return (
+        interviewDate.getFullYear() === date.getFullYear() &&
+        interviewDate.getMonth() === date.getMonth() &&
+        interviewDate.getDate() === date.getDate()
+      );
+    });
+  };
+
+  // Check if a specific time slot is taken
+  const isTimeSlotTaken = (time: TimeValue) => {
+    if (!selectedDate) return false;
+    
+    const selectedDateTime = new Date(selectedDate);
+    selectedDateTime.setHours(time.hours, time.minutes, 0, 0);
+    
+    return scheduledInterviews.some(interview => {
+      const interviewStart = new Date(interview.scheduledAt);
+      const interviewEnd = new Date(interviewStart.getTime() + interview.length * 60000);
+      const slotStart = selectedDateTime;
+      const slotEnd = new Date(slotStart.getTime() + interviewLength * 60000);
+      
+      // Check if there's overlap
+      return slotStart < interviewEnd && slotEnd > interviewStart;
+    });
+  };
 
   const handleReview = () => {
     if (status === "applied") {
@@ -80,20 +150,21 @@ export default function AppliedStudentCard({
       return;
     }
 
-    const [hours, minutes] = selectedTime.split(":").map(Number);
-    if (Number.isNaN(hours) || Number.isNaN(minutes)) {
-      toast.error("Invalid interview time selected.");
+    // Check if the selected time slot is already taken
+    if (isTimeSlotTaken(selectedTime)) {
+      toast.error("This time slot conflicts with another interview. Please select a different time.");
       return;
     }
 
     const interviewDateTime = new Date(selectedDate);
-    interviewDateTime.setHours(hours, minutes, 0, 0);
+    interviewDateTime.setHours(selectedTime.hours, selectedTime.minutes, 0, 0);
 
     setLoading(true);
     try {
       const res = await axios.patch(`/api/employer/application/shortlist`, {
         apId: id, 
         interviewDateTime: interviewDateTime.toISOString(),
+        interviewLength: interviewLength,
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
       }, { withCredentials: true })
       if (res.status === 200) {
@@ -101,7 +172,8 @@ export default function AppliedStudentCard({
         setApStatus("shortlisted");
         setShowCalendarDialog(false);
         setSelectedDate(undefined);
-        setSelectedTime("");
+        setSelectedTime(null);
+        setInterviewLength(30);
       } else {
         toast.error("Failed to shortlist student.");
       }
@@ -228,17 +300,14 @@ export default function AppliedStudentCard({
               Full Profile
             </Button>
           </div>
-          {apStatus !== "shortlisted" && (
+          {(apStatus === "applied" || apStatus === "reviewed") && (
             <Button 
               size="sm"
-              className="rounded-full bg-gradient-to-r from-sky-600 to-blue-600 text-white hover:from-sky-700 hover:to-blue-700 disabled:opacity-50"
-              disabled={apStatus !== "applied" && apStatus !== "reviewed"}
+              className="rounded-full bg-gradient-to-r from-sky-600 to-blue-600 text-white hover:from-sky-700 hover:to-blue-700"
               onClick={handleShortlistClick}
             >
               <MousePointerClick className="mr-1.5 h-3.5 w-3.5" />
-              {loading ? "Shortlisting..." : 
-                apStatus === "applied" || apStatus === "reviewed" ? "Shortlist" : 
-                apStatus.charAt(0).toUpperCase() + apStatus.slice(1)}
+              {loading ? "Shortlisting..." : "Shortlist"}
             </Button>
           )}
         </div>
@@ -246,23 +315,78 @@ export default function AppliedStudentCard({
 
       {/* Interview Date Selection Dialog */}
       <Dialog open={showCalendarDialog} onOpenChange={setShowCalendarDialog}>
-        <DialogContent className="sm:max-w-md rounded-3xl border-slate-200 bg-white/95 backdrop-blur">
+        <DialogContent className="sm:max-w-lg rounded-3xl border-slate-200 bg-white/95 backdrop-blur">
           <DialogHeader>
             <DialogTitle className="text-xl text-slate-900">Schedule Interview</DialogTitle>
             <DialogDescription className="text-slate-500">
-              Select a date for the interview with {student.name}
+              Select a date and time for the interview with {student.name}
             </DialogDescription>
           </DialogHeader>
-          <div className="flex justify-center py-4 rounded-2xl bg-slate-50/50 border border-slate-100">
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={setSelectedDate}
-              disabled={isDateDisabled}
-              startMonth={new Date(2025, 6)}
-              endMonth={new Date(2026, 6)}
-            />
+          
+          <TooltipProvider>
+            <div className="flex justify-center py-4 rounded-2xl bg-slate-50/50 border border-slate-100">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={setSelectedDate}
+                disabled={isDateDisabled}
+                startMonth={new Date(2025, 6)}
+                endMonth={new Date(2026, 6)}
+                modifiers={{
+                  hasInterview: (date) => getInterviewsForDate(date).length > 0,
+                }}
+                modifiersClassNames={{
+                  hasInterview: "bg-amber-100 text-amber-800 font-semibold ring-1 ring-amber-300",
+                }}
+                components={{
+                  DayButton: ({ day, modifiers, ...props }) => {
+                    const interviews = getInterviewsForDate(day.date);
+                    if (interviews.length > 0) {
+                      return (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button {...props} />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            <div className="space-y-1">
+                              <p className="font-semibold text-xs">Scheduled Interviews:</p>
+                              {interviews.map((interview) => {
+                                const time = new Date(interview.scheduledAt);
+                                const endTime = new Date(time.getTime() + interview.length * 60000);
+                                return (
+                                  <div key={interview.id} className="text-xs">
+                                    <span className="text-amber-600">
+                                      {time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} - {endTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                                    </span>
+                                    <br />
+                                    <span className="text-slate-500">{interview.studentName} • {interview.opportunityTitle}</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </TooltipContent>
+                        </Tooltip>
+                      );
+                    }
+                    return <button {...props} />;
+                  },
+                }}
+              />
+            </div>
+          </TooltipProvider>
+
+          {/* Legend */}
+          <div className="flex items-center justify-center gap-4 text-xs text-slate-500">
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded-sm bg-amber-100 ring-1 ring-amber-300" />
+              <span>Has scheduled interviews</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded-sm bg-slate-200" />
+              <span>Unavailable</span>
+            </div>
           </div>
+
           {selectedDate && (
             <div className="flex items-center justify-center gap-2 text-sm text-slate-600 bg-sky-50 rounded-xl px-4 py-2 border border-sky-100">
               <CalendarIcon className="h-4 w-4 text-sky-600" />
@@ -274,15 +398,63 @@ export default function AppliedStudentCard({
               })}</span>
             </div>
           )}
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-slate-700">Select Time</p>
-            <Input 
-              type="time" 
-              value={selectedTime}
-              onChange={(event) => setSelectedTime(event.target.value)}
-              className="rounded-2xl border-slate-200"
-            />
+
+          {/* Show interviews on selected date */}
+          {selectedDate && getInterviewsForDate(selectedDate).length > 0 && (
+            <div className="rounded-xl bg-amber-50 border border-amber-200 p-3">
+              <p className="text-sm font-medium text-amber-800 mb-2 flex items-center gap-1.5">
+                <Clock className="h-4 w-4" />
+                Already scheduled on this day:
+              </p>
+              <div className="space-y-1">
+                {getInterviewsForDate(selectedDate).map((interview) => {
+                  const time = new Date(interview.scheduledAt);
+                  const endTime = new Date(time.getTime() + interview.length * 60000);
+                  return (
+                    <div key={interview.id} className="text-xs text-amber-700 flex items-center gap-2">
+                      <span className="font-medium">
+                        {time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} - {endTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                      <span className="text-amber-600">• {interview.studentName}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-slate-700">Select Time</p>
+              <TimePicker
+                value={selectedTime}
+                onChange={(value) => setSelectedTime(value)}
+                minuteStep={15}
+                minHour={9}
+                maxHour={18}
+                placeholder="Select time"
+              />
+              {selectedTime && isTimeSlotTaken(selectedTime) && (
+                <p className="text-xs text-red-500">⚠️ This time conflicts with another interview</p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-slate-700">Duration (minutes)</p>
+              <select 
+                value={interviewLength}
+                onChange={(e) => setInterviewLength(Number(e.target.value))}
+                className="w-full h-10 px-3 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+              >
+                <option value={15}>15 minutes</option>
+                <option value={30}>30 minutes</option>
+                <option value={45}>45 minutes</option>
+                <option value={60}>1 hour</option>
+                <option value={90}>1.5 hours</option>
+                <option value={120}>2 hours</option>
+              </select>
+            </div>
           </div>
+
           <DialogFooter className="gap-2 sm:gap-0">
             <div className="space-x-2 w-full flex">
               <Button 
@@ -291,7 +463,8 @@ export default function AppliedStudentCard({
                 onClick={() => {
                   setShowCalendarDialog(false);
                   setSelectedDate(undefined);
-                  setSelectedTime("");
+                  setSelectedTime(null);
+                  setInterviewLength(30);
                 }}
               >
                 Cancel
@@ -299,7 +472,7 @@ export default function AppliedStudentCard({
               <Button 
                 className="rounded-full flex-1 bg-gradient-to-r from-sky-600 to-blue-600 text-white hover:from-sky-700 hover:to-blue-700"
                 onClick={handleShortlist}
-                disabled={!selectedDate || loading}
+                disabled={!selectedDate || !selectedTime || loading || (selectedTime && isTimeSlotTaken(selectedTime))}
               >
                 {loading ? "Scheduling..." : "Confirm & Shortlist"}
               </Button>

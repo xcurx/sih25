@@ -11,7 +11,7 @@ import { Users, Sparkles, ShieldCheck, BookOpen } from "lucide-react";
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-2xl border border-white/70 bg-white p-4 shadow-sm min-h-[88px]">
+    <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white p-4 shadow-sm min-h-[88px]">
       <dt className="text-xs uppercase tracking-[0.18em] text-slate-500">{label}</dt>
       <dd className="mt-2 text-2xl font-semibold text-slate-900">{value}</dd>
     </div>
@@ -20,7 +20,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 
 function FeatureCard({ icon: Icon, title, desc }: { icon: any; title: string; desc: string }) {
   return (
-    <Card className="rounded-2xl border border-white/60 bg-white/95 text-center shadow-sm">
+    <Card className="rounded-2xl border border-slate-200 bg-white text-center shadow-sm">
       <CardHeader className="flex flex-col items-center gap-3">
         <div className="rounded-md bg-sky-50 p-2">
           <Icon className="h-5 w-5 text-sky-600" />
@@ -54,71 +54,68 @@ function FAQItem({ q, a }: { q: string; a: React.ReactNode }) {
 export default function MissionSection() {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    if (!email) {
+      setError("Work email is required");
+      return;
+    }
+    console.log({ email, source: "mission-updates" });
     setSubscribed(true);
+    setError("");
     setTimeout(() => setEmail(""), 500);
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <main className="mx-auto min-h-[calc(100vh-140px)] max-w-7xl px-4 py-12">
-        <div className="space-y-8">
-          <section>
-            <div className="relative overflow-visible rounded-3xl border border-sky-100 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-8 text-slate-900 shadow-2xl">
-              <div
-                className="pointer-events-none absolute inset-0 opacity-30"
-                style={{
-                  backgroundImage: "radial-gradient(circle at 1px 1px, rgba(14,165,233,0.12) 1px, transparent 0)",
-                  backgroundSize: "36px 36px",
-                }}
-                aria-hidden
-              />
-              <div className="relative z-10 flex flex-col items-center gap-6 text-center">
-                <div className="flex items-center gap-3">
-                  <span className="inline-flex items-center justify-center rounded-full bg-sky-100 p-2">
-                    <ShieldCheck className="h-5 w-5 text-sky-600" />
-                  </span>
-                  <Badge className="bg-sky-100 text-sky-800">Platform mission</Badge>
-                </div>
+    <div className="min-h-screen  text-slate-900">
+      <main className="mx-auto max-w-7xl px-4 py-12 lg:py-16">
+        <div className="space-y-12">
+          <section className="p-0">
+            <div className="flex flex-col items-center gap-6 text-center">
+              <div className="flex items-center gap-3">
+                <span className="inline-flex items-center justify-center rounded-full bg-sky-100 p-2">
+                  <ShieldCheck className="h-5 w-5 text-sky-600" />
+                </span>
+                <Badge className="bg-sky-100 text-sky-800" variant="outline">Platform mission</Badge>
+              </div>
 
-                <h1 className="max-w-4xl text-[clamp(2.2rem,3vw,3rem)] font-semibold leading-tight tracking-tight text-slate-900">
-                  National Internship & Placement Mission — fair access, verified outcomes, measurable impact
-                </h1>
+              <h1 className="max-w-4xl text-4xl font-bold leading-tight tracking-tight lg:text-5xl">
+                National Internship & Placement Mission — fair access, verified outcomes, measurable impact
+              </h1>
 
-                <p className="max-w-3xl text-[clamp(1rem,1.3vw,1.05rem)] text-slate-700">
-                  We connect verified employers, institutes, and students on a single, secure platform with structured roles, audited workflows, and readiness programs.
-                </p>
+              <p className="max-w-3xl text-base text-slate-700 lg:text-lg">
+                We connect verified employers, institutes, and students on a single, secure platform with structured roles, audited workflows, and readiness programs.
+              </p>
 
-                <div className="flex flex-wrap justify-center gap-3 text-sm">
-                  <Link href="/institutes/onboard" className="inline-block">
-                    <Button className="rounded-full bg-sky-600 px-5 py-2 text-white shadow-sm hover:bg-sky-500">Onboard an institute</Button>
-                  </Link>
+              <div className="flex flex-wrap justify-center gap-3 text-sm">
+                <Button asChild className="rounded-full bg-sky-600 px-5 py-2 text-white hover:bg-sky-500">
+                  <Link href="/institutes/onboard">Onboard an institute</Link>
+                </Button>
+                <Button asChild variant="outline" className="rounded-full border-slate-200 px-5 py-2 text-slate-900 hover:border-sky-200 hover:text-sky-700">
+                  <Link href="/employers">Hire through the mission</Link>
+                </Button>
+              </div>
 
-                  <Link href="/employers" className="inline-block">
-                    <Button variant="outline" className="rounded-full border-sky-200 px-5 py-2 text-sky-700">Hire through the mission</Button>
-                  </Link>
-                </div>
+              <Link href="/resources#policy" className="text-sm text-slate-600 hover:text-slate-900">
+                Read policy & compliance
+              </Link>
 
-                <Link href="/resources#policy" className="text-sm text-slate-600 hover:text-slate-900">
-                  Read policy & compliance
-                </Link>
-
-                <div className="mt-6 grid w-full max-w-4xl gap-3 sm:grid-cols-3">
-                  <Stat label="Institutions onboarded" value="280+" />
-                  <Stat label="Opportunities listed" value="4,800+" />
-                  <Stat label="Students supported" value="1.8L+" />
-                </div>
+              <div className="grid w-full max-w-4xl gap-4 sm:grid-cols-3">
+                <Stat label="Institutions onboarded" value="280+" />
+                <Stat label="Opportunities listed" value="4,800+" />
+                <Stat label="Students supported" value="1.8L+" />
               </div>
             </div>
           </section>
 
-          <section className="grid gap-6 lg:grid-cols-2">
-            <div className="rounded-2xl border border-slate-200 bg-white/95 p-6 shadow-lg">
-              <p className="text-xs font-semibold uppercase tracking-widest text-sky-600">Platform snapshot</p>
-              <div className="mt-4 grid gap-4 text-sm text-slate-700 sm:grid-cols-2">
+          <section className="grid gap-8 lg:grid-cols-2">
+            <Card className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+              <CardHeader>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-600">Platform snapshot</p>
+              </CardHeader>
+              <CardContent className="grid gap-4 text-sm text-slate-700 sm:grid-cols-2">
                 <div className="flex items-start gap-3">
                   <Users className="h-5 w-5 text-sky-600" />
                   <div>
@@ -133,38 +130,47 @@ export default function MissionSection() {
                     <p className="text-xs text-slate-600">AI nudges, readiness signals, and filtered shortlists for recruiters.</p>
                   </div>
                 </div>
-                <div className="rounded-lg bg-slate-50 p-3 text-xs text-slate-600 sm:col-span-2">
+                <div className="rounded-lg border border-slate-100 bg-slate-50 p-3 text-xs text-slate-600 sm:col-span-2">
                   <p className="font-semibold text-slate-900">Helpline</p>
                   <p>+91 011 4000 1122 · support@placement.gov.in</p>
                   <p className="pt-1 text-[11px] uppercase tracking-[0.2em] text-slate-500">Mon–Sat · 9:00 — 18:00</p>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
-            <div className="rounded-2xl border border-slate-200 bg-white/95 p-6 shadow-lg">
-              <p className="text-xs font-semibold uppercase tracking-widest text-sky-600">Get mission updates</p>
-              <div className="mt-3 text-sm text-slate-700">
-                <p className="font-semibold text-slate-900">Monthly brief</p>
-                <p className="text-xs text-slate-600">Policy changes, new hiring partners, and product rollout notes in one email.</p>
-              </div>
-              <form onSubmit={handleSubscribe} className="mt-4 flex flex-col gap-3">
-                <div className="space-y-2 text-left">
-                  <Label htmlFor="subscribe-email" className="text-xs text-slate-600">Work email</Label>
-                  <Input
-                    id="subscribe-email"
-                    placeholder="name@institute.edu.in"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    aria-label="Subscribe email"
-                  />
+            <Card className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+              <CardHeader>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-600">Get mission updates</p>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm text-slate-700">
+                <div>
+                  <p className="font-semibold text-slate-900">Monthly brief</p>
+                  <p className="text-xs text-slate-600">Policy changes, new hiring partners, and product rollout notes in one email.</p>
                 </div>
-                <div className="space-y-2 text-left text-xs text-slate-600">
-                  <p>What you get: rollout alerts, compliance updates, and quarterly metrics.</p>
-                  <p>No spam. Unsubscribe anytime.</p>
-                </div>
-                <Button type="submit" className="rounded-full bg-sky-600 px-4 py-2 text-white">{subscribed ? "Subscribed" : "Subscribe"}</Button>
-              </form>
-            </div>
+                <form onSubmit={handleSubscribe} className="flex flex-col gap-3 text-left">
+                  <div className="space-y-2">
+                    <Label htmlFor="subscribe-email" className="text-xs text-slate-600">Work email</Label>
+                    <Input
+                      id="subscribe-email"
+                      placeholder="name@institute.edu.in"
+                      value={email}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        if (error) setError("");
+                      }}
+                      aria-label="Subscribe email"
+                      aria-invalid={!!error}
+                    />
+                    {error && <p className="text-xs text-amber-700">{error}</p>}
+                  </div>
+                  <div className="space-y-1 text-xs text-slate-600">
+                    <p>What you get: rollout alerts, compliance updates, and quarterly metrics.</p>
+                    <p>No spam. Unsubscribe anytime.</p>
+                  </div>
+                  <Button type="submit" className="rounded-full bg-sky-600 px-4 py-2 text-white hover:bg-sky-500">{subscribed ? "Subscribed" : "Subscribe"}</Button>
+                </form>
+              </CardContent>
+            </Card>
           </section>
         </div>
       </main>
@@ -182,7 +188,7 @@ export default function MissionSection() {
         </div>
 
         <div className="mb-12 grid gap-6 lg:grid-cols-3">
-          <Card className="rounded-2xl border border-white/60 bg-white/95 shadow-sm lg:col-span-2">
+          <Card className="rounded-2xl border border-slate-200 bg-white shadow-sm lg:col-span-2">
             <CardHeader>
               <CardTitle className="text-lg font-semibold text-slate-900">Programs & initiatives</CardTitle>
               <CardDescription className="text-sm text-slate-600">Concrete initiatives to increase readiness & adoption</CardDescription>
@@ -197,7 +203,7 @@ export default function MissionSection() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-2xl border border-white/60 bg-white/95 shadow-sm">
+          <Card className="rounded-2xl border border-slate-200 bg-white shadow-sm">
             <CardHeader>
               <CardTitle className="text-lg font-semibold text-slate-900">Roadmap</CardTitle>
               <CardDescription className="text-sm text-slate-600">Planned milestones for the next 12 months</CardDescription>
@@ -212,7 +218,7 @@ export default function MissionSection() {
             </CardContent>
           </Card>
 
-          <div className="rounded-2xl border border-white/60 bg-white/95 p-6 shadow-sm lg:col-span-3">
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-3">
             <p className="text-xs font-semibold uppercase tracking-widest text-sky-600 text-center">Quick resources</p>
             <div className="mt-3 grid gap-3 text-sm text-slate-700 sm:grid-cols-3">
               <Link href="/resources#onboard" className="rounded-lg border border-slate-100 bg-white p-3 text-left hover:text-slate-900">Institute onboarding guide</Link>
@@ -234,7 +240,7 @@ export default function MissionSection() {
           </div>
         </div>
 
-        <div className="mb-16 rounded-2xl border border-white/60 bg-white/95 p-8 text-center shadow-sm">
+        <div className="mb-16 rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
           <h4 className="text-xl font-semibold text-slate-900">Join the mission</h4>
           <p className="mt-2 text-sm text-slate-600">Institutes, employers and students — get started today. For integrations and onboarding, reach out to our mission desk.</p>
           <div className="mt-4 flex flex-wrap justify-center gap-3">

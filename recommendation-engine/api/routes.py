@@ -37,6 +37,46 @@ async def health_check():
     )
 
 
+@router.get("/debug/status")
+async def debug_status():
+    """Debug endpoint to check system state."""
+    engine = get_engine()
+    
+    # Count placed vs unplaced students
+    placed = sum(1 for s in engine.students.values() if s.placed)
+    unplaced = sum(1 for s in engine.students.values() if not s.placed)
+    
+    # Sample student data (first 3)
+    sample_students = []
+    for s in list(engine.students.values())[:3]:
+        sample_students.append({
+            "id": s.id,
+            "name": s.name,
+            "cgpa": s.cgpa,
+            "skills": s.skills,
+            "placed": s.placed
+        })
+    
+    # Sample job data (first 3)
+    sample_jobs = []
+    for j in list(engine.jobs.values())[:3]:
+        sample_jobs.append({
+            "id": j.id,
+            "title": j.title,
+            "cgpa": j.cgpa,
+            "skillsRequired": j.skillsRequired
+        })
+    
+    return {
+        "total_jobs": len(engine.jobs),
+        "total_students": len(engine.students),
+        "placed_students": placed,
+        "unplaced_students": unplaced,
+        "sample_students": sample_students,
+        "sample_jobs": sample_jobs
+    }
+
+
 @router.post("/recommendations", response_model=RecommendationResponse)
 async def get_recommendations(request: RecommendationRequest):
     """

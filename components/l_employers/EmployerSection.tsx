@@ -24,7 +24,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-white/70 bg-white/90 p-5 text-center shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-md">
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm">
       <dt className="text-xs uppercase tracking-[0.2em] text-slate-500">{label}</dt>
       <dd className="mt-2 text-[clamp(1.6rem,2.5vw,2rem)] font-semibold text-slate-900">{value}</dd>
     </div>
@@ -41,7 +41,7 @@ function Benefit({
   desc: string;
 }) {
   return (
-    <Card className="rounded-2xl border border-white/60 bg-white/95 text-center shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
+    <Card className="rounded-2xl border border-slate-200 bg-white text-center shadow-sm">
       <CardHeader className="flex flex-col items-center gap-3">
         <div className="rounded-lg bg-sky-50 p-2">
           <Icon className="h-6 w-6 text-sky-600" />
@@ -74,21 +74,10 @@ function FAQRow({ q, a }: { q: string; a: React.ReactNode }) {
 
 export default function EmployerSection() {
   return (
-    <section id="employers" className="mx-auto max-w-7xl px-4">
-      <div className="mb-12 grid gap-6 lg:grid-cols-[2fr,1fr] lg:items-stretch">
-        <div
-          className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-white via-sky-50 to-blue-50 p-10 text-center shadow-2xl"
-          aria-hidden={false}
-        >
-          <div
-            className="pointer-events-none absolute inset-0 opacity-40"
-            style={{
-              backgroundImage:
-                "radial-gradient(circle at 1px 1px, rgba(14,165,233,0.14) 1px, transparent 0)",
-              backgroundSize: "30px 30px",
-            }}
-          />
-          <div className="relative z-10 flex flex-col items-center gap-4">
+    <section id="employers" className="mx-auto max-w-7xl px-4 py-12 text-slate-900">
+      <div className="mb-12 grid gap-8 lg:grid-cols-[2fr,1fr] lg:items-stretch">
+        <div className="text-center">
+          <div className="flex flex-col items-center gap-4">
             <div className="rounded-full bg-sky-100 p-3">
               <Building2 className="h-6 w-6 text-sky-600" />
             </div>
@@ -97,26 +86,22 @@ export default function EmployerSection() {
               Employer Partnership Program
             </Badge>
 
-            <h1 className="max-w-4xl text-[clamp(2.2rem,3vw,3.2rem)] font-semibold leading-tight tracking-tight text-slate-900">
+            <h1 className="max-w-4xl text-4xl font-bold leading-tight tracking-tight text-slate-900 lg:text-5xl">
               Hire industry-ready talent with a secure, structured national platform.
             </h1>
 
-            <p className="max-w-3xl text-[clamp(1rem,1.4vw,1.1rem)] text-slate-700">
+            <p className="max-w-3xl text-base text-slate-700 lg:text-lg">
               Access verified student pools, skill-tagged profiles, interview-ready candidates, and structured hiring workflows built for HR teams, recruitment drives, and large-scale talent acquisition.
             </p>
 
-            <div className="flex flex-wrap justify-center gap-3">
-              <Link href="/employers/register">
-                <Button className="rounded-full bg-sky-600 text-white shadow-md transition-transform duration-300 hover:-translate-y-[2px] hover:bg-sky-500">
-                  Register as employer
-                </Button>
-              </Link>
+            <div className="flex flex-wrap justify-center gap-3 text-sm">
+              <Button asChild className="rounded-full bg-sky-600 text-white hover:bg-sky-500">
+                <Link href="/employers/register">Register as employer</Link>
+              </Button>
 
-              <Link href="/resources#employer-api">
-                <Button variant="outline" className="rounded-full border-sky-200 text-sky-700 shadow-sm transition-transform duration-300 hover:-translate-y-[2px]">
-                  Explore Employer API
-                </Button>
-              </Link>
+              <Button asChild variant="outline" className="rounded-full border-slate-200 text-slate-900 hover:border-sky-200 hover:text-sky-700">
+                <Link href="/resources#employer-api">Explore Employer API</Link>
+              </Button>
             </div>
 
             <div className="grid w-full max-w-4xl gap-4 sm:grid-cols-3">
@@ -127,10 +112,10 @@ export default function EmployerSection() {
           </div>
         </div>
 
-        <aside className="rounded-2xl border border-white/60 bg-white/95 p-6 text-center shadow-md transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
+        <aside className="rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm lg:p-8">
           <div className="grid gap-4 sm:grid-cols-2 sm:text-center">
             <div className="mx-auto max-w-sm">
-              <p className="text-xs font-semibold uppercase tracking-widest text-sky-600">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-600">
                 Why employers choose us
               </p>
 
@@ -150,8 +135,8 @@ export default function EmployerSection() {
               </ul>
             </div>
 
-            <div className="mx-auto max-w-xs rounded-xl border border-slate-100 bg-white p-4 text-sm text-slate-700">
-              <p className="text-xs font-semibold uppercase tracking-widest text-sky-600">Need help?</p>
+            <div className="mx-auto max-w-xs rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-700 shadow-sm">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-600">Need help?</p>
               <p className="mt-2 text-slate-900">Mon–Sat, 9:00 — 18:00</p>
               <p className="mt-3 flex items-center justify-center gap-2 text-slate-700">
                 <Phone className="h-4 w-4 text-sky-600" /> +91 011 4000 1122
@@ -193,7 +178,7 @@ export default function EmployerSection() {
       </div>
 
       <div className="mb-12 grid gap-6 lg:grid-cols-3">
-        <Card className="rounded-2xl border border-white/60 bg-white/90 text-left shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg lg:col-span-2">
+        <Card className="rounded-2xl border border-slate-200 bg-white/95 text-left shadow-sm lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-slate-900">
               How hiring works on the mission platform
@@ -227,7 +212,7 @@ export default function EmployerSection() {
           </CardContent>
         </Card>
 
-        <Card className="flex flex-col justify-between rounded-2xl border border-white/60 bg-white/90 text-left shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
+        <Card className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white/95 text-left shadow-sm">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-slate-900">Employer programs</CardTitle>
             <CardDescription className="text-sm text-slate-600">
@@ -274,7 +259,7 @@ export default function EmployerSection() {
       </div>
 
       <div className="mb-12">
-        <Card className="grid gap-6 rounded-2xl border border-white/60 bg-white/90 p-8 text-center shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg lg:grid-cols-2 lg:items-center">
+        <Card className="grid gap-6 rounded-2xl border border-slate-200 bg-white/95 p-8 text-center shadow-sm lg:grid-cols-2 lg:items-center">
           <div className="flex flex-col items-center text-center">
             <h4 className="text-xl font-semibold text-slate-900">Ready to hire with transparency and precision?</h4>
             <p className="mt-2 max-w-xl text-sm text-slate-600">

@@ -349,8 +349,8 @@ class RecommendationEngine:
 
         Rules:
         - Only suggest unplaced students (placed=False)
-        - Strict: CGPA must be >= opportunity.cgpa (if specified)
-        - Loose: skills overlap > 50% of opportunity.skillsRequired
+        - Strict: CGPA must be >= opportunity.cgpa (if specified, skip if not)
+        - Loose: skills overlap >= 20% of opportunity.skillsRequired
         """
         if opportunity_id not in self.jobs:
             logger.warning(f"Opportunity {opportunity_id} not found in memory")
@@ -358,34 +358,43 @@ class RecommendationEngine:
 
         job = self.jobs[opportunity_id]
         required_skills = job.skillsRequired or []
+        
+        logger.info(f"Matching students for opportunity: {opportunity_id}")
+        logger.info(f"  Job CGPA requirement: {job.cgpa}")
+        logger.info(f"  Job required skills: {required_skills}")
+        logger.info(f"  Total students in system: {len(self.students)}")
 
         matches: List[Student] = []
         for s in self.students.values():
             # Only suggest unplaced students
             if s.placed:
+                logger.debug(f"  Student {s.id} skipped: already placed")
                 continue
 
-            # Strict CGPA check
+            # Strict CGPA check (only if opportunity specifies cgpa)
             if job.cgpa is not None:
                 try:
                     if s.cgpa is None or float(s.cgpa) < float(job.cgpa):
+                        logger.debug(f"  Student {s.id} skipped: CGPA {s.cgpa} < required {job.cgpa}")
                         continue
                 except Exception:
                     continue
+            # If job.cgpa is None, skip CGPA check entirely - all students pass
 
-            # Loose skills check
+            # Loose skills check (>= 20% match required)
             if required_skills:
                 student_skills = [x.lower().strip() for x in (s.skills or [])]
                 req_skills = [x.lower().strip() for x in required_skills]
-                if not req_skills:
-                    continue
 
                 matching = set(student_skills).intersection(set(req_skills))
                 pct = len(matching) / len(req_skills) if req_skills else 0
-                if pct <= 0.5:
+                logger.debug(f"  Student {s.id}: skills {student_skills}, matching {matching}, pct {pct:.2f}")
+                if pct < 0.2:
+                    logger.debug(f"  Student {s.id} skipped: skill match {pct:.2f} < 0.2")
                     continue
 
             # If passed checks, include
+            logger.debug(f"  Student {s.id} MATCHED")
             matches.append(s)
 
         logger.info(f"Found {len(matches)} candidate(s) for opportunity {opportunity_id}")

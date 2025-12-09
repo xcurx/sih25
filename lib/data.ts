@@ -35,7 +35,6 @@ export const disabledDates = [
   new Date(2025, 11, 17),
   new Date(2025, 11, 18),
   new Date(2025, 11, 19),
-  new Date(2025, 11, 20),
   new Date(2025, 11, 21),
   new Date(2025, 11, 22),
   new Date(2025, 11, 23),
