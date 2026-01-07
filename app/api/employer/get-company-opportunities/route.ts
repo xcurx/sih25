@@ -19,11 +19,20 @@ export const GET = async (req: NextRequest) => {
         const opportunities = await prisma.opportunity.findMany({
             where: { companyId: employer?.companyId },
             include: {
+                companyRel: {
+                    select: {
+                        id: true,
+                        name: true,
+                    }
+                },
                 _count: {
                     select: {
                         applications: true
                     }
                 }
+            },
+            orderBy: {
+                postedAt: 'desc'
             }
         })
 

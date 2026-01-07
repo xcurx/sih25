@@ -12,6 +12,20 @@ export const GET = async (req: NextRequest) => {
     }
 
     try {
+        // Update any interviews that are past their scheduled time + length to completed
+        const now = new Date();
+        await prisma.interview.updateMany({
+            where: {
+                status: "scheduled",
+                scheduledAt: {
+                    lt: new Date(now.getTime() - 60 * 60 * 1000) // 1 hour buffer after scheduled time
+                }
+            },
+            data: {
+                status: "completed"
+            }
+        });
+
         const applications = await prisma.application.findMany({
             where: {
                 opportunityRel: {

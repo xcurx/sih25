@@ -2,7 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowUpRight, Briefcase, Calendar, CheckCircle, FileText } from "lucide-react"
+import { ArrowUpRight, Briefcase, Calendar, CheckCircle, FileText, Plus } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { Opportunity, Student } from "@/lib/types"
 import axios from "axios"
@@ -155,15 +155,13 @@ export default function EmployerDashboard() {
             </div>
             {/* END OF NEW TEXT BLOCK */}
 
-            {/* Removing the two span buttons below the main heading as they are not in the new image/code snippet */}
-            {/* <div className="inline-flex flex-wrap gap-3 text-sm text-white/80">
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2">
-                <Sparkles className="h-4 w-4" aria-hidden="true" /> Auto-ranked candidates
-              </span>
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2">
-                <Users className="h-4 w-4" aria-hidden="true" /> Campus reach tracker
-              </span>
-            </div> */}
+            {/* Post New Job Button */}
+            <Button asChild className="bg-sky-600 hover:bg-sky-700 rounded-full shadow-md">
+              <Link href="/post-jobs-employer">
+                <Plus className="mr-2 h-4 w-4" />
+                Post New Job
+              </Link>
+            </Button>
           </div>
           
           {/* RIGHT STATS AREA: Styling updated to match the new light background aesthetic */}

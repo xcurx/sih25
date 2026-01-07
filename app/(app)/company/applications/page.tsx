@@ -2,7 +2,7 @@
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowUpRight, Briefcase, Calendar, CheckCircle, FileText } from "lucide-react"
+import { ArrowUpRight, Briefcase, Calendar, CheckCircle, FileText, Plus } from "lucide-react"
 
 import { Opportunity, Student } from "@/lib/types"
 import axios from "axios"
@@ -69,15 +69,13 @@ export default function EmplyersApplicationsPage() {
               Every posting, candidate count, and next action is summarised right here.
             </p>
           </div>
-          {/* <div className="grid gap-4 rounded-[28px] border border-white/50 bg-white/85 p-6 sm:grid-cols-2">
-            {quickStats.slice(0, 2).map((stat) => (
-              <div key={stat.label} className="rounded-[24px] border border-slate-100 bg-white p-4 text-slate-800 shadow-sm">
-                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">{stat.label}</p>
-                <p className="mt-2 text-3xl font-semibold text-slate-900">{stat.value}</p>
-                <p className="text-xs text-slate-500">{stat.caption}</p>
-              </div>
-            ))}
-          </div> */}
+          <Button
+            className="bg-sky-600 hover:bg-sky-700 rounded-full shadow-md shrink-0"
+            onClick={() => router.push("/post-jobs-employer")}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Post New Job
+          </Button>
         </div>
       <br></br>
 
@@ -120,6 +118,8 @@ export default function EmplyersApplicationsPage() {
             const statusLower = job.status?.toLowerCase() || ""
             const isActive = statusLower === "active"
             const isExpired = statusLower === "expired" || statusLower === "closed"
+            const isDraft = statusLower === "draft"
+            const isRejected = statusLower === "rejected"
             return (
             <div key={job.id} className="rounded-2xl border-2 border-slate-100 bg-slate-50/70 p-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -136,10 +136,14 @@ export default function EmplyersApplicationsPage() {
                       ? "bg-emerald-100 text-emerald-800" 
                       : isExpired
                       ? "bg-red-100 text-red-800"
+                      : isDraft
+                      ? "bg-amber-100 text-amber-800"
+                      : isRejected
+                      ? "bg-red-100 text-red-800"
                       : "bg-slate-200 text-slate-700"
                   }`}
                 >
-                  {job.status}
+                  {isDraft ? "Pending Review" : isRejected ? "Rejected" : job.status}
                 </Badge>
               </div>
               <div className="mt-4 flex items-stretch rounded-2xl bg-slate-50/70 p-4 text-center">

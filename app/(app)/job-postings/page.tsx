@@ -18,11 +18,12 @@ import {
     CheckCircle2,
     FileText,
     Briefcase,
-    XCircle
+    XCircle,
+    Inbox
 } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, useMemo } from "react"
 
 export default function JobPostingsPage() {
     const { data:session, status } = useSession() 
@@ -81,20 +82,20 @@ export default function JobPostingsPage() {
       }
     })
 
-    const activeJobs = jobs.filter((job) => job.status === "active")
-    const draftJobs = jobs.filter((job) => job.status === "draft")
-    const closedJobs = jobs.filter((job) => job.status === "closed")
+    const activeJobs = useMemo(() => jobs.filter((job) => job.status === "active"), [jobs])
+    const draftJobs = useMemo(() => jobs.filter((job) => job.status === "draft"), [jobs])
+    const closedJobs = useMemo(() => jobs.filter((job) => job.status === "closed"), [jobs])
 
     // Logic for total applications count (assuming applications property exists on Opportunity or must be calculated)
-    const totalApplicationsCount = jobs.reduce((sum, job) => sum + (job._count?.applications || 0), 0);
+    const totalApplicationsCount = useMemo(() => jobs.reduce((sum, job) => sum + (job._count?.applications || 0), 0), [jobs]);
     
     // UI STATS (Used in the new header card layout)
-    const uiStats = [
+    const uiStats = useMemo(() => [
         { title: "Total Postings", value: jobs?.length, caption: "All time opportunities", icon: Briefcase, accent: "bg-sky-50 text-sky-700" },
         { title: "Active Jobs", value: activeJobs.length, caption: "Currently accepting applications", icon: CheckCircle2, accent: "bg-emerald-50 text-emerald-700" },
         { title: "Drafts", value: draftJobs.length, caption: "Pending review or publication", icon: Clock, accent: "bg-amber-50 text-amber-700" },
         { title: "Total Applications", value: totalApplicationsCount, caption: "Total received across all jobs", icon: FileText, accent: "bg-indigo-50 text-indigo-700" },
-    ];
+    ], [jobs, activeJobs, draftJobs, totalApplicationsCount]);
 
     useEffect(() => {
       if (status === "unauthenticated" || status === "loading") return
@@ -141,10 +142,10 @@ export default function JobPostingsPage() {
                            Manage active, draft, and closed job postings for students.
                         </p>
                     </div>
-                    <Button asChild className="bg-sky-600 hover:bg-sky-700 rounded-full shadow-md shrink-0 transition duration-200">
-                        <a href="/post-jobs">
-                            <Plus className="mr-2 h-4 w-4" />
-                            Post New Job
+                    <Button asChild className="bg-amber-500 hover:bg-amber-600 rounded-full shadow-md shrink-0 transition duration-200">
+                        <a href="/opportunity-requests">
+                            <Inbox className="mr-2 h-4 w-4" />
+                            Incoming Requests
                         </a>
                     </Button>
                 </div>

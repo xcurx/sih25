@@ -83,7 +83,7 @@ export interface Opportunity {
   description: string
   type: string
   location: string
-  status: "active" | "closed" | "draft"
+  status: "active" | "closed" | "draft" | "rejected"
   salary: number
   postedAt: string
   applicationDeadline: string
@@ -101,6 +101,7 @@ export interface Opportunity {
   endDate: string
   applied?: boolean
   companyRel?: Company
+  employerRel?: Employer
 }
 
 export interface Application {

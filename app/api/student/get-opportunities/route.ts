@@ -12,6 +12,19 @@ export const GET = async (req: NextRequest) => {
     }
 
     try {
+        // Update any expired active jobs to closed status
+        await prisma.opportunity.updateMany({
+            where: {
+                status: "active",
+                applicationDeadline: {
+                    lt: new Date()
+                }
+            },
+            data: {
+                status: "closed"
+            }
+        });
+
         // Fetch student's placed status
         const student = await prisma.student.findUnique({
             where: { id: session?.user?.id },
@@ -19,6 +32,9 @@ export const GET = async (req: NextRequest) => {
         })
 
         const opportunities = await prisma.opportunity.findMany({
+            where: {
+                status: { in: ['active', 'closed'] }
+            },
             include: { 
                 companyRel: true, 
                 employerRel: true,

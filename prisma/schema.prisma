@@ -259,6 +259,7 @@ enum Status {
   draft
   active
   closed
+  rejected
 }
 
 enum ApplicationStatus {
