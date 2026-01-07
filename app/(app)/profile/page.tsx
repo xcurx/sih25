@@ -131,51 +131,51 @@ export default function ProfilePage() {
 
         {/* Desktop tab list with horizontal scroll and arrows */}
         <div className="relative hidden md:block">
-          <TabsList className="flex w-full items-center gap-2 bg-slate-100 rounded-full p-1 h-auto border border-slate-200 overflow-x-auto whitespace-nowrap scroll-smooth [scrollbar-width:none] [-ms-overflow-style:'none'] [&::-webkit-scrollbar]:hidden" ref={tabsScrollerRef}>
-            <TabsTrigger 
-              value="overview" 
+          <TabsList className="flex w-full items-center gap-2 bg-slate-100 rounded-full px-4 py-2 h-auto border border-slate-200 overflow-x-auto whitespace-nowrap scroll-smooth [scrollbar-width:none] [-ms-overflow-style:'none'] [&::-webkit-scrollbar]:hidden" ref={tabsScrollerRef}>
+            <TabsTrigger
+              value="overview"
               className="flex items-center gap-2 rounded-full data-[state=active]:bg-white data-[state=active]:shadow-md px-4 py-2.5"
             >
               <User className="h-4 w-4 shrink-0" />
               Overview
             </TabsTrigger>
-            <TabsTrigger 
-              value="experience" 
+            <TabsTrigger
+              value="experience"
               className="flex items-center gap-2 rounded-full data-[state=active]:bg-white data-[state=active]:shadow-md px-4 py-2.5"
             >
               <Briefcase className="h-4 w-4 shrink-0" />
               Experience
             </TabsTrigger>
-            <TabsTrigger 
-              value="projects" 
+            <TabsTrigger
+              value="projects"
               className="flex items-center gap-2 rounded-full data-[state=active]:bg-white data-[state=active]:shadow-md px-4 py-2.5"
             >
               <Code className="h-4 w-4 shrink-0" />
               Projects
             </TabsTrigger>
-            <TabsTrigger 
-              value="certifications" 
+            <TabsTrigger
+              value="certifications"
               className="flex items-center gap-2 rounded-full data-[state=active]:bg-white data-[state=active]:shadow-md px-4 py-2.5"
             >
               <Award className="h-4 w-4 shrink-0" />
               Certificates
             </TabsTrigger>
-            <TabsTrigger 
-              value="preferences" 
+            <TabsTrigger
+              value="preferences"
               className="flex items-center gap-2 rounded-full data-[state=active]:bg-white data-[state=active]:shadow-md px-4 py-2.5"
             >
               <FileText className="h-4 w-4 shrink-0" />
               Preferences
             </TabsTrigger>
-            <TabsTrigger 
-              value="documents" 
+            <TabsTrigger
+              value="documents"
               className="flex items-center gap-2 rounded-full data-[state=active]:bg-white data-[state=active]:shadow-md px-4 py-2.5"
             >
               <FileText className="h-4 w-4 shrink-0" />
               Resume
             </TabsTrigger>
-            <TabsTrigger 
-              value="settings" 
+            <TabsTrigger
+              value="settings"
               className="flex items-center gap-2 rounded-full data-[state=active]:bg-white data-[state=active]:shadow-md px-4 py-2.5"
             >
               <SettingsIcon className="h-4 w-4 shrink-0" />
