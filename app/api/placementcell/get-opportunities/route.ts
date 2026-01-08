@@ -26,6 +26,9 @@ export const GET = async (req: NextRequest) => {
         });
 
         const opportunities = await prisma.opportunity.findMany({
+            where: {
+                status: { in: ['active', 'closed'] }
+            },
             include: { 
                 companyRel: true, 
                 employerRel: true,

@@ -52,6 +52,7 @@ interface OpportunityWithCompany extends Omit<Opportunity, 'companyRel' | 'emplo
 export default function OpportunityRequestsPage() {
   const { data: session, status } = useSession()
   const [searchTerm, setSearchTerm] = useState("")
+  const [statusFilter, setStatusFilter] = useState<"all" | "draft" | "rejected">("all")
   const [opportunities, setOpportunities] = useState<OpportunityWithCompany[]>([])
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
@@ -132,8 +133,12 @@ export default function OpportunityRequestsPage() {
       opp.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       opp.companyRel?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       opp.employerRel?.name.toLowerCase().includes(searchTerm.toLowerCase())
-    return matchesSearch
+    const matchesStatus = statusFilter === "all" || opp.status === statusFilter
+    return matchesSearch && matchesStatus
   })
+
+  const pendingCount = opportunities.filter(o => o.status === "draft").length
+  const rejectedCount = opportunities.filter(o => o.status === "rejected").length
 
   useEffect(() => {
     if (status === "unauthenticated" || status === "loading") return
@@ -177,16 +182,58 @@ export default function OpportunityRequestsPage() {
                 <div className="flex items-center gap-3">
                   <Clock className="h-5 w-5 text-amber-600" />
                   <div>
-                    <p className="text-sm text-amber-700 font-medium">Pending Requests</p>
-                    <p className="text-2xl font-bold text-amber-800">{opportunities.length}</p>
+                    <p className="text-sm text-amber-700 font-medium">Pending</p>
+                    <p className="text-2xl font-bold text-amber-800">{pendingCount}</p>
+                  </div>
+                </div>
+              </Card>
+              <Card className="border-red-200 bg-red-50 shadow-sm rounded-xl px-6 py-3">
+                <div className="flex items-center gap-3">
+                  <XCircle className="h-5 w-5 text-red-600" />
+                  <div>
+                    <p className="text-sm text-red-700 font-medium">Rejected</p>
+                    <p className="text-2xl font-bold text-red-800">{rejectedCount}</p>
                   </div>
                 </div>
               </Card>
             </div>
           </div>
 
-          {/* Search */}
-          <div className="relative max-w-md">
+          {/* Filter Tabs and Search */}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center bg-slate-100 rounded-full p-1">
+              <button
+                onClick={() => setStatusFilter("all")}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition ${
+                  statusFilter === "all"
+                    ? "bg-amber-500 text-white shadow-sm"
+                    : "text-slate-700 hover:text-slate-900"
+                }`}
+              >
+                All ({opportunities.length})
+              </button>
+              <button
+                onClick={() => setStatusFilter("draft")}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition ${
+                  statusFilter === "draft"
+                    ? "bg-amber-500 text-white shadow-sm"
+                    : "text-slate-700 hover:text-slate-900"
+                }`}
+              >
+                Pending ({pendingCount})
+              </button>
+              <button
+                onClick={() => setStatusFilter("rejected")}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition ${
+                  statusFilter === "rejected"
+                    ? "bg-red-500 text-white shadow-sm"
+                    : "text-slate-700 hover:text-slate-900"
+                }`}
+              >
+                Rejected ({rejectedCount})
+              </button>
+            </div>
+            <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <Input
               placeholder="Search by job title, company or employer..."
@@ -194,6 +241,7 @@ export default function OpportunityRequestsPage() {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 border-slate-200 focus:border-amber-500 rounded-lg"
             />
+            </div>
           </div>
         </div>
       </section>
@@ -251,7 +299,13 @@ export default function OpportunityRequestsPage() {
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-2 items-end">
+                    {opportunity.status === "rejected" && (
+                      <Badge className="bg-red-100 text-red-700 border-red-200 mb-2">
+                        <XCircle className="h-3.5 w-3.5 mr-1.5" />
+                        Rejected
+                      </Badge>
+                    )}
                     <Button
                       variant="outline"
                       size="sm"
@@ -261,25 +315,29 @@ export default function OpportunityRequestsPage() {
                       <Eye className="h-4 w-4 mr-2" />
                       View Details
                     </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => handleApprove(opportunity.id)}
-                      disabled={actionLoading === opportunity.id}
-                      className="bg-emerald-600 hover:bg-emerald-700 rounded-lg"
-                    >
-                      <Check className="h-4 w-4 mr-2" />
-                      {actionLoading === opportunity.id ? "Approving..." : "Approve"}
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => openRejectDialog(opportunity)}
-                      disabled={actionLoading === opportunity.id}
-                      className="rounded-lg"
-                    >
-                      <X className="h-4 w-4 mr-2" />
-                      Reject
-                    </Button>
+                    {opportunity.status === "draft" && (
+                      <>
+                        <Button
+                          size="sm"
+                          onClick={() => handleApprove(opportunity.id)}
+                          disabled={actionLoading === opportunity.id}
+                          className="bg-emerald-600 hover:bg-emerald-700 rounded-lg"
+                        >
+                          <Check className="h-4 w-4 mr-2" />
+                          {actionLoading === opportunity.id ? "Approving..." : "Approve"}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => openRejectDialog(opportunity)}
+                          disabled={actionLoading === opportunity.id}
+                          className="rounded-lg"
+                        >
+                          <X className="h-4 w-4 mr-2" />
+                          Reject
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </div>
               </CardContent>

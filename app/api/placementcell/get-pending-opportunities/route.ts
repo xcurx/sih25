@@ -13,7 +13,7 @@ export const GET = async (req: NextRequest) => {
 
     try {
         const opportunities = await prisma.opportunity.findMany({
-            where: { status: "draft" },
+            where: { status: { in: ['draft', 'rejected'] } },
             include: {
                 companyRel: {
                     select: {

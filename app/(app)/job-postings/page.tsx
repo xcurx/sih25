@@ -83,7 +83,6 @@ export default function JobPostingsPage() {
     })
 
     const activeJobs = useMemo(() => jobs.filter((job) => job.status === "active"), [jobs])
-    const draftJobs = useMemo(() => jobs.filter((job) => job.status === "draft"), [jobs])
     const closedJobs = useMemo(() => jobs.filter((job) => job.status === "closed"), [jobs])
 
     // Logic for total applications count (assuming applications property exists on Opportunity or must be calculated)
@@ -93,9 +92,9 @@ export default function JobPostingsPage() {
     const uiStats = useMemo(() => [
         { title: "Total Postings", value: jobs?.length, caption: "All time opportunities", icon: Briefcase, accent: "bg-sky-50 text-sky-700" },
         { title: "Active Jobs", value: activeJobs.length, caption: "Currently accepting applications", icon: CheckCircle2, accent: "bg-emerald-50 text-emerald-700" },
-        { title: "Drafts", value: draftJobs.length, caption: "Pending review or publication", icon: Clock, accent: "bg-amber-50 text-amber-700" },
+        { title: "Closed Jobs", value: closedJobs.length, caption: "No longer accepting applications", icon: Clock, accent: "bg-slate-50 text-slate-700" },
         { title: "Total Applications", value: totalApplicationsCount, caption: "Total received across all jobs", icon: FileText, accent: "bg-indigo-50 text-indigo-700" },
-    ], [jobs, activeJobs, draftJobs, totalApplicationsCount]);
+    ], [jobs, activeJobs, closedJobs, totalApplicationsCount]);
 
     useEffect(() => {
       if (status === "unauthenticated" || status === "loading") return
@@ -202,16 +201,6 @@ export default function JobPostingsPage() {
                     Active ({activeJobs.length})
                   </button>
                   <button
-                    onClick={() => setActiveTab("draft")}
-                    className={`px-3 py-2 rounded-full text-sm font-medium transition whitespace-nowrap ${
-                      activeTab === "draft"
-                        ? "bg-sky-600 text-white shadow-sm"
-                        : "text-slate-700 hover:text-slate-900"
-                    }`}
-                  >
-                    Drafts ({draftJobs.length})
-                  </button>
-                  <button
                     onClick={() => setActiveTab("closed")}
                     className={`px-3 py-2 rounded-full text-sm font-medium transition whitespace-nowrap ${
                       activeTab === "closed"
@@ -245,7 +234,6 @@ export default function JobPostingsPage() {
                   <SelectContent>
                     <SelectItem value="all">All Status</SelectItem>
                     <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="draft">Draft</SelectItem>
                     <SelectItem value="closed">Closed</SelectItem>
                   </SelectContent>
                 </Select>

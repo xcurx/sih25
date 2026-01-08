@@ -140,7 +140,7 @@ export default function JobPostingCard({ job }: { job: Opportunity }) {
             <Calendar className="h-4 w-4" />
             <span>Posted on</span>
             <span className="font-medium text-slate-900">
-              {new Date(job.applicationDeadline).toLocaleDateString("en-US", {
+              {new Date(job.postedAt).toLocaleDateString("en-US", {
                 month: "numeric",
                 day: "numeric",
                 year: "numeric",
@@ -172,14 +172,16 @@ export default function JobPostingCard({ job }: { job: Opportunity }) {
             </Button>
           </Link>
           <ApplicationsDialog opportunity={job} />
-          <Link href={"/job-postings/" + job.id + "/recommended-students"}>
-            <Button 
-              className="rounded-lg bg-sky-500 hover:bg-sky-600 text-white font-normal shadow-sm"
-            >
-              <Users className="h-4 w-4 mr-2" />
-              Matched Students
-            </Button>
-          </Link>
+          {job.status === "active" && (
+            <Link href={"/job-postings/" + job.id + "/recommended-students"}>
+              <Button 
+                className="rounded-lg bg-sky-500 hover:bg-sky-600 text-white font-normal shadow-sm"
+              >
+                <Users className="h-4 w-4 mr-2" />
+                Matched Students
+              </Button>
+            </Link>
+          )}
         </div>
       </CardContent>
     </Card>
