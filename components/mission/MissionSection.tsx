@@ -177,13 +177,25 @@ export default function MissionSection() {
 
       <section className="mx-auto max-w-7xl px-4 pb-16">
         <div className="mb-12 text-center">
-          <h2 className="text-2xl font-semibold text-slate-900">Core pillars</h2>
-          <p className="mx-auto mt-2 max-w-2xl text-sm text-slate-600">What we optimise for — fairness, trust, and skills.</p>
+          <h2 className="text-2xl font-semibold text-slate-900">Our Solution</h2>
+          <p className="mx-auto mt-2 max-w-2xl text-sm text-slate-600">An integrated platform powered by Unified Roles, Blockchain Trust, and AI Intelligence.</p>
 
           <div className="mt-6 grid gap-6 md:grid-cols-3">
-            <FeatureCard icon={Users} title="Inclusive access" desc="One feed of verified, role-based opportunities for all students across regions." />
-            <FeatureCard icon={ShieldCheck} title="Trusted & secure" desc="Minimal attribute sharing, role-based access and auditable recruitment flows." />
-            <FeatureCard icon={BookOpen} title="Skills & readiness" desc="Micro-certifications, mock interviews and profile-strength tools that increase employability." />
+            <FeatureCard 
+              icon={Users} 
+              title="Centralized Role-Based Portal" 
+              desc="Students, mentors, placement cells, and employers on one platform. Features single digital profiles, one-click apply, calendar-safe scheduling, and real-time conversion dashboards." 
+            />
+            <FeatureCard 
+              icon={ShieldCheck} 
+              title="Blockchain-Verified Trust" 
+              desc="Certificates and feedback are hashed on a permissioned blockchain (tamper-proof & QR-verifiable). Sensitive data stays off-chain ensuring authenticity and privacy." 
+            />
+            <FeatureCard 
+              icon={Sparkles} 
+              title="AI & Hybrid Recommendation" 
+              desc="Matching via XGBoost + Random Forest & Collaborative Filtering. Includes adaptive learning, smart notifications (RL), and SHAP-based fairness insights for unbiased choices." 
+            />
           </div>
         </div>
 

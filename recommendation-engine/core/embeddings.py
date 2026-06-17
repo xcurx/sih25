@@ -5,13 +5,15 @@ This module provides a lightweight embedding service that uses
 the Hugging Face Inference API instead of loading models locally.
 This dramatically reduces memory usage (~150MB vs ~750MB).
 
-NOTE: Requires HF_API_TOKEN environment variable to be set.
+NOTE: Requires HF_API_TOKEN (or HUGGINGFACE_API_KEY) environment variable to be set.
 Get your token from https://huggingface.co/settings/tokens
 """
 
 import os
 import time
 import logging
+import re
+import hashlib
 from typing import List, Optional
 import requests
 from dotenv import load_dotenv
@@ -37,7 +39,7 @@ class EmbeddingService:
     - Embeddings are cached in PostgreSQL after first generation
     
     Requirements:
-    - HF_API_TOKEN environment variable must be set
+    - HF_API_TOKEN or HUGGINGFACE_API_KEY environment variable must be set
     """
     
     def __init__(self, model_name: str = DEFAULT_MODEL):
@@ -50,13 +52,14 @@ class EmbeddingService:
         self.model_name = model_name
         # Use pipeline/feature-extraction endpoint for embeddings
         self.api_url = f"{HF_API_BASE}/{model_name}/pipeline/feature-extraction"
-        self.api_token = os.getenv("HF_API_TOKEN")
+        # Support both env var names used across docs/configs.
+        self.api_token = os.getenv("HF_API_TOKEN") or os.getenv("HUGGINGFACE_API_KEY")
         self._ready = False
         self._last_error: Optional[str] = None
         
         if not self.api_token:
             logger.warning(
-                "HF_API_TOKEN not set! HuggingFace Inference API requires authentication. "
+                "HF_API_TOKEN/HUGGINGFACE_API_KEY not set! HuggingFace Inference API requires authentication. "
                 "Get your free token from https://huggingface.co/settings/tokens"
             )
         
@@ -80,6 +83,12 @@ class EmbeddingService:
         """
         try:
             logger.info(f"Initializing HuggingFace Inference API with model: {self.model_name}")
+
+            if not self.api_token:
+                logger.warning(
+                    "No HuggingFace token configured. Falling back to local hashed embeddings. "
+                    "Recommendation quality may be lower than API embeddings."
+                )
             
             # Warm up the model with a test request
             test_embedding = self.get_embedding("test initialization")
@@ -119,7 +128,37 @@ class EmbeddingService:
         Returns:
             List of floats representing the embedding, or None on failure
         """
+        if not self.api_token:
+            return self._local_fallback_embedding(text)
+
         return self._call_api_with_retry(text)
+
+    def _local_fallback_embedding(self, text: str) -> List[float]:
+        """
+        Generate a deterministic embedding without external API calls.
+
+        This keeps the service functional in local/dev environments when
+        HF credentials are not configured.
+        """
+        dim = self.embedding_dimension
+        vec = [0.0] * dim
+
+        tokens = re.findall(r"\w+", (text or "").lower())
+        if not tokens:
+            return vec
+
+        for token in tokens:
+            digest = hashlib.sha256(token.encode("utf-8")).digest()
+            idx = int.from_bytes(digest[:2], "little") % dim
+            sign = 1.0 if digest[2] % 2 == 0 else -1.0
+            weight = 1.0 + (digest[3] / 255.0)
+            vec[idx] += sign * weight
+
+        norm = sum(v * v for v in vec) ** 0.5
+        if norm > 0:
+            vec = [v / norm for v in vec]
+
+        return vec
     
     def get_embeddings_batch(self, texts: List[str]) -> List[Optional[List[float]]]:
         """

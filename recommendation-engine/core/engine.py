@@ -606,7 +606,8 @@ class RecommendationEngine:
             logger.error("Failed to get query embedding")
             return []
         
-        # Use pgvector to search for similar jobs in database
+        # Use pgvector to search for similar jobs in database.
+        # If DB search fails or returns no rows, fall back to in-memory search.
         if self._db.is_configured:
             similar_jobs = self._db.search_similar_jobs(
                 query_embedding=query_embedding,
@@ -614,10 +615,15 @@ class RecommendationEngine:
                 job_type_filter=request.job_type,
                 limit=request.k * 3  # Get more candidates for re-ranking
             )
+            if not similar_jobs:
+                logger.warning(
+                    "Database similarity search returned no results. "
+                    "Falling back to in-memory recommendation search."
+                )
+                similar_jobs = self._fallback_in_memory_search(request)
         else:
-            # Fallback to in-memory search if no database
             similar_jobs = self._fallback_in_memory_search(request)
-        
+
         if not similar_jobs:
             return []
         
